@@ -37,11 +37,13 @@ Whichever route, the UI library of choice should support some kind of interactiv
 ##Start networking##
 
 At this point, a really simple **server** could be started. 
+
  * It would be a simple console application. 
  * At launch, it is given a map. Loads the map, then waits for clients. 
  * When a client connects, it just sends over the map. Once it's acknowledged, the connection is closed. 
  
 Networking also presumes some kind of a protocol. A protocol should be defined, which is: 
+
  * Text based 
  * Human-readable 
  * Acknowledges? This should be handled by TCP. Think about it. 
