@@ -49,6 +49,8 @@
 	$md = new Parsedown();
 	foreach($inputFiles as $fname)
 	{
+		echo "Parsing $fname... \n";
+		
 		$ofname = $outputDir . basename($fname);
 		$ofname = substr($ofname, 0, strrpos($ofname, '.'));
 		$ofname .= ".html";
