@@ -15,6 +15,8 @@
       <script>scripts\veclen2.gml</script>
       <script>scripts\lines_intersect.gml</script>
       <script>scripts\point_in_polygon.gml</script>
+      <script>scripts\vec3.gml</script>
+      <script>scripts\vec3offset.gml</script>
     </scripts>
     <script>scripts\genSquareGrid.gml</script>
     <script>scripts\genHexGrid.gml</script>
@@ -23,6 +25,9 @@
     <script>scripts\node_link.gml</script>
     <script>scripts\node_sort_links.gml</script>
     <script>scripts\ifelse.gml</script>
+    <script>scripts\string_vec.gml</script>
+    <script>scripts\string_args.gml</script>
+    <script>scripts\rtdbg.gml</script>
   </scripts>
   <objects name="objects">
     <object>objects\node</object>

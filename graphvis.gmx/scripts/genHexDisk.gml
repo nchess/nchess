@@ -6,78 +6,91 @@ r  = argument2; //graph radius
 nr = argument3; //graph radius in nodes; i.e. how many times to expand
 er = r / nr;    //distance per expansion
 
-var nx = 2*nr;
+var nx = 2*nr-1;
 var ny = 2*nr+1;
 
-var nodegrid = ds_grid_create(nx,ny);
+var axis_p = dirvec2(0);
+var axis_q = dirvec2(120);
+var axis_s = dirvec2(240);
 
-//Fill grid with nodes
-//Generate a rhombus and shred its two corners
-for(var i = 0; i < nx; i++)
+var nodegrid = ds_map_create();
+
+for(var p = -nr; p <= nr; p++)
 {
-    for(var j = 0; j <= nr; j++)
+    for(var q = -nr; q <= nr; q++)
     {
-        if(j+i < nr)
+        var s = -p-q;
+        
+        if(max(abs(p), abs(q), abs(s)) <= nr)
         {
-            nodegrid[#i,j] = noone;
-            continue; 
+            with(instance_create(0,0, node))
+            {
+                x = cx + er*(axis_p[0]*p + axis_q[0]*q + axis_s[0]*s);
+                y = cy + er*(axis_p[1]*p + axis_q[1]*q + axis_s[1]*s);
+                ds_map_add(nodegrid, string_args(q,p,s), id); 
+            }
         }
-        
-        var xf = (i + j/2 - nr/2) / max(nx-1, 1);
-        var yf = j / max(ny-1, 1);
-        
-        var vx = cx + lerp(-r, r, xf);
-        var vy = cy + lerp(-r, r, yf);
-        
-        nodegrid[#i,j] = instance_create(vx, vy, node);
-    }
-    
-    for(var j = nr+1; j < ny; j++)
-    {
-        if(i >= 3*nr - j)
-        {
-            nodegrid[#i,j] = noone;
-            continue; 
-        }
-        
-        var xf = (i + j/2 - nr/2) / max(nx-1, 1);
-        var yf = j / max(ny-1, 1);
-        
-        var vx = cx + lerp(-r, r, xf);
-        var vy = cy + lerp(-r, r, yf);
-        
-        nodegrid[#i,j] = instance_create(vx, vy, node);
     }
 }
 
 //Link nodes
-for(var i = 0; i < nx; i++)
+for(var p = -nr; p <= nr; p++)
 {
-    for(var j = 0; j < ny; j++)
+    for(var q = -nr; q <= nr; q++)
     {
-        if(i+1 < nx) node_bilink(nodegrid[#i,j], nodegrid[#i+1,j]); 
-        if(i-1 >= 0) node_bilink(nodegrid[#i,j], nodegrid[#i-1,j]);
+        var s = -p-q;
         
-        if(j-1 >= 0) node_bilink(nodegrid[#i,j], nodegrid[#i,j-1]);
-        if(j+1 < ny) node_bilink(nodegrid[#i,j], nodegrid[#i,j+1]);
-        
-        if(i-1 >= 0 && j+1 < ny)
-            node_bilink(nodegrid[#i,j], nodegrid[#i-1, j+1]);
-    }
-}
-
-//Sort links
-for(var i = 0; i < nx; i++)
-{
-    for(var j = 0; j < ny; j++)
-    {
-        node_sort_links(nodegrid[#i,j]); 
-        with(nodegrid[#i,j]) 
+        if(max(abs(p), abs(q), abs(s)) <= nr)
         {
-            active = (ds_list_size(neighbors) == 6);
-            selectable = active;
+            for(var axis = 0; axis < 3; axis++)
+            {
+                for(var signs = 0; signs < 4; signs++)
+                {
+                    var bp = p;
+                    var bq = q;
+                    var bs = s;
+                    
+                    if(axis == 0)
+                    {
+                        bq += lerp(1,-1, (signs&1) != 0);
+                        bs += lerp(1,-1, (signs&2) != 0);
+                    }
+                    else if(axis == 1)
+                    {
+                        bp += lerp(1,-1, (signs&1) != 0);
+                        bs += lerp(1,-1, (signs&2) != 0);
+                    }
+                    else if(axis == 2)
+                    {
+                        bp += lerp(1,-1, (signs&1) != 0);
+                        bq += lerp(1,-1, (signs&2) != 0);
+                    }
+                    
+                    //rtdbg("Trying to link ", string_args(p,q,s), " to ", string_vec(at), " after offset ", string_vec(offset));
+                    
+                    if(ds_map_exists(nodegrid, string_args(bp,bq,bs)))
+                    {
+                        node_bilink(nodegrid[?string_args(p,q,s)], nodegrid[?string_args(bp,bq,bs)]);
+                        //rtdbg("Linked ", string_args(p,q,s), " to ", string_vec(at));
+                    }
+                }
+            }
         }
     }
 }
 
-ds_grid_destroy(nodegrid); 
+//Sort links
+for(var k = ds_map_find_first(nodegrid); true; k = ds_map_find_next(nodegrid, k))
+{
+    node_sort_links(nodegrid[?k]);
+    with(nodegrid[?k])
+    {
+        selectable = (ds_list_size(neighbors) == 6);
+        active = selectable; 
+    }
+    
+    if(k == ds_map_find_last(nodegrid))
+        break;
+}
+
+ds_map_destroy(nodegrid); 
