@@ -49,7 +49,16 @@ for(var i = 0; i < nx; i++)
 
 //Sort links
 for(var i = 0; i < nx; i++)
+{
     for(var j = 0; j < ny; j++)
+    {
         node_sort_links(nodegrid[#i,j]); 
+        with(nodegrid[#i,j]) 
+        {
+            active = (ds_list_size(neighbors) == 6);
+            selectable = active;
+        }
+    }
+}
 
 ds_grid_destroy(nodegrid); 

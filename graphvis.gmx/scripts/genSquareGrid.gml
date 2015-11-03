@@ -38,8 +38,20 @@ for(var i = 0; i < nx; i++)
         if(j-1 >= 0) node_bilink(nodegrid[#i,j], nodegrid[#i,j-1]);
         if(i-1 >= 0) node_bilink(nodegrid[#i,j], nodegrid[#i-1,j]);
         if(j+1 < ny) node_bilink(nodegrid[#i,j], nodegrid[#i,j+1]);
-        
-        node_sort_links(nodegrid[#i,j]);
+    }
+}
+
+//Sort links
+for(var i = 0; i < nx; i++)
+{
+    for(var j = 0; j < ny; j++)
+    {
+        node_sort_links(nodegrid[#i,j]); 
+        with(nodegrid[#i,j]) 
+        {
+            active = (ds_list_size(neighbors) == 4);
+            selectable = active;
+        }
     }
 }
 

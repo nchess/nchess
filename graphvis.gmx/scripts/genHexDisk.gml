@@ -73,7 +73,10 @@ for(var i = 0; i < nx; i++)
     {
         node_sort_links(nodegrid[#i,j]); 
         with(nodegrid[#i,j]) 
+        {
             active = (ds_list_size(neighbors) == 6);
+            selectable = active;
+        }
     }
 }
 
