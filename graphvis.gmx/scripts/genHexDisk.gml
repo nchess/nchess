@@ -4,7 +4,7 @@ cx = argument0;
 cy = argument1;
 r  = argument2; //graph radius
 nr = argument3; //graph radius in nodes; i.e. how many times to expand
-er = r / nr;    //distance per expansion
+er = r / nr / sqrt(2);    //distance per expansion
 
 var nx = 2*nr-1;
 var ny = 2*nr+1;
