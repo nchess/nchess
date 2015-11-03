@@ -21,6 +21,11 @@ for(var i = 0; i < nx; i++)
         var vy = cy + lerp(-h/2, h/2, yf);
         
         nodegrid[#i,j] = instance_create(vx, vy, node);
+        
+        if(i == 0 || j == 0)
+            nodegrid[#i, j].active = false; 
+        if(i == nx-1 || j == ny-1)
+            nodegrid[#i, j].active = false; 
     }
 }
 

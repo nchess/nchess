@@ -13,9 +13,12 @@
       <script>scripts\birandom.gml</script>
       <script>scripts\dirvec2.gml</script>
       <script>scripts\veclen2.gml</script>
+      <script>scripts\lines_intersect.gml</script>
+      <script>scripts\point_in_polygon.gml</script>
     </scripts>
     <script>scripts\genSquareGrid.gml</script>
     <script>scripts\genHexGrid.gml</script>
+    <script>scripts\genHexDisk.gml</script>
     <script>scripts\node_bilink.gml</script>
     <script>scripts\node_link.gml</script>
     <script>scripts\node_sort_links.gml</script>
