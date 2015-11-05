@@ -27,9 +27,14 @@
     <script>scripts\ifelse.gml</script>
     <script>scripts\string_vec.gml</script>
     <script>scripts\string_args.gml</script>
+    <script>scripts\concat.gml</script>
     <script>scripts\rtdbg.gml</script>
+    <script>scripts\render.gml</script>
   </scripts>
   <objects name="objects">
+    <object>objects\ui</object>
+    <object>objects\view</object>
+    <object>objects\mouse</object>
     <object>objects\node</object>
   </objects>
   <rooms name="rooms">

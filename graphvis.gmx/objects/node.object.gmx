@@ -33,6 +33,7 @@ dirty = 0;
 active = true; 
 hover = false; 
 selectable = true;
+
 </string>
           </argument>
         </arguments>
@@ -115,7 +116,7 @@ if(ds_list_empty(polygon))
 else if(!selectable)
     hover = 0;
 else
-    hover = point_in_polygon(mouse_x, mouse_y, polygon); 
+    hover = point_in_polygon(mouse.x, mouse.y, polygon); 
 
 depth = -active;
 </string>
@@ -155,7 +156,7 @@ depth = -active;
         </arguments>
       </action>
     </event>
-    <event eventtype="8" enumb="0">
+    <event eventtype="7" enumb="11">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -210,6 +211,29 @@ else
         for(var i = 0; i &lt; ds_list_size(neighbors); i++)
             draw_line(x,y, neighbors[|i].x, neighbors[|i].y);
 }
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="8" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>render(self);
 </string>
           </argument>
         </arguments>

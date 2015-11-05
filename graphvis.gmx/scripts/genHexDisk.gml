@@ -66,13 +66,8 @@ for(var p = -nr; p <= nr; p++)
                         bq += lerp(1,-1, (signs&2) != 0);
                     }
                     
-                    //rtdbg("Trying to link ", string_args(p,q,s), " to ", string_vec(at), " after offset ", string_vec(offset));
-                    
                     if(ds_map_exists(nodegrid, string_args(bp,bq,bs)))
-                    {
                         node_bilink(nodegrid[?string_args(p,q,s)], nodegrid[?string_args(bp,bq,bs)]);
-                        //rtdbg("Linked ", string_args(p,q,s), " to ", string_vec(at));
-                    }
                 }
             }
         }
