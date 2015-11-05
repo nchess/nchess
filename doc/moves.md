@@ -24,7 +24,25 @@ Under the hood, the map is a graph. However, playing on arbitrary graphs could p
 
 For this reason, the moves will be defined for arbitrary graphs, but the game will most probably play on more regular and consistent ones. Imagine squares, hexagons, and some arbitrary shapes made out of them. A single map will contain only a single kind of polygon - e.g. no mixing of squares and hexagons.
 
-Also, as a general rule of thumb, however the rules of nchess are defined, the goal is to support regular chess, too. If the game is played with default chessman placement on the default map, the game should play the same as regular chess. So, in a sense, these rules are generalizations of regular chess' rules.
+Also, as a general rule of thumb, how ever the rules of nchess are defined, the goal is to support regular chess, too. If the game is played with default chessman placement on the default map, the game should play the same as regular chess. So, in a sense, these rules are generalizations of regular chess' rules.
+
+### Illustrations ###
+
+When applicable, illustrations are provided to more clearly explain the moves. These use four shades.
+
+One of the two kinds of illustrations apply to these:
+
+Type A:
+  * **Dark gray** - The position of the described piece.
+  * **Gray** - Destination.
+  * **Light gray** - Intermediate positions. These describe the symbolic steps taken by the piece.
+
+Type B:
+  * **Dark gray** - The position of the described piece.
+  * **Gray** - Diagonal steps.
+  * **Light gray** -  Straight steps.
+
+Unless noted otherwise, illustrations are of type A.
 
 ## Pawn ##
 
@@ -46,25 +64,31 @@ Which one? Since determining the 'other side of the map' direction is not always
 
 This retains the blockages, and provides some more room for tactics.
 
+![Pawn moves](imgs/moves/pawn.png)
+__Hopefully self-explanatory__
+
 ## Rook ##
 
 The rook can move an arbitrary amount of steps in any direction. Yes, that means curves, if the map indicates it.
 
 __TODO__: Castling?
 
+![Rook moves](imgs/moves/rook.png)
+__Type B__
+
 ## Knight ##
 
-The knight can take two steps in an arbitrary direction, then take another step in a different direction. The last step can't be taken backwards, meaning the knight can't step to the first node it moved onto in the process.
+The knight can take two steps in an arbitrary direction, then take another step in a different direction. The last step can't be taken backwards, meaning the knight can't step on the first node it moved onto in the process.
 
 The move can't be made if the knight would land on a blocked node.
 
 The knight is the only piece that can jump over other pieces.
 
+![Knight moves](imgs/moves/knight.png)
+
 ## Bishop ##
 
 The bishop moves __diagonally__. This could be cumbersome to define. But let's do it anyway!  
-
-![Bishop moves](imgs/moves/bishop.png)
 
 In regular chess, the bishop moves diagonally. This could be viewed in different ways.
 
@@ -76,10 +100,18 @@ So, we can define the bishop's destination node as two nodes away from the start
 
 __Alternative definition:__ Take two adjacent neighbors. The intersection of these nodes' neighbors give a diagonally adjacent node. Repeat this for each pair of neighbors that are adjacent.
 
+![Bishop moves](imgs/moves/bishop.png)
+
 ## Queen ##
 
 The queen can be defined as the combination of the rook and the bishop. It can move either straight or diagonally.
 
+![Queen moves](imgs/moves/queen.png)
+__Type B__
+
 ## King ##
 
 The king can move to any neighboring node, or take a diagonal step.
+
+![King moves](imgs/moves/king.png)
+__Type B__
