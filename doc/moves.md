@@ -78,8 +78,8 @@ __Alternative definition:__ Take two adjacent neighbors. The intersection of the
 
 ## Queen ##
 
-The queen can be defined as the combination of the rook and the bishop. It can move straight or diagonally.
+The queen can be defined as the combination of the rook and the bishop. It can move either straight or diagonally.
 
 ## King ##
 
-The king can move to any neighboring node.
+The king can move to any neighboring node, or take a diagonal step.
