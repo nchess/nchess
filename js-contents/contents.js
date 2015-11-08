@@ -19,7 +19,9 @@ function contents(root, out)
         }
     });
 
-    var txt = "<pre>";
+    var prevDepth = 0;
+    var txt = "";
+
     for(var i in findings) {
         var heading = findings[i];
         var genId = heading.item.text();
@@ -27,9 +29,20 @@ function contents(root, out)
             genId = genId.replace(/[^a-zA-Z0-9-]/, "");
 
         heading.item.attr('id', genId);
-        txt += "  ".repeat(heading.depth) + "<a href=\"#"+genId+"\">" + heading.title + "</a><br/>";
+
+        if(heading.depth > prevDepth)
+            txt += "<ul>\n";
+
+        if(heading.depth < prevDepth)
+            txt += "</ul>\n";
+
+        txt += "\t<li><a href=\"#"+genId+"\">" + heading.title + "</a></li>\n";
+
+        prevDepth = heading.depth;
     }
-    txt += "</pre>";
+
+    for(; prevDepth > 0; prevDepth -= 1)
+        txt += "</ul>\n";
 
     out.html(txt);
 }
