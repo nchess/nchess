@@ -22,7 +22,12 @@ function contents(root, out)
     var txt = "<pre>";
     for(var i in findings) {
         var heading = findings[i];
-        txt += "  ".repeat(heading.depth) + heading.title + "<br/>";
+        var genId = heading.item.text();
+            genId = genId.replace(" ", "-");
+            genId = genId.replace(/[^a-zA-Z0-9-]/, "");
+
+        heading.item.attr('id', genId);
+        txt += "  ".repeat(heading.depth) + "<a href=\"#"+genId+"\">" + heading.title + "</a><br/>";
     }
     txt += "</pre>";
 
