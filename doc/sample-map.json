@@ -1,0 +1,40 @@
+{
+	"nodes":
+	[
+		{
+			"id": 0,
+			"x": 0,
+			"y": 0,
+			"visible": true
+		},
+
+		{"id": 1, "x": 1, "y": 0, "visible": true},
+		{"id": 2, "x": 2, "y": 0, "visible": true},
+		{"id": 3, "x": 0, "y": 1, "visible": true},
+		{"id": 4, "x": 1, "y": 1, "visible": true}
+	],
+
+	"links":
+	[
+		[0,1],
+		[1,0],
+		[1,2],
+		[2,1]
+	],
+
+	"players":
+	[
+		{"name": "white", "color": "rgb(255,255,255)"},
+		{"name": "black", "color": "black"},
+		{"name": "red", "color": "#FF0000"}
+	],
+
+	"pieces":
+	[
+		{
+			"type": "pawn",
+			"player": "white",
+			"at": 0
+		}
+	]
+}
