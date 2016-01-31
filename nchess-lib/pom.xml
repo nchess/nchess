@@ -28,7 +28,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>Main</mainClass>
+							<mainClass>com.github.elementbound.nchess.demos.ViewDemo</mainClass>
 						</manifest>
 					</archive>
 					<source>1.8</source>

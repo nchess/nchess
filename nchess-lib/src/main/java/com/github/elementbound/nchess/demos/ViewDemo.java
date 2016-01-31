@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import java.awt.Window.Type;
 import javax.swing.JPanel;
 
+import com.github.elementbound.nchess.util.JsonTableLoader;
 import com.github.elementbound.nchess.view.NchessPanel;
 
 public class ViewDemo {
@@ -45,8 +46,22 @@ public class ViewDemo {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-		JPanel panel = new NchessPanel();
+		NchessPanel panel = new NchessPanel();
 		panel.setBounds(0, 0, 800, 600);
 		frame.getContentPane().add(panel);
+		
+		String fname = "hexamap.json";
+		if(this.getClass().getClassLoader().getResourceAsStream(fname) == null) {
+			System.out.println("Couldn't load " + fname);
+			return; 
+		}
+		
+		JsonTableLoader jsonLoader = new JsonTableLoader(this.getClass().getClassLoader().getResourceAsStream(fname));
+		if(!jsonLoader.parse()) {
+			System.out.println("Ill-formatted json");
+			return; 
+		}
+		
+		panel.assignTable(jsonLoader.getResult());
 	}
 }

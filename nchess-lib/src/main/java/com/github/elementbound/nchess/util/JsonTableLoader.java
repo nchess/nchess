@@ -52,11 +52,12 @@ public class JsonTableLoader {
 		
 		//=====================================================================================
 		//Parse nodes
-		JsonObject nodes = root.getJsonObject("nodes");
+		//JsonObject nodes = root.getJsonObject("nodes");
+		JsonValue nodes = root.get("nodes");
 		if(nodes.getValueType() != JsonValue.ValueType.ARRAY)
 			return false; 
-		
-		for(JsonValue jsval : nodes.values()) {
+
+		for(JsonValue jsval : ((JsonArray)nodes)) {
 			if(jsval.getValueType() != JsonValue.ValueType.OBJECT)
 				return false; 
 			
@@ -70,19 +71,23 @@ public class JsonTableLoader {
 			if(!jsnode.containsKey("id"))
 				return false; 
 			
+			if(!jsnode.containsKey("visible"))
+				return false; 
+			
 			long id = jsnode.getInt("id");
 			double x = jsnode.getJsonNumber("x").doubleValue();
 			double y = jsnode.getJsonNumber("y").doubleValue();
-			resultTable.addNode(id, new Node(id,x,y));
+			boolean visible = jsnode.getBoolean("visible");
+			resultTable.addNode(id, new Node(id,x,y, visible));
 		}
 		
 		//=====================================================================================
 		//Parse links 
-		JsonObject links = root.getJsonObject("links");
+		JsonValue links = root.get("links");
 		if(links.getValueType() != JsonValue.ValueType.ARRAY)
 			return false; 
 		
-		for(JsonValue jsval : links.values()) {
+		for(JsonValue jsval : ((JsonArray)links)) {
 			if(jsval.getValueType() != JsonValue.ValueType.ARRAY)
 				return false; 
 			
