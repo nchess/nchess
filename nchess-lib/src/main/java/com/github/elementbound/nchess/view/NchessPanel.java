@@ -1,9 +1,11 @@
 package com.github.elementbound.nchess.view;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -23,8 +25,12 @@ public class NchessPanel extends JPanel {
 	private List<Path2D> polys = new ArrayList<>();
 	private Rectangle2D bounds = new Rectangle2D.Double();
 	
+	public Color cellColor = Color.lightGray;
+	public Color cellOutlineColor = Color.black; 
+	
 	public NchessPanel() {
-
+		//Make it fancy
+		this.setDoubleBuffered(true);
 	}
 
 	public void assignTable(Table table) {
@@ -32,6 +38,7 @@ public class NchessPanel extends JPanel {
 		
 		//Create polys
 		polys.clear();
+		int intersects = 0;
 		for(Entry<Long, Node> e: this.table.allNodes()) {
 			Node node = e.getValue();
 			if(!node.visible())
@@ -59,21 +66,32 @@ public class NchessPanel extends JPanel {
 				Line2D lb = new Line2D.Double(bmx,bmy, bmx-bdy, bmy+bdx);
 				
 				Point2D intersect = MathUtils.intersectLines(la, lb, false);
-				if(intersect != null)
+				if(intersect != null) {
 					poly.lineTo(intersect.getX(), intersect.getY());
+					intersects++;
+				}
+				
+				poly.lineTo(bmx,bmy);
 			}
+
+			poly.closePath();
+			polys.add(poly);
 		}
 		
 		//Calculate table bounds based on polys
+		boolean firstBoundIter = true;
 		double minx = Double.NaN; double miny = Double.NaN;
 		double maxx = Double.NaN; double maxy = Double.NaN;
 		for(Path2D p : polys) {
-			if(minx == Double.NaN) {
+			if(firstBoundIter) {
+				System.out.println("Bounds is NaN, using values");
 				minx = p.getBounds2D().getMinX();
 				miny = p.getBounds2D().getMinY();
 				
 				maxx = p.getBounds2D().getMaxX();
 				maxy = p.getBounds2D().getMaxY();
+				
+				firstBoundIter = false;
 			}
 			else {
 				minx = Math.min(minx, p.getBounds2D().getMinX());
@@ -84,7 +102,10 @@ public class NchessPanel extends JPanel {
 			}
 		}
 		
-		this.bounds.setRect(minx, miny, maxx-minx, maxy-miny);
+		this.bounds = new Rectangle2D.Double(minx, miny, maxx-minx, maxy-miny);//.setRect(minx, miny, maxx-minx, maxy-miny);
+		
+		System.out.printf("Got %d polys, with %d intersects, from %d nodes\n", polys.size(), intersects, this.table.allNodes().size());
+		System.out.printf("Bounds: %s\n", bounds.toString());
 	}
 
 	@Override 
@@ -95,8 +116,15 @@ public class NchessPanel extends JPanel {
 		g.fillRect(clip.x, clip.y, clip.width, clip.height);
 		
 		Graphics2D g2 = (Graphics2D)g;
-		g2.setColor(this.getForeground());
-		for(Path2D p : polys)
+		g2.translate(-bounds.getMinX(), -bounds.getMinY());
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		g2.setColor(this.cellColor);
+		for(Path2D p : polys) 
 			g2.fill(p);
+		
+		g2.setColor(this.cellOutlineColor);
+		for(Path2D p : polys) 
+			g2.draw(p);
 	}
 }

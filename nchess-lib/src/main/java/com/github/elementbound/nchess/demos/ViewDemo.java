@@ -1,5 +1,6 @@
 package com.github.elementbound.nchess.demos;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -41,7 +42,7 @@ public class ViewDemo {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setType(Type.UTILITY);
+		frame.setType(Type.NORMAL);
 		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
@@ -63,5 +64,7 @@ public class ViewDemo {
 		}
 		
 		panel.assignTable(jsonLoader.getResult());
+		panel.setForeground(Color.black);
+		panel.setBackground(Color.white);
 	}
 }

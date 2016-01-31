@@ -5,9 +5,6 @@ import java.awt.geom.Point2D;
 
 public class MathUtils {
 	public static Point2D intersectLines(Line2D la, Line2D lb, boolean asSegment) {
-		if(!la.intersectsLine(lb))
-			return null; 
-		
 		//The following is a port of the script at: 
 		//http://www.gmlscripts.com/script/lines_intersect
 		
