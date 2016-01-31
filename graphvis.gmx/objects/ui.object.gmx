@@ -8,6 +8,67 @@
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
+    <event eventtype="9" enumb="83">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>var json = ds_map_create();
+var nodes = ds_list_create();
+var links = ds_list_create();
+//TODO: save players and and pieces? 
+
+//Add nodes
+with(node) {
+    var jnode = ds_map_create();
+    jnode[?"id"] = id;
+    jnode[?"x"] = x;
+    jnode[?"y"] = y;
+    jnode[?"visible"] = selectable &amp;&amp; active;
+    
+    ds_list_add(nodes, jnode);
+    ds_list_mark_as_map(nodes, ds_list_size(nodes)-1);
+}
+
+//Add links
+with(node) {
+    for(var i = 0; i &lt; ds_list_size(neighbors); i++) {
+        var link = ds_list_create();
+        ds_list_add(link, id, neighbors[|i]);
+        ds_list_add(links, link);
+        ds_list_mark_as_list(links, ds_list_size(links)-1);
+    }
+}
+
+//Assemble json 
+ds_map_add_list(json, "nodes", nodes);
+ds_map_add_list(json, "links", links); 
+
+//Save to file
+fname = get_save_filename("JSON nchess map|*.json", "map.json");
+file = file_text_open_write(fname);
+file_text_write_string(file, json_encode(json));
+
+//Cleanup
+file_text_close(file);
+ds_map_destroy(json); 
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="9" enumb="69">
       <action>
         <libid>1</libid>
