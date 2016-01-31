@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class Table {
 	private Map<Long, Node> nodes = new HashMap<>(); 
@@ -30,5 +32,15 @@ public class Table {
 		
 		nodes.get(fromId).link(toId);
 		return true; 
+	}
+	
+	public Node getNode(long id) {
+		if(!this.hasNode(id))
+			return null;
+		return nodes.get(id);
+	}
+	
+	public Set<Entry<Long, Node>> allNodes() {
+		return nodes.entrySet();
 	}
 }

@@ -3,7 +3,7 @@ package com.github.elementbound.nchess.game;
 import java.util.ArrayList;
 import java.util.List;
 
-class Node {
+public class Node {
 	private long id; 
 	
 	private double x;
@@ -23,5 +23,17 @@ class Node {
 	public void link(long toId) {
 		if(!neighbors.contains(toId))
 			neighbors.add(toId);
+	}
+	
+	public long id() {
+		return this.id; 
+	}
+	
+	public double x() {
+		return this.x;
+	}
+	
+	public double y() {
+		return this.y;
 	}
 }
