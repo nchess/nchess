@@ -78,6 +78,11 @@ public class JsonTableLoader {
 			double x = jsnode.getJsonNumber("x").doubleValue();
 			double y = jsnode.getJsonNumber("y").doubleValue();
 			boolean visible = jsnode.getBoolean("visible");
+			
+			//Negative IDs are prohibited
+			if(id < 0)
+				return false;
+			
 			resultTable.addNode(id, new Node(id,x,y, visible));
 		}
 		
