@@ -1,7 +1,10 @@
 {
-	"players": [],
-	"pieces": [], 
-	
+	"players": [0,1],
+	"pieces": [
+		{"id": 0, "player": 0, "at": 100094},
+		{"id": 1, "player": 1, "at": 100093}
+	],
+
     "nodes":[
         {
             "visible": false,

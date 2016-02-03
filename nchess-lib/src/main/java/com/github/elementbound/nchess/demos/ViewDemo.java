@@ -2,13 +2,9 @@ package com.github.elementbound.nchess.demos;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Window.Type;
 
 import javax.swing.JFrame;
-import java.awt.Window.Type;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.JPanel;
 
 import com.github.elementbound.nchess.util.JsonTableLoader;
 import com.github.elementbound.nchess.view.NchessPanel;
