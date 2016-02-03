@@ -3,8 +3,8 @@ package com.github.elementbound.nchess.game;
 import java.util.List;
 
 public abstract class Piece {
-	private long at = -1; 
-	private long player = -1;
+	protected long at = -1; 
+	protected long player = -1;
 	
 	public Piece(long player, long at) {
 		this.player = player;
@@ -12,7 +12,7 @@ public abstract class Piece {
 	}
 	
 	public abstract String getName(); 
-	public abstract List<Move> getMoves(); 
+	public abstract List<Move> getMoves(Table table); 
 	
 	public long at() {
 		return this.at();
