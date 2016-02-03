@@ -5,11 +5,13 @@ import java.io.InputStream;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 
 import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.pieces.Pawn;
 
 public class JsonTableLoader {
 	private Table resultTable = null;
@@ -105,11 +107,52 @@ public class JsonTableLoader {
 		
 		//=====================================================================================
 		//Parse players
-		//TODO
+		JsonValue players = root.get("players");
+		if(players.getValueType() != JsonValue.ValueType.ARRAY)
+			return false; 
+		
+		for(JsonValue jsval : ((JsonArray)players)) {
+			if(jsval.getValueType() != JsonValue.ValueType.NUMBER)
+				return false; 
+			
+			JsonNumber player = (JsonNumber)jsval; 
+			resultTable.addPlayer(player.longValue());
+		}
 		
 		//=====================================================================================
 		//Parse pieces
-		//TODO
+		
+		JsonValue pieces = root.get("pieces"); 
+		if(pieces.getValueType() != JsonValue.ValueType.ARRAY)
+			return false; 
+		
+		for(JsonValue jsval: ((JsonArray)pieces)) {
+			if(jsval.getValueType() != JsonValue.ValueType.OBJECT)
+				return false; 
+			
+			JsonObject piece = (JsonObject)jsval; 
+			
+			if(!piece.containsKey("id"))
+				return false; 
+			
+			if(!piece.containsKey("at"))
+				return false;
+			
+			if(!piece.containsKey("player"))
+				return false; 
+			
+			if(!piece.containsKey("type"))
+				return false; 
+			
+			long id = piece.getInt("id");
+			long at = piece.getInt("at");
+			long player = piece.getInt("player");
+			String type = piece.getString("type");
+
+			//Assume everything's just "Pawn"
+			
+			resultTable.addPiece(id, new Pawn(player, at));
+		}
 		
 		return true; 
 	}

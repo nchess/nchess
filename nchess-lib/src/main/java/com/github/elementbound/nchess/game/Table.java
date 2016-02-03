@@ -84,6 +84,10 @@ public class Table {
 		return pieces.get(id);
 	}
 
+	public Set<Entry<Long, Piece>> allPieces() {
+		return pieces.entrySet();
+	}
+	
 	public long pieceAt(long node) {
 		for(Entry<Long, Piece> e: pieces.entrySet())
 			if(e.getValue().at() == node)

@@ -15,7 +15,7 @@ public abstract class Piece {
 	public abstract List<Move> getMoves(Table table); 
 	
 	public long at() {
-		return this.at();
+		return this.at;
 	}
 	
 	//TODO: Make this a bit harder to modify, so only the containing Table can move things around

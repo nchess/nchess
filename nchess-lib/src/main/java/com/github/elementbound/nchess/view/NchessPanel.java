@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.util.MathUtils;
 
@@ -149,6 +150,18 @@ public class NchessPanel extends JPanel {
 		g2.setColor(this.cellOutlineColor);
 		for(Path2D p : polys.values()) 
 			g2.draw(p);
+		
+		g.setColor(Color.black);
+		for(Entry<Long, Piece> e : table.allPieces()) {
+			Piece piece = e.getValue();
+			long atId = piece.at();
+			Path2D poly = polys.get(atId);
+			
+			if(poly == null)
+				continue; //silent wtf
+			
+			g2.drawString(piece.getName(), (float)(poly.getBounds().getCenterX()), (float)(poly.getBounds().getCenterY()));
+		}
 	}
 	
 	//=========================================================================================
