@@ -137,6 +137,9 @@ public class TablePanel extends JPanel {
 		inverseViewTransform.translate(bounds.getCenterX(), bounds.getCenterY());
 		inverseViewTransform.translate(-this.getBounds().getCenterX(), -this.getBounds().getCenterY());
 		
+		System.out.printf("Table bounds: %s\nView bounds: %s\n", bounds.toString(), this.getBounds().toString());
+		System.out.printf("Table center: %f %f\n", bounds.getCenterX(), bounds.getCenterY());
+		
 		//Assign colors to players
 		playerColors.clear();
 		
@@ -186,6 +189,9 @@ public class TablePanel extends JPanel {
 		g2.setColor(this.cellHighlightColor);
 		for(long id : highlitNodes)
 			g2.fill(polys.get(id));
+		
+		g2.drawArc(-8, -8, 16, 16, 0, 360);
+		g2.drawRect((int)this.bounds.getMinX(), (int)this.bounds.getMinY(), (int)this.bounds.getWidth(), (int)this.bounds.getHeight());
 		
 		g2.setColor(this.cellOutlineColor);
 		for(Path2D p : polys.values()) 
