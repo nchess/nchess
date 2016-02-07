@@ -2,8 +2,15 @@ package com.github.elementbound.nchess.demos;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.Window.Type;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import com.github.elementbound.nchess.util.JsonTableLoader;
@@ -61,6 +68,27 @@ public class ViewDemo {
 		if(!jsonLoader.parse()) {
 			System.out.println("Ill-formatted json");
 			return; 
+		}
+		
+		Map<String, String> imageFiles = new HashMap<>();
+		imageFiles.put("pawn", "pieces/pawn.png");
+		imageFiles.put("rook", "pieces/rook.png");
+		imageFiles.put("knight", "pieces/knight.png");
+		imageFiles.put("bishop", "pieces/bishop.png");
+		imageFiles.put("queen", "pieces/queen.png");
+		imageFiles.put("king", "pieces/king.png");
+		
+		for(Entry<String, String> e: imageFiles.entrySet()) {
+			System.out.printf("Loading %s for %s... ", e.getValue(), e.getKey());
+			Image image;
+			try {
+				image = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream(e.getValue()));
+				panel.pieceImages.put(e.getKey(), image);
+				System.out.println("success");
+			} catch (IOException e1) {
+				System.out.println("fail");
+				e1.printStackTrace();
+			}
 		}
 		
 		panel.assignTable(jsonLoader.getResult());

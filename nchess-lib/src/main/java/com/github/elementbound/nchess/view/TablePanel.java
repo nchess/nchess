@@ -3,6 +3,7 @@ package com.github.elementbound.nchess.view;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
@@ -40,6 +41,8 @@ public class TablePanel extends JPanel {
 	public Color cellColor = Color.lightGray;
 	public Color cellOutlineColor = Color.black; 
 	public Color cellHighlightColor = Color.cyan; //MY EYES
+	
+	public Map<String, Image> pieceImages = new HashMap<>();
 	
 	public TablePanel() {
 		//Make it fancy
@@ -163,7 +166,22 @@ public class TablePanel extends JPanel {
 			if(poly == null)
 				continue; //silent wtf
 			
-			g2.drawString(piece.getName(), (float)(poly.getBounds().getCenterX()), (float)(poly.getBounds().getCenterY()));
+			double midX = poly.getBounds().getCenterX();
+			double midY = poly.getBounds().getCenterY();
+			
+			Image image = pieceImages.get(piece.getName());
+			if(image == null)
+				g2.drawString(piece.getName(), (float)midX, (float)midY);
+			else {
+				double targetSize = Math.min(poly.getBounds().getWidth(), poly.getBounds().getHeight());
+				double targetScale = targetSize/Math.max(image.getWidth(null), image.getHeight(null));
+				
+				double targetWidth = image.getWidth(null) * targetScale;
+				double targetHeight = image.getHeight(null) * targetScale;
+				
+				g2.drawImage(image, (int)(midX - targetWidth/2), (int)(midY - targetHeight/2), 
+								(int)targetWidth, (int)targetHeight, null);
+			}
 		}
 	}
 	
