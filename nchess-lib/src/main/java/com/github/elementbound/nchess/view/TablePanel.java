@@ -189,10 +189,7 @@ public class TablePanel extends JPanel {
 		g2.setColor(this.cellHighlightColor);
 		for(long id : highlitNodes)
 			g2.fill(polys.get(id));
-		
-		g2.drawArc(-8, -8, 16, 16, 0, 360);
-		g2.drawRect((int)this.bounds.getMinX(), (int)this.bounds.getMinY(), (int)this.bounds.getWidth(), (int)this.bounds.getHeight());
-		
+
 		g2.setColor(this.cellOutlineColor);
 		for(Path2D p : polys.values()) 
 			g2.draw(p);

@@ -1,6 +1,8 @@
 package com.github.elementbound.nchess.demos;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Window.Type;
@@ -52,11 +54,10 @@ public class ViewDemo {
 		frame.setType(Type.NORMAL);
 		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
 		
 		TablePanel panel = new TablePanel();
-		panel.setBounds(0, 0, 800, 600);
-		frame.getContentPane().add(panel);
+		panel.setBounds(frame.getContentPane().getBounds());
+		frame.getContentPane().add(panel, BorderLayout.CENTER);
 		
 		String fname = "hexamap.json";
 		if(this.getClass().getClassLoader().getResourceAsStream(fname) == null) {
@@ -90,7 +91,9 @@ public class ViewDemo {
 				e1.printStackTrace();
 			}
 		}
-		
+
+		panel.setPreferredSize(new Dimension(800, 600));
+		frame.pack();
 		panel.assignTable(jsonLoader.getResult());
 		panel.setForeground(Color.black);
 		panel.setBackground(Color.white);
