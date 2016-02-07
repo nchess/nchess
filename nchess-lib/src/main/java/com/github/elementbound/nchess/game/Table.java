@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.github.elementbound.nchess.util.MathUtils;
+
 import java.util.Set;
 
 public class Table {
@@ -42,6 +45,19 @@ public class Table {
 	
 	public Set<Entry<Long, Node>> allNodes() {
 		return nodes.entrySet();
+	}
+	
+	public double linkDirection(long from, long to) {
+		if(!this.hasNode(from))
+			return Double.NaN;
+		
+		if(!this.hasNode(to))
+			return Double.NaN;
+		
+		Node a = this.getNode(from);
+		Node b = this.getNode(to);
+		
+		return MathUtils.vectorDirection(a.x(), a.y(), b.x(), b.y());
 	}
 	
 	//=========================================================================================
@@ -100,6 +116,7 @@ public class Table {
 		long fromPieceId = this.pieceAt(move.from());
 		long toPieceId = this.pieceAt(move.to());
 		
+		System.out.printf("Applying move %s\n", move.toString());
 		if(fromPieceId < 0)
 			return false; //Trying to move an unexisting piece
 		
@@ -108,6 +125,7 @@ public class Table {
 		//TODO: Check if moving over an allied piece, and if so, deny move 
 		
 		//Perform move
+		System.out.println("Done. ");
 		this.getPiece(fromPieceId).at(move.to());
 		return true; 
 	}

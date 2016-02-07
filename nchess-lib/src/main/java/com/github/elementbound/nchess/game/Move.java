@@ -16,4 +16,15 @@ public class Move {
 	public long to() {
 		return this.toId; 
 	}
+	
+	@Override 
+	public String toString() {
+		StringBuffer strb = new StringBuffer();
+		
+		return strb.append("[Move]")
+			.append(this.fromId)
+			.append(" => ")
+			.append(this.toId) 
+			.toString();
+	}
 }

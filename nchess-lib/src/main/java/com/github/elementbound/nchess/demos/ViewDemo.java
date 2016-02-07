@@ -7,7 +7,8 @@ import java.awt.Window.Type;
 import javax.swing.JFrame;
 
 import com.github.elementbound.nchess.util.JsonTableLoader;
-import com.github.elementbound.nchess.view.NchessPanel;
+import com.github.elementbound.nchess.view.DefaultTablePanelListener;
+import com.github.elementbound.nchess.view.TablePanel;
 
 public class ViewDemo {
 
@@ -46,7 +47,7 @@ public class ViewDemo {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-		NchessPanel panel = new NchessPanel();
+		TablePanel panel = new TablePanel();
 		panel.setBounds(0, 0, 800, 600);
 		frame.getContentPane().add(panel);
 		
@@ -65,5 +66,6 @@ public class ViewDemo {
 		panel.assignTable(jsonLoader.getResult());
 		panel.setForeground(Color.black);
 		panel.setBackground(Color.white);
+		panel.addListener(new DefaultTablePanelListener());
 	}
 }

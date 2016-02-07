@@ -12,8 +12,10 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -25,7 +27,7 @@ import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.util.MathUtils;
 
-public class NchessPanel extends JPanel {
+public class TablePanel extends JPanel {
 	private Table table; 
 	private Map<Long, Path2D> polys = new HashMap<>();
 	private Rectangle2D bounds = new Rectangle2D.Double();
@@ -33,11 +35,13 @@ public class NchessPanel extends JPanel {
 	private AffineTransform viewTransform = new AffineTransform();
 	private AffineTransform inverseViewTransform = new AffineTransform();
 	
+	private List<TablePanelListener> listeners = new ArrayList<>();
+	
 	public Color cellColor = Color.lightGray;
 	public Color cellOutlineColor = Color.black; 
 	public Color cellHighlightColor = Color.cyan; //MY EYES
 	
-	public NchessPanel() {
+	public TablePanel() {
 		//Make it fancy
 		this.setDoubleBuffered(true);
 		
@@ -95,7 +99,6 @@ public class NchessPanel extends JPanel {
 		double maxx = Double.NaN; double maxy = Double.NaN;
 		for(Path2D p : polys.values()) {
 			if(firstBoundIter) {
-				System.out.println("Bounds is NaN, using values");
 				minx = p.getBounds2D().getMinX();
 				miny = p.getBounds2D().getMinY();
 				
@@ -172,13 +175,10 @@ public class NchessPanel extends JPanel {
 	}
 	
 	public void highlightNode(long id) {
-		if(!polys.containsKey(id)) {
-			System.out.printf("No node for %d\n", id);
+		if(!polys.containsKey(id))
 			return; 
-		}
 		
 		highlitNodes.add(id);
-		System.out.printf("Highlit node %d\n", id);
 	}
 	
 	//TODO: Naming could be ambigious, once a node can have more flags
@@ -200,6 +200,7 @@ public class NchessPanel extends JPanel {
 	//=========================================================================================
 	//Other node functions
 	
+	//Looks up node based on world-space position ( i.e. before view transform )
 	public long nodeAt(double x, double y) {
 		for(Entry<Long, Path2D> e : polys.entrySet()) 
 			if(e.getValue().contains(x, y))
@@ -208,6 +209,7 @@ public class NchessPanel extends JPanel {
 		return -1; 
 	}
 	
+	//Looks up node based on screen-space position ( i.e. after view transform )
 	public long nodeAtScreen(double x, double y) {
 		Point2D worldPos = new Point2D.Double(x,y);
 		inverseViewTransform.transform(worldPos, worldPos);
@@ -216,24 +218,43 @@ public class NchessPanel extends JPanel {
 	}
 	
 	//=========================================================================================
+	//Events 
+	public void addListener(TablePanelListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	public void removeListener(TablePanelListener listener) {
+		this.listeners.remove(listener);
+	}
+	
+	//Perform a node select event
+	public void selectNode(long id) {
+		if(!table.hasNode(id))
+			return; 
+		
+		for(TablePanelListener listener: this.listeners) 
+			listener.nodeSelect(this, id);
+	}
+	
+	public Table getTable() {
+		return this.table; 
+	}
+	
+	//=========================================================================================
 	//Inner types 
 	class NodeSelectListener implements MouseListener {
-		private NchessPanel parent = null;
+		private TablePanel parent = null;
 		
-		public NodeSelectListener(NchessPanel parent) {
+		public NodeSelectListener(TablePanel parent) {
 			this.parent = parent; 
 		}
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			parent.clearHighlights();
-			
 			long node = parent.nodeAtScreen(e.getX(), e.getY());
 			System.out.printf("Node at [%d,%d] is %d\n", e.getX(), e.getY(), node);
 			if(node >= 0)
-				parent.highlightNode(node);
-			
-			parent.repaint();
+				parent.selectNode(node);
 		}
 
 		@Override

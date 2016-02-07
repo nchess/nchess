@@ -33,4 +33,12 @@ public class MathUtils {
 	    else
 	        return null; 
 	}
+	
+	public static double vectorDirection(double x, double y) {
+		return Math.toDegrees(Math.atan2(y, x))+180;
+	}
+	
+	public static double vectorDirection(double x1, double y1, double x2, double y2) {
+		return vectorDirection(x2-x1, y2-y2);
+	}
 }
