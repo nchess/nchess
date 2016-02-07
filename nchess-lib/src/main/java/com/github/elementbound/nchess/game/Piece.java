@@ -23,4 +23,8 @@ public abstract class Piece {
 	public void at(long nowAt) {
 		this.at = nowAt; 
 	}
+	
+	public long player() {
+		return this.player;
+	}
 }

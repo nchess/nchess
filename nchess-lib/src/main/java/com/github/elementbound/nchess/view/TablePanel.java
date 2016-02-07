@@ -42,7 +42,9 @@ public class TablePanel extends JPanel {
 	public Color cellOutlineColor = Color.black; 
 	public Color cellHighlightColor = Color.cyan; //MY EYES
 	
+	private TintedImageSet tintedPieceImages = new TintedImageSet();
 	public Map<String, Image> pieceImages = new HashMap<>();
+	public Map<Long, Color> playerColors = new HashMap<>();
 	
 	public TablePanel() {
 		//Make it fancy
@@ -132,6 +134,37 @@ public class TablePanel extends JPanel {
 		//Also calculate inverse view transform for mouse hit checks
 		inverseViewTransform.setToIdentity();
 		inverseViewTransform.translate(bounds.getMinX(), bounds.getMinY());
+		
+		//Assign colors to players
+		playerColors.clear();
+		
+		int i = 0;
+		for(long p: table.allPlayers()) {
+			if(i == 0)
+				playerColors.put(p, Color.white);
+			else if(i == 1)
+				playerColors.put(p, Color.black);
+			else 
+				playerColors.put(p, Color.getHSBColor(((i-2) * 0.618033988749895f) % 1.0f, 1.0f, 1.0f));
+			
+			i++;
+		}
+		
+		//Create piece images in needed colors
+		tintedPieceImages.clear(); 
+		
+		
+		for(Entry<String, Image> e: pieceImages.entrySet()) {
+			String name = e.getKey();
+			Image image = e.getValue();
+			
+			tintedPieceImages.addImage(name, image);
+			
+			for(Color tint: playerColors.values()) {
+				System.out.printf("Creating tint %s for %s\n", tint.toString(), name);
+				tintedPieceImages.createTinted(name, tint);
+			}
+		}
 	}
 
 	@Override 
@@ -179,7 +212,8 @@ public class TablePanel extends JPanel {
 				double targetWidth = image.getWidth(null) * targetScale;
 				double targetHeight = image.getHeight(null) * targetScale;
 				
-				g2.drawImage(image, (int)(midX - targetWidth/2), (int)(midY - targetHeight/2), 
+				g2.drawImage(tintedPieceImages.getImage(piece.getName(), playerColors.get(piece.player())), 
+								(int)(midX - targetWidth/2), (int)(midY - targetHeight/2), 
 								(int)targetWidth, (int)targetHeight, null);
 			}
 		}
