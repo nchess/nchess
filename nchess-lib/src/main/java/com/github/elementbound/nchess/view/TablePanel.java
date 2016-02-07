@@ -129,11 +129,13 @@ public class TablePanel extends JPanel {
 		//Calculate view transform based on bounds 
 		//( Just center the view around the map )
 		viewTransform.setToIdentity();
-		viewTransform.translate(-bounds.getMinX(), -bounds.getMinY());
+		viewTransform.translate(-bounds.getCenterX(), -bounds.getCenterY());
+		viewTransform.translate(this.getBounds().getCenterX(), this.getBounds().getCenterY());
 		
 		//Also calculate inverse view transform for mouse hit checks
 		inverseViewTransform.setToIdentity();
-		inverseViewTransform.translate(bounds.getMinX(), bounds.getMinY());
+		inverseViewTransform.translate(bounds.getCenterX(), bounds.getCenterY());
+		inverseViewTransform.translate(-this.getBounds().getCenterX(), -this.getBounds().getCenterY());
 		
 		//Assign colors to players
 		playerColors.clear();
@@ -152,7 +154,6 @@ public class TablePanel extends JPanel {
 		
 		//Create piece images in needed colors
 		tintedPieceImages.clear(); 
-		
 		
 		for(Entry<String, Image> e: pieceImages.entrySet()) {
 			String name = e.getKey();
