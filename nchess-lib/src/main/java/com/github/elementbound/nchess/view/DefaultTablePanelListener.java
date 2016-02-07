@@ -20,20 +20,16 @@ public class DefaultTablePanelListener implements TablePanelListener {
 
 			Piece piece = table.getPiece(table.pieceAt(moveFrom));
 			List<Move> moves = piece.getMoves(table);
-			boolean foundMove = false; 
 			
 			for(Move move: moves) {
 				if(move.to() == moveTo) {
 					table.applyMove(move);
-					foundMove = true; 
 					break;
 				}
 			}
 			
-			if(foundMove) {
-				moveFrom = -1;
-				source.clearHighlights();
-			}
+			moveFrom = -1;
+			source.clearHighlights();
 		} 
 		else {
 			if(table.pieceAt(nodeId) >= 0) {
