@@ -32,6 +32,9 @@ public class Rook extends Piece {
 			long to = table.nodeTowardsDirection(from, direction);
 			
 			while(to >= 0) {
+				if(!table.getNode(to).visible())
+					break;
+				
 				if(table.isNodeOccupiedByAlly(to, this.player))	
 					break;
 				
@@ -42,8 +45,15 @@ public class Rook extends Piece {
 				
 				moves.add(new Move(this.at, to));
 				
+				//from = to;
+				long nextTo = table.nodeTowardsDirection(to, direction);
+				if(nextTo == from)
+					break;
+				
 				from = to;
-				to = table.nodeTowardsDirection(from, direction);
+				to = nextTo;
+				
+				System.out.printf("Direction: %f; %d => %d\n", direction, from, to);
 			}
 		}
 		

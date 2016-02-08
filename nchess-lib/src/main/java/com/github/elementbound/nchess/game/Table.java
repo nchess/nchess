@@ -67,14 +67,17 @@ public class Table {
 		
 		double bestSimilarity = -2.0;
 		long bestNode = -1;
+		System.out.printf("[Towards]From %d, in %f\n", from, dir);
 		
 		for(int i = 0; i < node.neighborCount(); i++) {
 			long ni = node.neighbor(i);
 			
 			double similarity = MathUtils.directionSimilarity(dir, this.linkDirection(from, ni));
+			System.out.printf("[Towards]%d => %d, dir is %f, similarity is %f vs %f\n", from, ni, this.linkDirection(from, ni), similarity, bestSimilarity);
 			if(similarity > bestSimilarity) {
 				bestSimilarity = similarity;
 				bestNode = ni;
+				System.out.printf("[Towards]New best: %d => %d, dir is %f, similarity is %f\n", from, ni, this.linkDirection(from, ni), similarity);
 			}
 		}
 		
