@@ -60,6 +60,55 @@ public class Table {
 		return MathUtils.vectorDirection(a.x(), a.y(), b.x(), b.y());
 	}
 	
+	public long nodeTowardsDirection(long from, double dir) {
+		Node node = this.getNode(from);
+		if(node == null)
+			return -1;
+		
+		double bestSimilarity = -2.0;
+		long bestNode = -1;
+		
+		for(int i = 0; i < node.neighborCount(); i++) {
+			long ni = node.neighbor(i);
+			
+			double similarity = MathUtils.directionSimilarity(dir, this.linkDirection(from, ni));
+			if(similarity > bestSimilarity) {
+				bestSimilarity = similarity;
+				bestNode = ni;
+			}
+		}
+		
+		return bestNode;
+	}
+
+	public boolean isNodeOccupied(long node) {
+		long pieceId = this.pieceAt(node);
+		return (pieceId >= 0);
+	}
+	
+	public boolean isNodeOccupiedByAlly(long node, long playerId) {
+		long pieceId = this.pieceAt(node);
+		if(pieceId < 0)
+			return false; 
+		
+		Piece piece = this.getPiece(pieceId);
+		if(piece.player() == playerId)
+			return true; 
+		
+		return false;
+	}
+
+	public boolean isNodeOccupiedByEnemy(long node, long playerId) {
+		long pieceId = this.pieceAt(node);
+		if(pieceId < 0)
+			return false; 
+		
+		Piece piece = this.getPiece(pieceId);
+		if(piece.player() != playerId)
+			return true; 
+		
+		return false;
+	}
 	//=========================================================================================
 	//Players
 	
@@ -126,7 +175,9 @@ public class Table {
 		
 		//Perform move
 		System.out.println("Done. ");
-		this.getPiece(fromPieceId).at(move.to());
+		Piece piece = this.getPiece(fromPieceId);
+		piece.at(move.to());
+		piece.onMoveApplied(this, move.from(), move.to());
 		return true; 
 	}
 }

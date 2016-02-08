@@ -1,7 +1,11 @@
 package com.github.elementbound.nchess.util;
 
 import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -12,13 +16,19 @@ import javax.json.JsonValue;
 
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.game.pieces.Pawn;
+import com.github.elementbound.nchess.game.pieces.Rook;
 
 public class JsonTableLoader {
 	private Table resultTable = null;
 	private InputStream is = null;
 	
+	public Map<String, Class<?>> nameToPiece = new HashMap<>();
+	
 	public JsonTableLoader(InputStream is) {
 		this.is = is; 
+		
+		nameToPiece.put("pawn", Pawn.class);
+		nameToPiece.put("rook", Rook.class);
 	}
 
 	public boolean parse() {
@@ -149,9 +159,21 @@ public class JsonTableLoader {
 			long player = piece.getInt("player");
 			String type = piece.getString("type");
 
-			//Assume everything's just "Pawn"
+			Piece pieceInstance = null;
 			
-			resultTable.addPiece(id, new Pawn(player, at));
+			System.out.printf("This a %s\n", type);
+			if(type.equals("pawn"))
+				pieceInstance = new Pawn(player, at);
+			else if(type.equals("rook"))
+				pieceInstance = new Rook(player, at);
+
+			if(pieceInstance == null){
+				System.out.printf("Unknown type %s\n", type);
+				//TODO: something more sophisticated with reflection? 
+			}
+			else {
+				resultTable.addPiece(id, pieceInstance);
+			}
 		}
 		
 		return true; 

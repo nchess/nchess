@@ -23,15 +23,34 @@ public class Pawn extends Piece {
 
 	@Override
 	public List<Move> getMoves(Table table) {
-		//TODO: Take this.hasMoved into account 
 		Node node = table.getNode(at);
 		
 		List<Move> moves = new ArrayList<>();
 		
-		for(int i = 0; i < node.neighborCount(); i++)
-			moves.add(new Move(at, node.neighbor(i)));
+		//TODO: enpassant
+		
+		if(!hasMoved) {
+			for(int i = 0; i < node.neighborCount(); i++) {
+				if(!table.isNodeOccupied(node.neighbor(i)));
+					moves.add(new Move(at, node.neighbor(i)));
+			}
+		}
+		else {
+			long destNode = table.nodeTowardsDirection(this.at(), direction);
+			if(destNode >= 0)
+				moves.add(new Move(at, destNode));
+		}
 		
 		return moves;
 	}
 	
+	@Override
+	public void onMoveApplied(Table table, long fromId, long toId) {
+		if(!hasMoved) {
+			direction = table.linkDirection(fromId, toId);
+			hasMoved = true; 
+			
+			System.out.printf("%s direction is %f\n", this.toString(), direction);
+		}
+	}
 }

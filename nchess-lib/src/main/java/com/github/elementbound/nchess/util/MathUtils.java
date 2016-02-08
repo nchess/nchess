@@ -34,11 +34,20 @@ public class MathUtils {
 	        return null; 
 	}
 	
+	//TODO: Table depends on this/these; core shouldn't depend on util, refactor
 	public static double vectorDirection(double x, double y) {
 		return Math.toDegrees(Math.atan2(y, x))+180;
 	}
 	
 	public static double vectorDirection(double x1, double y1, double x2, double y2) {
-		return vectorDirection(x2-x1, y2-y2);
+		return vectorDirection(x2-x1, y2-y1);
+	}
+	
+	public static double directionSimilarity(double angleA, double angleB) {
+		//Currently a dot-product
+		double radA = Math.toRadians(angleA);
+		double radB = Math.toRadians(angleB);
+		
+		return Math.cos(radA)*Math.cos(radB) + Math.sin(radA)*Math.sin(radB) ;
 	}
 }

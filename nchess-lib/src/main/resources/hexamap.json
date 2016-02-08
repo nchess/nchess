@@ -2,7 +2,8 @@
 	"players": [0,1],
 	"pieces": [
 		{"id": 0, "player": 0, "at": 100069, "type": "pawn"},
-		{"id": 1, "player": 1, "at": 100012, "type": "pawn"}
+		{"id": 1, "player": 1, "at": 100012, "type": "pawn"},
+		{"id": 2, "player": 0, "at": 100049, "type": "rook"}
 	],
 
     "nodes":[

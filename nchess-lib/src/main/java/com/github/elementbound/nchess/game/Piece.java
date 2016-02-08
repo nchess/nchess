@@ -27,4 +27,13 @@ public abstract class Piece {
 	public long player() {
 		return this.player;
 	}
+	
+	public void onMoveApplied(Table table, long fromId, long toId) {
+		//Do nothing
+	}
+	
+	@Override 
+	public String toString() {
+		return this.getName();
+	}
 }
