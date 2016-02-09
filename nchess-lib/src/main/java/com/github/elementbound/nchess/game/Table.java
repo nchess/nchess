@@ -15,6 +15,20 @@ public class Table {
 	private Set<Long> players = new HashSet<>(); 
 	
 	//=========================================================================================
+	//Preprocess
+	
+	public void preprocess() {
+		System.out.println("Gathering secondary neighbors... ");
+		int i = 0;
+		for(Node n : nodes.values()) {
+			n.gatherSecondaryNeighbors();
+			i++;
+			System.out.printf("%d/%d\r", i, nodes.size());
+		}
+		System.out.println();
+	}
+	
+	//=========================================================================================
 	//Nodes 
 	
 	public boolean addNode(long id, Node node) {
@@ -67,17 +81,41 @@ public class Table {
 		
 		double bestSimilarity = -2.0;
 		long bestNode = -1;
-		System.out.printf("[Towards]From %d, in %f\n", from, dir);
+		//System.out.printf("[Towards]From %d, in %f\n", from, dir);
 		
 		for(int i = 0; i < node.neighborCount(); i++) {
 			long ni = node.neighbor(i);
 			
 			double similarity = MathUtils.directionSimilarity(dir, this.linkDirection(from, ni));
-			System.out.printf("[Towards]%d => %d, dir is %f, similarity is %f vs %f\n", from, ni, this.linkDirection(from, ni), similarity, bestSimilarity);
+			//System.out.printf("[Towards]%d => %d, dir is %f, similarity is %f vs %f\n", from, ni, this.linkDirection(from, ni), similarity, bestSimilarity);
 			if(similarity > bestSimilarity) {
 				bestSimilarity = similarity;
 				bestNode = ni;
-				System.out.printf("[Towards]New best: %d => %d, dir is %f, similarity is %f\n", from, ni, this.linkDirection(from, ni), similarity);
+				//System.out.printf("[Towards]New best: %d => %d, dir is %f, similarity is %f\n", from, ni, this.linkDirection(from, ni), similarity);
+			}
+		}
+		
+		return bestNode;
+	}
+	
+	public long secondaryNodeTowardsDirection(long from, double dir) {
+		Node node = this.getNode(from);
+		if(node == null)
+			return -1;
+		
+		double bestSimilarity = -2.0;
+		long bestNode = -1;
+		//System.out.printf("[Towards]From %d, in %f\n", from, dir);
+		
+		for(int i = 0; i < node.secondaryNeighborCount(); i++) {
+			long ni = node.secondaryNeighbor(i);
+			
+			double similarity = MathUtils.directionSimilarity(dir, this.linkDirection(from, ni));
+			//System.out.printf("[Towards]%d => %d, dir is %f, similarity is %f vs %f\n", from, ni, this.linkDirection(from, ni), similarity, bestSimilarity);
+			if(similarity > bestSimilarity) {
+				bestSimilarity = similarity;
+				bestNode = ni;
+				//System.out.printf("[Towards]New best: %d => %d, dir is %f, similarity is %f\n", from, ni, this.linkDirection(from, ni), similarity);
 			}
 		}
 		

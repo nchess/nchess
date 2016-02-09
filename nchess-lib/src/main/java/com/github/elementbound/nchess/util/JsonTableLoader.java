@@ -15,6 +15,7 @@ import javax.json.JsonReader;
 import javax.json.JsonValue;
 
 import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.pieces.Bishop;
 import com.github.elementbound.nchess.game.pieces.Pawn;
 import com.github.elementbound.nchess.game.pieces.Rook;
 
@@ -95,7 +96,7 @@ public class JsonTableLoader {
 			if(id < 0)
 				return false;
 			
-			resultTable.addNode(id, new Node(id,x,y, visible));
+			resultTable.addNode(id, new Node(resultTable, id,x,y, visible));
 		}
 		
 		//=====================================================================================
@@ -166,6 +167,8 @@ public class JsonTableLoader {
 				pieceInstance = new Pawn(player, at);
 			else if(type.equals("rook"))
 				pieceInstance = new Rook(player, at);
+			else if(type.equals("bishop"))	
+				pieceInstance = new Bishop(player, at);
 
 			if(pieceInstance == null){
 				System.out.printf("Unknown type %s\n", type);
@@ -176,6 +179,7 @@ public class JsonTableLoader {
 			}
 		}
 		
+		resultTable.preprocess();
 		return true; 
 	}
 
