@@ -33,6 +33,8 @@ y /= window_get_height();
 
 x = view.x - view.width*(1-2*x)/2;
 y = view.y - view.height*(1-2*y)/2;
+
+z = mouse_wheel_up() - mouse_wheel_down();
 </string>
           </argument>
         </arguments>
