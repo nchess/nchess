@@ -35,6 +35,11 @@ height = 512;
 
 aspect = room_width / room_height; 
 
+dragging = false; 
+drag_x = 0;
+drag_y = 0;
+zoom = 1;
+
 alarm[0] = 2;
 </string>
           </argument>
@@ -137,16 +142,71 @@ else
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if(mouse.z &gt; 0) {
-    width /= power(2, 1/4);
-    height /= power(2, 1/4);
-}
+            <string>if(mouse.z &gt; 0)
+    zoom /= power(2, 1/4);
 
-if(mouse.z &lt; 0) {
-    width *= power(2, 1/4);
-    height *= power(2, 1/4);
-}
+if(mouse.z &lt; 0) 
+    zoom *= power(2, 1/4);
     
+if(dragging) {
+    var dx = mouse.scr_x - drag_x;
+    var dy = mouse.scr_y - drag_y; 
+    
+    drag_x = mouse.scr_x;
+    drag_y = mouse.scr_y; 
+    
+    x -= zoom*dx;
+    y -= zoom*dy;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="6" enumb="57">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>dragging = false; 
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="6" enumb="54">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>dragging = true; 
+
+drag_x = mouse.scr_x;
+drag_y = mouse.scr_y;
 </string>
           </argument>
         </arguments>
@@ -169,7 +229,7 @@ if(mouse.z &lt; 0) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>d3d_set_projection_ortho(x-width/2, y-height/2, width, height, 0);
+            <string>d3d_set_projection_ortho(x-width*zoom/2, y-height*zoom/2, width*zoom, height*zoom, 0);
 </string>
           </argument>
         </arguments>
@@ -193,6 +253,31 @@ if(mouse.z &lt; 0) {
           <argument>
             <kind>1</kind>
             <string>render(self); 
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="36">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>//Reset view; 
+event_perform(ev_alarm, 0);
+zoom = 1;
 </string>
           </argument>
         </arguments>

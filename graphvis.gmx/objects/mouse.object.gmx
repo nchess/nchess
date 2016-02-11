@@ -25,14 +25,17 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>x = window_mouse_get_x();
+            <string>scr_x = display_mouse_get_x();
+scr_y = display_mouse_get_y();
+
+x = window_mouse_get_x();
 y = window_mouse_get_y();
 
 x /= window_get_width();
 y /= window_get_height();
 
-x = view.x - view.width*(1-2*x)/2;
-y = view.y - view.height*(1-2*y)/2;
+x = view.x - view.width*view.zoom*(1-2*x)/2;
+y = view.y - view.height*view.zoom*(1-2*y)/2;
 
 z = mouse_wheel_up() - mouse_wheel_down();
 </string>
