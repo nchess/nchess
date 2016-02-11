@@ -34,6 +34,10 @@ active = true;
 hover = false; 
 selectable = true;
 
+size = 0;
+
+piece = -1;
+player = 0;
 </string>
           </argument>
         </arguments>
@@ -86,6 +90,7 @@ dirty |= (y != yprevious);
 if(dirty)
 {
     ds_list_clear(polygon);
+    size = 131072;
 
     for(var i = 0; i &lt; ds_list_size(neighbors); i++)
     {
@@ -99,7 +104,9 @@ if(dirty)
         
         var adx = na.x - x; var ady = na.y - y;
         var bdx = nb.x - x; var bdy = nb.y - y;
-        
+
+        size = min(size, veclen2(adx,ady), veclen2(bdx,bdy));
+                
         var intersect = lines_intersect((na.x+x)/2, (na.y+y)/2, (na.x+x)/2 - ady, (na.y+y)/2 + adx, 
                                         (nb.x+x)/2, (nb.y+y)/2, (nb.x+x)/2 - bdy, (nb.y+y)/2 + bdx, false);
         if(is_array(intersect))
@@ -211,6 +218,19 @@ else
         for(var i = 0; i &lt; ds_list_size(neighbors); i++)
             draw_line(x,y, neighbors[|i].x, neighbors[|i].y);
 }
+
+if(piece != -1) {
+    var spr = spr_pieces; 
+    var scale = size / max(sprite_get_width(spr), sprite_get_height(spr));
+    var player_color = global.playerColors[|player];
+    
+    var outline_r = 2;
+    for(var i = 0; i &lt; 360; i+= 60)
+        draw_sprite_ext(spr, piece, x+lengthdir_x(outline_r, i), y+lengthdir_y(outline_r, i), 
+                            scale, scale, 0, make_color_outline(player_color), 1);
+                            
+    draw_sprite_ext(spr, piece, x,y, scale,scale, 0, player_color, 1);
+}
 </string>
           </argument>
         </arguments>
@@ -239,6 +259,38 @@ else
         </arguments>
       </action>
     </event>
+    <event eventtype="9" enumb="87">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if(!hover)
+    exit; 
+    
+if(piece == -1)
+    piece = 0;
+else {
+    piece = (piece + 1) mod sprite_get_number(spr_pieces);
+    if(piece == 0)
+        piece = -1;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="9" enumb="81">
       <action>
         <libid>1</libid>
@@ -258,6 +310,32 @@ else
             <kind>1</kind>
             <string>if(hover)
     active = !active;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="69">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if(!hover)
+    exit; 
+    
+player = (player+1) mod ds_list_size(global.playerColors);
 </string>
           </argument>
         </arguments>

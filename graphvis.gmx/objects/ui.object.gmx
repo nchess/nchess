@@ -8,6 +8,36 @@
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
+    <event eventtype="0" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>piece_types = ds_list_create();
+ds_list_add(piece_types, 
+    "pawn",
+    "rook", 
+    "knight",
+    "bishop",
+    "queen", 
+    "king");
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="9" enumb="83">
       <action>
         <libid>1</libid>
@@ -28,7 +58,8 @@
             <string>var json = ds_map_create();
 var nodes = ds_list_create();
 var links = ds_list_create();
-//TODO: save players and and pieces? 
+var pieces = ds_list_create();
+var players = ds_list_create(); 
 
 //Add nodes
 with(node) {
@@ -52,9 +83,34 @@ with(node) {
     }
 }
 
+//Add pieces
+var piece_id = 0;
+with(node) {
+    if(piece &gt;= 0 &amp;&amp; piece &lt; ds_list_size(other.piece_types)) {
+        var jpiece = ds_map_create();
+        jpiece[?"id"] = ++piece_id;
+        jpiece[?"at"] = id; 
+        jpiece[?"player"] = player;
+        jpiece[?"type"] = other.piece_types[|piece]; 
+        
+        ds_list_add(pieces, jpiece);
+        ds_list_mark_as_map(pieces, ds_list_size(pieces)-1);
+    }
+}
+
+//Add players
+with(node) {
+    if(piece &gt;= 0) {
+        if(ds_list_find_index(players, player) &lt; 0)
+            ds_list_add(players, player); 
+    }
+}
+
 //Assemble json 
 ds_map_add_list(json, "nodes", nodes);
 ds_map_add_list(json, "links", links); 
+ds_map_add_list(json, "players", players);
+ds_map_add_list(json, "pieces", pieces); 
 
 //Save to file
 fname = get_save_filename("JSON nchess map|*.json", "map.json");

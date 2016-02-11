@@ -5,7 +5,9 @@
   </Configs>
   <NewExtensions/>
   <sounds name="sound"/>
-  <sprites name="sprites"/>
+  <sprites name="sprites">
+    <sprite>sprites\spr_pieces</sprite>
+  </sprites>
   <backgrounds name="background"/>
   <paths name="paths"/>
   <scripts name="scripts">
@@ -30,6 +32,7 @@
     <script>scripts\concat.gml</script>
     <script>scripts\rtdbg.gml</script>
     <script>scripts\render.gml</script>
+    <script>scripts\make_color_outline.gml</script>
   </scripts>
   <objects name="objects">
     <object>objects\ui</object>
