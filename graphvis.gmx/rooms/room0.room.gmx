@@ -15,7 +15,7 @@ ds_list_add(global.playerColors, c_white);
 ds_list_add(global.playerColors, c_black);
 for(var i = 0; i &lt; 16; i++) {
     var hue = (i * 0.618033988749895) mod 1.0;
-    ds_list_add(global.playerColors, make_color_hsv(hue, 1.0,1.0));
+    ds_list_add(global.playerColors, make_color_hsv(hue*255, 1.0,1.0));
 }
 
 display_reset(8, 1);

@@ -67,7 +67,11 @@ with(node) {
     jnode[?"id"] = id;
     jnode[?"x"] = x;
     jnode[?"y"] = y;
-    jnode[?"visible"] = selectable &amp;&amp; active;
+    
+    if(selectable &amp;&amp; active)
+        jnode[?"visible"] = "!!true";
+    else 
+        jnode[?"visible"] = "!!false";
     
     ds_list_add(nodes, jnode);
     ds_list_mark_as_map(nodes, ds_list_size(nodes)-1);
@@ -115,7 +119,14 @@ ds_map_add_list(json, "pieces", pieces);
 //Save to file
 fname = get_save_filename("JSON nchess map|*.json", "map.json");
 file = file_text_open_write(fname);
-file_text_write_string(file, json_encode(json));
+
+var json_src = json_encode(json);
+json_src = string_replace_all(json_src, "'!!true'", "true");
+json_src = string_replace_all(json_src, '"!!true"', "true");
+json_src = string_replace_all(json_src, "'!!false'", "false");
+json_src = string_replace_all(json_src, '"!!false"', "false");
+
+file_text_write_string(file, json_src);
 
 //Cleanup
 file_text_close(file);
