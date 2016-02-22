@@ -31,7 +31,7 @@ public class Pawn extends Piece {
 		
 		if(!hasMoved) {
 			for(int i = 0; i < node.neighborCount(); i++) {
-				if(!table.isNodeOccupied(node.neighbor(i)));
+				if(!table.isNodeOccupied(node.neighbor(i)))
 					moves.add(new Move(at, node.neighbor(i)));
 			}
 		}

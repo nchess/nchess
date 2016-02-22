@@ -129,6 +129,7 @@ public class Table {
 	
 	public boolean isNodeOccupiedByAlly(long node, long playerId) {
 		long pieceId = this.pieceAt(node);
+		System.out.printf("Piece at %d is %d\n", node, pieceId);
 		if(pieceId < 0)
 			return false; 
 		

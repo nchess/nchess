@@ -25,12 +25,12 @@ public class King extends Piece {
 		List<Move> moves = new ArrayList<>();
 		
 		for(int i = 0; i < node.neighborCount(); i++) {
-			if(!table.isNodeOccupied(node.neighbor(i)));
+			if(!table.isNodeOccupiedByAlly(node.neighbor(i), this.player))
 				moves.add(new Move(at, node.neighbor(i)));
 		}	
 		
 		for(int i = 0; i < node.secondaryNeighborCount(); i++) {
-			if(!table.isNodeOccupied(node.secondaryNeighbor(i)))
+			if(!table.isNodeOccupiedByAlly(node.secondaryNeighbor(i), this.player))
 				moves.add(new Move(at, node.secondaryNeighbor(i)));
 		}
 		

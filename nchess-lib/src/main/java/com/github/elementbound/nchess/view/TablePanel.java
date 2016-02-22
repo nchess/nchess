@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -51,6 +52,30 @@ public class TablePanel extends JPanel {
 		this.setDoubleBuffered(true);
 		
 		this.addMouseListener(new NodeSelectListener(this));
+	}
+	
+	public void fitView() {
+		double minView = (double)Math.min(this.getWidth(), this.getHeight());
+		double maxTable = (double)Math.max(this.bounds.getWidth(), this.bounds.getHeight());
+		double scale = minView/maxTable;
+		
+		//Calculate view transform based on bounds 
+		//( Just center the view around the map )
+		viewTransform.setToIdentity();
+		viewTransform.translate(-bounds.getCenterX(), -bounds.getCenterY());
+		viewTransform.translate(this.getBounds().getCenterX(), this.getBounds().getCenterY());
+		viewTransform.scale(scale, scale);
+		
+		//Also calculate inverse view transform for mouse hit checks
+		try {
+			inverseViewTransform = viewTransform.createInverse();
+		} catch (NoninvertibleTransformException e) {
+			System.out.println("Warning: View transform not invertible");
+			e.printStackTrace();
+		}
+		
+		System.out.printf("Table bounds: %s\nView bounds: %s\n", bounds.toString(), this.getBounds().toString());
+		System.out.printf("Table center: %f %f\n", bounds.getCenterX(), bounds.getCenterY());
 	}
 
 	public void assignTable(Table table) {
@@ -128,17 +153,7 @@ public class TablePanel extends JPanel {
 		
 		//Calculate view transform based on bounds 
 		//( Just center the view around the map )
-		viewTransform.setToIdentity();
-		viewTransform.translate(-bounds.getCenterX(), -bounds.getCenterY());
-		viewTransform.translate(this.getBounds().getCenterX(), this.getBounds().getCenterY());
-		
-		//Also calculate inverse view transform for mouse hit checks
-		inverseViewTransform.setToIdentity();
-		inverseViewTransform.translate(bounds.getCenterX(), bounds.getCenterY());
-		inverseViewTransform.translate(-this.getBounds().getCenterX(), -this.getBounds().getCenterY());
-		
-		System.out.printf("Table bounds: %s\nView bounds: %s\n", bounds.toString(), this.getBounds().toString());
-		System.out.printf("Table center: %f %f\n", bounds.getCenterX(), bounds.getCenterY());
+		this.fitView();
 		
 		//Assign colors to players
 		playerColors.clear();
@@ -173,6 +188,8 @@ public class TablePanel extends JPanel {
 
 	@Override 
 	public void paint(Graphics g) {
+		this.fitView();
+		
 		Rectangle clip = g.getClipBounds();
 		
 		g.setColor(this.getBackground());
