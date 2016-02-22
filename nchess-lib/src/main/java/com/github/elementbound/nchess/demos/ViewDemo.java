@@ -59,7 +59,7 @@ public class ViewDemo {
 		panel.setBounds(frame.getContentPane().getBounds());
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
 		
-		String fname = "hexamap.json";
+		String fname = "2hexa.json";
 		if(this.getClass().getClassLoader().getResourceAsStream(fname) == null) {
 			System.out.println("Couldn't load " + fname);
 			return; 

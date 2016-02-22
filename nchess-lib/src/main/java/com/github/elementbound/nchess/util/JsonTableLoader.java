@@ -16,6 +16,7 @@ import javax.json.JsonValue;
 
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.game.pieces.Bishop;
+import com.github.elementbound.nchess.game.pieces.King;
 import com.github.elementbound.nchess.game.pieces.Pawn;
 import com.github.elementbound.nchess.game.pieces.Rook;
 
@@ -169,7 +170,9 @@ public class JsonTableLoader {
 				pieceInstance = new Rook(player, at);
 			else if(type.equals("bishop"))	
 				pieceInstance = new Bishop(player, at);
-
+			else if(type.equals("king"))
+				pieceInstance = new King(player, at);
+				
 			if(pieceInstance == null){
 				System.out.printf("Unknown type %s\n", type);
 				//TODO: something more sophisticated with reflection? 
