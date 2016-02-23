@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import com.github.elementbound.nchess.util.JsonTableLoader;
 import com.github.elementbound.nchess.view.DefaultTablePanelListener;
 import com.github.elementbound.nchess.view.TablePanel;
+import com.github.elementbound.nchess.view.TablePanelListener;
 
 public class ViewDemo {
 
@@ -97,6 +98,9 @@ public class ViewDemo {
 		panel.assignTable(jsonLoader.getResult());
 		panel.setForeground(Color.black);
 		panel.setBackground(Color.white);
-		panel.addListener(new DefaultTablePanelListener());
+		
+		DefaultTablePanelListener listener = new DefaultTablePanelListener();
+		panel.addListener(listener);
+		panel.addMouseWheelListener(listener);
 	}
 }

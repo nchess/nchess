@@ -1,12 +1,14 @@
 package com.github.elementbound.nchess.view;
 
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.List;
 
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 
-public class DefaultTablePanelListener implements TablePanelListener {
+public class DefaultTablePanelListener implements TablePanelListener, MouseWheelListener {
 	private long moveFrom = -1;
 
 	@Override
@@ -47,6 +49,23 @@ public class DefaultTablePanelListener implements TablePanelListener {
 		}
 		
 		source.repaint(); 
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		int clicks = e.getWheelRotation();
+		TablePanel panel = (TablePanel)e.getSource();
+		
+		if(clicks < 0) { //Wheel rotated upwards, zoom in
+			for(int i = 0; i > clicks; i--)
+				panel.viewZoom *= Math.pow(2.0, 1.0/4.0);
+		}
+		else { //Wheel rotated downwards, zoom out
+			for(int i = 0; i < clicks; i++)
+				panel.viewZoom /= Math.pow(2.0, 1.0/4.0);
+		}
+		
+		panel.repaint();
 	}
 
 }

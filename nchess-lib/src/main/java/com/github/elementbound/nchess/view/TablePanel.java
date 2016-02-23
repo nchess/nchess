@@ -43,6 +43,9 @@ public class TablePanel extends JPanel {
 	public Color cellOutlineColor = Color.black; 
 	public Color cellHighlightColor = Color.cyan; //MY EYES
 	
+	public Point2D viewOffset = new Point2D.Double(0.0, 0.0);
+	public double viewZoom = 1.0;
+	
 	private TintedImageSet tintedPieceImages = new TintedImageSet();
 	public Map<String, Image> pieceImages = new HashMap<>();
 	public Map<Long, Color> playerColors = new HashMap<>();
@@ -58,10 +61,12 @@ public class TablePanel extends JPanel {
 		double minView = (double)Math.min(this.getWidth(), this.getHeight());
 		double maxTable = (double)Math.max(this.bounds.getWidth(), this.bounds.getHeight());
 		double scale = minView/maxTable;
+		scale *= viewZoom;
 		
 		//Calculate view transform based on bounds 
 		//( Just center the view around the map )
 		viewTransform.setToIdentity();
+		viewTransform.translate(viewOffset.getX(), viewOffset.getY());
 		viewTransform.translate(-bounds.getCenterX(), -bounds.getCenterY());
 		viewTransform.translate(this.getBounds().getCenterX(), this.getBounds().getCenterY());
 		viewTransform.scale(scale, scale);
