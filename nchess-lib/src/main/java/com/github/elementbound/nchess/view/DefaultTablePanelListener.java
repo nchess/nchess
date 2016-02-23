@@ -17,6 +17,13 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 	private long moveFrom = -1;
 	private Point dragFrom = null;
 
+	public void assignTo(TablePanel tp) {
+		tp.addListener(this);
+		tp.addMouseWheelListener(this);
+		tp.addMouseMotionListener(this);
+		tp.addMouseListener(this);
+	}
+	
 	//=========================================================================================
 	//TablePanelListener
 	@Override

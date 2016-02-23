@@ -79,9 +79,6 @@ public class TablePanel extends JPanel {
 			System.out.println("Warning: View transform not invertible");
 			e.printStackTrace();
 		}
-		
-		System.out.printf("Table bounds: %s\nView bounds: %s\n", bounds.toString(), this.getBounds().toString());
-		System.out.printf("Table center: %f %f\n", bounds.getCenterX(), bounds.getCenterY());
 	}
 
 	public void assignTable(Table table) {
@@ -160,6 +157,9 @@ public class TablePanel extends JPanel {
 		//Calculate view transform based on bounds 
 		//( Just center the view around the map )
 		this.fitView();
+		
+		System.out.printf("Table bounds: %s\nView bounds: %s\n", bounds.toString(), this.getBounds().toString());
+		System.out.printf("Table center: %f %f\n", bounds.getCenterX(), bounds.getCenterY());
 		
 		//Assign colors to players
 		playerColors.clear();
