@@ -102,5 +102,7 @@ public class ViewDemo {
 		DefaultTablePanelListener listener = new DefaultTablePanelListener();
 		panel.addListener(listener);
 		panel.addMouseWheelListener(listener);
+		panel.addMouseMotionListener(listener);
+		panel.addMouseListener(listener);
 	}
 }

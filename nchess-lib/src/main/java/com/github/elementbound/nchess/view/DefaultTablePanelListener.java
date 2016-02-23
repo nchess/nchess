@@ -1,16 +1,24 @@
 package com.github.elementbound.nchess.view;
 
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 
-public class DefaultTablePanelListener implements TablePanelListener, MouseWheelListener {
+public class DefaultTablePanelListener implements TablePanelListener, MouseWheelListener, MouseMotionListener, MouseListener {
 	private long moveFrom = -1;
+	private Point dragFrom = null;
 
+	//=========================================================================================
+	//TablePanelListener
 	@Override
 	public void nodeSelect(TablePanel source, long nodeId) {
 		source.clearHighlights();
@@ -51,6 +59,8 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 		source.repaint(); 
 	}
 
+	//=========================================================================================
+	//MouseWheelListener
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int clicks = e.getWheelRotation();
@@ -66,6 +76,75 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 		}
 		
 		panel.repaint();
+	}
+
+	//=========================================================================================
+	//MouseMotionListener
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		System.out.printf("Mouse drag\n\tPosition: %d,%d\n\tModifiers: %s\n", 
+							e.getX(), e.getY(), MouseEvent.getMouseModifiersText(e.getModifiers()));
+		
+		while(true) {
+			if((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0)
+				break;
+			
+			if((e.getModifiers() & MouseEvent.SHIFT_MASK) != 0 && 
+			   (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
+				break;
+			
+			return;
+		}
+		
+		if(dragFrom == null)
+			return;
+		
+		int dx = e.getX() - (int)dragFrom.getX();
+		int dy = e.getY() - (int)dragFrom.getY();
+		
+		System.out.printf("\tTranslate: %d,%d\n", dx,dy);
+		TablePanel panel = (TablePanel)e.getSource();
+		panel.viewOffset.setLocation(panel.viewOffset.getX() + dx, 
+									 panel.viewOffset.getY() + dy);
+		dragFrom = e.getPoint();
+		panel.repaint();
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	//=========================================================================================
+	//MouseListener
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if(dragFrom == null)
+			dragFrom = e.getPoint();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		dragFrom = null;
 	}
 
 }
