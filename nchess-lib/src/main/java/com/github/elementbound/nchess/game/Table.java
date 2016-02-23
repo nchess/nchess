@@ -74,6 +74,30 @@ public class Table {
 		return MathUtils.vectorDirection(a.x(), a.y(), b.x(), b.y());
 	}
 	
+	public boolean isLink(long from, long to) {
+		Node a = this.getNode(from);
+		if(a == null)
+			return false; 
+		
+		for(int i = 0; i < a.neighborCount(); i++)
+			if(to == a.neighbor(i))
+				return true;
+		
+		return false; 
+	}
+	
+	public boolean isSecondaryLink(long from, long to) {
+		Node a = this.getNode(from);
+		if(a == null)
+			return false; 
+		
+		for(int i = 0; i < a.secondaryNeighborCount(); i++)
+			if(to == a.secondaryNeighbor(i))
+				return true;
+		
+		return false; 
+	}
+	
 	public long nodeTowardsDirection(long from, double dir) {
 		Node node = this.getNode(from);
 		if(node == null)
@@ -95,7 +119,14 @@ public class Table {
 			}
 		}
 		
-		return bestNode;
+		if(bestNode < 0)
+			return -1;
+		
+		Node candidate = this.getNode(bestNode);
+		if(!candidate.visible())
+			return -1;
+		else
+			return bestNode;
 	}
 	
 	public long secondaryNodeTowardsDirection(long from, double dir) {

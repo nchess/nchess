@@ -17,6 +17,7 @@ import javax.json.JsonValue;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.game.pieces.Bishop;
 import com.github.elementbound.nchess.game.pieces.King;
+import com.github.elementbound.nchess.game.pieces.Knight;
 import com.github.elementbound.nchess.game.pieces.Pawn;
 import com.github.elementbound.nchess.game.pieces.Queen;
 import com.github.elementbound.nchess.game.pieces.Rook;
@@ -169,6 +170,8 @@ public class JsonTableLoader {
 				pieceInstance = new Pawn(player, at);
 			else if(type.equals("rook"))
 				pieceInstance = new Rook(player, at);
+			else if(type.equals("knight"))
+				pieceInstance = new Knight(player, at);
 			else if(type.equals("bishop"))	
 				pieceInstance = new Bishop(player, at);
 			else if(type.equals("queen"))
