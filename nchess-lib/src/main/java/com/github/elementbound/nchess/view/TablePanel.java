@@ -66,10 +66,10 @@ public class TablePanel extends JPanel {
 		//Calculate view transform based on bounds 
 		//( Just center the view around the map )
 		viewTransform.setToIdentity();
-		viewTransform.translate(viewOffset.getX(), viewOffset.getY());
-		viewTransform.translate(-bounds.getCenterX(), -bounds.getCenterY());
 		viewTransform.translate(this.getBounds().getCenterX(), this.getBounds().getCenterY());
 		viewTransform.scale(scale, scale);
+		viewTransform.translate(viewOffset.getX(), viewOffset.getY());
+		viewTransform.translate(-bounds.getCenterX(), -bounds.getCenterY());
 		
 		//Also calculate inverse view transform for mouse hit checks
 		try {

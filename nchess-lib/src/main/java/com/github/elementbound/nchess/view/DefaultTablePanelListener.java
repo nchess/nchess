@@ -105,8 +105,8 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 		
 		System.out.printf("\tTranslate: %d,%d\n", dx,dy);
 		TablePanel panel = (TablePanel)e.getSource();
-		panel.viewOffset.setLocation(panel.viewOffset.getX() + dx, 
-									 panel.viewOffset.getY() + dy);
+		panel.viewOffset.setLocation(panel.viewOffset.getX() + dx/panel.viewZoom, 
+									 panel.viewOffset.getY() + dy/panel.viewZoom);
 		dragFrom = e.getPoint();
 		panel.repaint();
 	}
