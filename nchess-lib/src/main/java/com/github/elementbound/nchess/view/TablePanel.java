@@ -1,5 +1,6 @@
 package com.github.elementbound.nchess.view;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -217,6 +218,9 @@ public class TablePanel extends JPanel {
 			g2.draw(p);
 		
 		g.setColor(Color.black);
+		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+		g2.setComposite(ac);
+			
 		for(Entry<Long, Piece> e : table.allPieces()) {
 			Piece piece = e.getValue();
 			long atId = piece.at();

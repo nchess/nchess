@@ -83,8 +83,8 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		System.out.printf("Mouse drag\n\tPosition: %d,%d\n\tModifiers: %s\n", 
-							e.getX(), e.getY(), MouseEvent.getMouseModifiersText(e.getModifiers()));
+		//System.out.printf("Mouse drag\n\tPosition: %d,%d\n\tModifiers: %s\n", 
+		//					e.getX(), e.getY(), MouseEvent.getMouseModifiersText(e.getModifiers()));
 		
 		while(true) {
 			if((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0)
@@ -103,7 +103,7 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 		int dx = e.getX() - (int)dragFrom.getX();
 		int dy = e.getY() - (int)dragFrom.getY();
 		
-		System.out.printf("\tTranslate: %d,%d\n", dx,dy);
+		//System.out.printf("\tTranslate: %d,%d\n", dx,dy);
 		TablePanel panel = (TablePanel)e.getSource();
 		panel.viewOffset.setLocation(panel.viewOffset.getX() + dx/panel.viewZoom, 
 									 panel.viewOffset.getY() + dy/panel.viewZoom);

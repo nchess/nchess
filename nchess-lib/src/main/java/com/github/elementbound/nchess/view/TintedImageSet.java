@@ -40,19 +40,14 @@ public class TintedImageSet {
 		for(int y = 0; y < result.getHeight(); y++) {
 			for(int x = 0; x < result.getWidth(); x++) {
 				int i = source.getRGB(x, y);
-				Color srcColor = new Color((i>>8) & 0xFF, (i>>16) & 0xFF, (i>>24) & 0xFF, i & 0xFF);
+				Color srcColor = new Color(i, true);
 				Color dstColor = new Color(
 						(srcColor.getRed()*tint.getRed())/256,
 						(srcColor.getGreen()*tint.getGreen())/256,
 						(srcColor.getBlue()*tint.getBlue())/256,
 						srcColor.getAlpha());
-				
-				int di = dstColor.getRed() + 
-						 dstColor.getGreen() * 256 +
-						 dstColor.getBlue() * 65536 + 
-						 dstColor.getAlpha() * 16777216;
-				
-				result.setRGB(x, y, di);
+
+				result.setRGB(x, y, dstColor.getRGB());
 			}
 		}
 		
