@@ -1,9 +1,7 @@
 package com.github.elementbound.nchess.game.pieces;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Node;

@@ -30,6 +30,7 @@ public class Table {
 	
 	//=========================================================================================
 	//Nodes 
+	//region Nodes
 	
 	public boolean addNode(long id, Node node) {
 		if(!this.hasNode(id)) {
@@ -182,6 +183,9 @@ public class Table {
 		
 		return false;
 	}
+	
+	//endregion Nodes
+	
 	//=========================================================================================
 	//Players
 	
@@ -199,7 +203,7 @@ public class Table {
 
 	//=========================================================================================
 	//Pieces 
-	
+	//region Pieces
 	public boolean addPiece(long id, Piece piece) {
 		if(!this.hasPiece(id)) {
 			pieces.put(id, piece);
@@ -234,6 +238,8 @@ public class Table {
 		return -1;
 	}
 
+	//endregion Pieces
+	
 	public boolean applyMove(Move move) {
 		long fromPieceId = this.pieceAt(move.from());
 		long toPieceId = this.pieceAt(move.to());

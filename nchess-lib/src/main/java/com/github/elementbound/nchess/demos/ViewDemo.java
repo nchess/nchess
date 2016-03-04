@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Window.Type;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,6 @@ import javax.swing.JFrame;
 import com.github.elementbound.nchess.util.JsonTableLoader;
 import com.github.elementbound.nchess.view.DefaultTablePanelListener;
 import com.github.elementbound.nchess.view.TablePanel;
-import com.github.elementbound.nchess.view.TablePanelListener;
 
 public class ViewDemo {
 
