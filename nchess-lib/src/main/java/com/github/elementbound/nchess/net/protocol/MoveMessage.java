@@ -15,6 +15,10 @@ public class MoveMessage extends Message {
 		this.move = move;
 	}
 	
+	public Move move() {
+		return this.move; 
+	}
+	
 	@Override
 	public String toJSON() {
 		return getBuilder()

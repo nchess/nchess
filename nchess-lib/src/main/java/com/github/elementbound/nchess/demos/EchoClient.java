@@ -6,8 +6,11 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.net.protocol.Message;
 import com.github.elementbound.nchess.net.protocol.MessageParser;
+import com.github.elementbound.nchess.net.protocol.MoveMessage;
+import com.github.elementbound.nchess.net.protocol.PlayerTurnMessage;
 
 public class EchoClient {
 	public static void main(String[] args) {
@@ -38,9 +41,12 @@ public class EchoClient {
 				System.out.println(line);
 				
 				Message msg = MessageParser.parse(line);
-				if(msg != null) {
-					System.out.println(msg.toJSON());
-					System.out.println();
+				if(msg == null)
+					continue; 
+				
+				if(msg instanceof PlayerTurnMessage) {
+					Message response = new MoveMessage();
+					out.println(response.toJSON());
 				}
 			}
 			

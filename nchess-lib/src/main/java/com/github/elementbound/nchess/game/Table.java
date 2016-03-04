@@ -188,6 +188,7 @@ public class Table {
 	
 	//=========================================================================================
 	//Players
+	//region Players
 	
 	public boolean addPlayer(long id) {
 		return players.add(id);
@@ -200,6 +201,8 @@ public class Table {
 	public Set<Long> allPlayers() {
 		return players;
 	}
+	
+	//endregion
 
 	//=========================================================================================
 	//Pieces 
@@ -239,6 +242,10 @@ public class Table {
 	}
 
 	//endregion Pieces
+
+	//=========================================================================================
+	//Moves 
+	//region Moves 
 	
 	public boolean applyMove(Move move) {
 		long fromPieceId = this.pieceAt(move.from());
@@ -259,4 +266,6 @@ public class Table {
 		piece.onMoveApplied(this, move.from(), move.to());
 		return true; 
 	}
+	
+	//endregion Moves
 }
