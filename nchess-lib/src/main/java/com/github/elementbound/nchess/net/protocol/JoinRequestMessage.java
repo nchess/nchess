@@ -1,5 +1,9 @@
 package com.github.elementbound.nchess.net.protocol;
 
+import javax.annotation.Generated;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 public class JoinRequestMessage extends Message {
 	public enum JoinType {
 		AS_PLAYER,
@@ -7,6 +11,9 @@ public class JoinRequestMessage extends Message {
 	}
 	
 	private JoinType joinType; 
+	
+	public JoinRequestMessage() {
+	}
 	
 	public JoinRequestMessage(JoinType type) {
 		this.joinType = type; 
@@ -18,17 +25,29 @@ public class JoinRequestMessage extends Message {
 	
 	@Override
 	public String toJSON() {
-		StringBuilder strb = new StringBuilder();
-		strb.append("{ type: \"join\", ")
-			.append("as: ");
+		JsonObjectBuilder builder = getBuilder();
+		
+		builder.add("type", "join");
 		
 		switch(joinType) {
-			case AS_PLAYER: strb.append("\"player\""); break;
-			case AS_OBSERVER: strb.append("\"observer\""); break;
+			case AS_PLAYER: builder.add("as", "player"); break;
+			case AS_OBSERVER: builder.add("as", "observer"); break;
 		}
+
+		return builder.build().toString();
+	}
+
+	@Override
+	public Message fromJSON(JsonObject json) {
+		if(!json.getString("type").equals("join"))
+			return null; 
 		
-		strb.append("}");
-		
-		return strb.toString(); 
+		String joinAs = json.getString("as");
+		if(joinAs.equals("player"))
+			return new JoinRequestMessage(JoinType.AS_PLAYER);
+		else if(joinAs.equals("observer"))
+			return new JoinRequestMessage(JoinType.AS_OBSERVER);
+		else 
+			return null;
 	}
 }

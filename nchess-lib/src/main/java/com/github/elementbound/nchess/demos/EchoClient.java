@@ -6,6 +6,9 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import com.github.elementbound.nchess.net.protocol.Message;
+import com.github.elementbound.nchess.net.protocol.MessageParser;
+
 public class EchoClient {
 	public static void main(String[] args) {
 		new EchoClient().run(args);
@@ -31,7 +34,14 @@ public class EchoClient {
 			Scanner sin = new Scanner(in);
 			
 			while(sin.hasNext()) {
-				System.out.println(sin.nextLine());
+				String line = sin.nextLine();
+				System.out.println(line);
+				
+				Message msg = MessageParser.parse(line);
+				if(msg != null) {
+					System.out.println(msg.toJSON());
+					System.out.println();
+				}
 			}
 			
 			out.close();
