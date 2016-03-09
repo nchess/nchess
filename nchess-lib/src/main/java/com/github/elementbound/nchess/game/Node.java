@@ -1,8 +1,6 @@
 package com.github.elementbound.nchess.game;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,24 +16,7 @@ public class Node {
 	
 	private List<Long> neighbors;
 	private List<Long> secondaryNeighbors; 
-	
-	private boolean dirty = true; 
-	
-	private void sortLinks() {
-		final Table table = this.parent; 
-		final long at = this.id; 
-		
-		//POLISH: Maybe make this a less anonymous class? 
-		Collections.sort(neighbors, new Comparator<Long>() {
-			@Override
-			public int compare(Long o1, Long o2) {
-				double dir1 = table.linkDirection(at, o1);
-				double dir2 = table.linkDirection(at, o2);
-				return Double.compare(dir1, dir2);
-			}
-		});
-	}
-	
+
 	public Node(Table parent, long id, double x, double y, boolean visible) {
 		this.parent = parent; 
 		this.id = id;
@@ -51,7 +32,6 @@ public class Node {
 	public void link(long toId) {
 		if(!neighbors.contains(toId)) {
 			neighbors.add(toId);
-			dirty = true;
 		}
 	}
 	
@@ -106,7 +86,5 @@ public class Node {
 			
 			secondaryNeighbors.addAll(secondary);
 		}
-		
-		dirty = false; 
 	}
 }

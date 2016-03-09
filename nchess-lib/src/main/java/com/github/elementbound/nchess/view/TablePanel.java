@@ -31,6 +31,8 @@ import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.util.MathUtils;
 
 public class TablePanel extends JPanel {
+	private static final long serialVersionUID = -6705016017912569702L;
+	
 	private Table table; 
 	private Map<Long, Path2D> polys = new HashMap<>();
 	private Rectangle2D bounds = new Rectangle2D.Double();

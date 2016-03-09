@@ -6,7 +6,6 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.net.protocol.Message;
 import com.github.elementbound.nchess.net.protocol.MessageParser;
 import com.github.elementbound.nchess.net.protocol.MoveMessage;

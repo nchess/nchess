@@ -1,6 +1,5 @@
 package com.github.elementbound.nchess.net.protocol;
 
-import javax.annotation.Generated;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
