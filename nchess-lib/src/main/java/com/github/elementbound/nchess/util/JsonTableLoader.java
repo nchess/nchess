@@ -188,9 +188,9 @@ public class JsonTableLoader {
 		return true; 
 	}
 
-	public String serialize() {
+	public JsonObject serialize() {
 		if(resultTable == null)
-			return "{}"; 
+			return null; 
 		
 		JsonObjectBuilder rootBuilder = Json.createObjectBuilder();
 		JsonArrayBuilder nodesBuilder = Json.createArrayBuilder();
@@ -249,7 +249,7 @@ public class JsonTableLoader {
 					.add("players", playersBuilder.build())
 					.add("pieces", piecesBuilder.build());
 		
-		return rootBuilder.build().toString();
+		return rootBuilder.build();
 	}
 	
 	public Table getResult() {
