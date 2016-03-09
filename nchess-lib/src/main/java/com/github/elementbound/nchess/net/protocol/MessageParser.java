@@ -16,6 +16,7 @@ public class MessageParser {
 		knownTypes.add(new JoinResponseMessage());
 		knownTypes.add(new MoveMessage());
 		knownTypes.add(new PlayerTurnMessage());
+		knownTypes.add(new TableUpdateMessage());
 	}
 	
 	public static Message parse(String msg) {

@@ -16,6 +16,7 @@ import com.github.elementbound.nchess.net.protocol.Message;
 import com.github.elementbound.nchess.net.protocol.MessageParser;
 import com.github.elementbound.nchess.net.protocol.MoveMessage;
 import com.github.elementbound.nchess.net.protocol.PlayerTurnMessage;
+import com.github.elementbound.nchess.net.protocol.TableUpdateMessage;
 
 public class Server {
 	public class ClientData {
@@ -83,6 +84,7 @@ public class Server {
 					//Don't care for join requests atm, just approve them as player
 					ClientData cd = new ClientData(pid, s);
 					cd.send(new JoinResponseMessage(pid, true));
+					cd.send(new TableUpdateMessage(this.table));
 					clients.add(cd);
 					
 					this.out.printf("Accepted player %d\n", pid);

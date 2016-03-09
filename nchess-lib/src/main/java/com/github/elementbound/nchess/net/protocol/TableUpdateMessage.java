@@ -38,13 +38,17 @@ public class TableUpdateMessage extends Message {
 
 	@Override
 	public Message fromJSON(JsonObject json) {
-		if(!json.getString("type").equals("player-turn"))
+		System.out.printf("Testing message %s for table-update\n", json.getString("type"));
+		
+		if(!json.getString("type").equals("table-update"))
 			return null;
 
 		InputStream is = new ByteArrayInputStream(json.toString().getBytes());
 		JsonTableLoader tableHandler = new JsonTableLoader(is);
-		if(!tableHandler.parse())
+		if(!tableHandler.parse()) {
+			System.out.println("Ill-formed json");
 			return null; 
+		}
 		
 		return new TableUpdateMessage(tableHandler.getResult());
 	}

@@ -234,11 +234,13 @@ public class JsonTableLoader {
 		//region BuildPieces 
 		for(Entry<Long, Piece> e : resultTable.allPieces()) {
 			Piece piece = e.getValue();
+			long pieceId = e.getKey();
 			
 			JsonObjectBuilder pieceBuilder = Json.createObjectBuilder();
 			pieceBuilder.add("type", piece.getName())
 						.add("player", piece.player())
-						.add("at", piece.at());
+						.add("at", piece.at())
+						.add("id", pieceId);
 			
 			piecesBuilder.add(pieceBuilder.build());
 		}

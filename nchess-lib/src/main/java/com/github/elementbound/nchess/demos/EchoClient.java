@@ -10,6 +10,7 @@ import com.github.elementbound.nchess.net.protocol.Message;
 import com.github.elementbound.nchess.net.protocol.MessageParser;
 import com.github.elementbound.nchess.net.protocol.MoveMessage;
 import com.github.elementbound.nchess.net.protocol.PlayerTurnMessage;
+import com.github.elementbound.nchess.net.protocol.TableUpdateMessage;
 
 public class EchoClient {
 	public static void main(String[] args) {
@@ -37,15 +38,33 @@ public class EchoClient {
 			
 			while(sin.hasNext()) {
 				String line = sin.nextLine();
-				System.out.println(line);
+				//System.out.println(line);
+				
+				if(line.length() > 64) {
+					System.out.printf("%s...%s\n", 
+							line.substring(0, 32),
+							line.substring(line.length()-32));
+				}
+				else 
+					System.out.println(line);
 				
 				Message msg = MessageParser.parse(line);
-				if(msg == null)
+				if(msg == null) {
+					System.out.println("Unknown message!");
 					continue; 
+				}
 				
 				if(msg instanceof PlayerTurnMessage) {
 					Message response = new MoveMessage();
 					out.println(response.toJSON());
+				}
+				else if(msg instanceof TableUpdateMessage) {
+					TableUpdateMessage tmsg = (TableUpdateMessage)msg;
+					
+					System.out.printf("Updated table with %d nodes, %d pieces, and %d players\n", 
+							tmsg.table().allNodes().size(),
+							tmsg.table().allPieces().size(),
+							tmsg.table().allPlayers());
 				}
 			}
 			
