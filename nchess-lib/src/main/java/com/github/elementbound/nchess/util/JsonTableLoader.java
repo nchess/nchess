@@ -4,13 +4,14 @@ import com.github.elementbound.nchess.game.Node;
 import com.github.elementbound.nchess.game.Piece;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 
@@ -26,13 +27,8 @@ public class JsonTableLoader {
 	private Table resultTable = null;
 	private InputStream is = null;
 	
-	public Map<String, Class<?>> nameToPiece = new HashMap<>();
-	
 	public JsonTableLoader(InputStream is) {
 		this.is = is; 
-		
-		nameToPiece.put("pawn", Pawn.class);
-		nameToPiece.put("rook", Rook.class);
 	}
 
 	public boolean parse() {
@@ -192,6 +188,70 @@ public class JsonTableLoader {
 		return true; 
 	}
 
+	public String serialize() {
+		if(resultTable == null)
+			return "{}"; 
+		
+		JsonObjectBuilder rootBuilder = Json.createObjectBuilder();
+		JsonArrayBuilder nodesBuilder = Json.createArrayBuilder();
+		JsonArrayBuilder linksBuilder = Json.createArrayBuilder();
+		JsonArrayBuilder playersBuilder = Json.createArrayBuilder();
+		JsonArrayBuilder piecesBuilder = Json.createArrayBuilder();
+		
+		//region BuildNodes
+		for(Entry<Long, Node> e : resultTable.allNodes()) {
+			Node node = e.getValue();
+			
+			JsonObjectBuilder nodeBuilder = Json.createObjectBuilder();
+			nodeBuilder.add("id", node.id())
+						.add("visible", node.visible())
+						.add("x", node.x())
+						.add("y", node.y());
+			
+			nodesBuilder.add(nodeBuilder.build());
+		}
+		//endregion BuildNodes
+
+		//region BuildLinks 
+		for(Entry<Long, Node> e : resultTable.allNodes()) {
+			Node node = e.getValue();
+			
+			for(int i = 0; i < node.neighborCount(); i++) {
+				JsonArrayBuilder linkBuilder = Json.createArrayBuilder();
+				linkBuilder.add(node.id())
+							.add(node.neighbor(i));
+				linksBuilder.add(linkBuilder.build());
+			}
+		}
+		//endregion BuildLinks
+		
+		//region BuildPlayers
+		for(long playerId : resultTable.allPlayers()) {
+			playersBuilder.add(playerId);
+		}
+		//endregion BuildPlayer
+		
+		//region BuildPieces 
+		for(Entry<Long, Piece> e : resultTable.allPieces()) {
+			Piece piece = e.getValue();
+			
+			JsonObjectBuilder pieceBuilder = Json.createObjectBuilder();
+			pieceBuilder.add("type", piece.getName())
+						.add("player", piece.player())
+						.add("at", piece.at());
+			
+			piecesBuilder.add(pieceBuilder.build());
+		}
+		//endregion BuildPieces
+		
+		rootBuilder.add("nodes", nodesBuilder.build())
+					.add("links", linksBuilder.build())
+					.add("players", playersBuilder.build())
+					.add("pieces", piecesBuilder.build());
+		
+		return rootBuilder.build().toString();
+	}
+	
 	public Table getResult() {
 		return this.resultTable;
 	}

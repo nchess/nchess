@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+
+import com.github.elementbound.nchess.net.protocol.JSONable;
 import com.github.elementbound.nchess.util.MathUtils;
 
 import java.util.Set;
@@ -268,4 +272,5 @@ public class Table {
 	}
 	
 	//endregion Moves
+	
 }
