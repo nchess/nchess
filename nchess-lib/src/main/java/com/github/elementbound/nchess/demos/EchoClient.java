@@ -64,7 +64,7 @@ public class EchoClient {
 					System.out.printf("Updated table with %d nodes, %d pieces, and %d players\n", 
 							tmsg.table().allNodes().size(),
 							tmsg.table().allPieces().size(),
-							tmsg.table().allPlayers());
+							tmsg.table().allPlayers().size());
 				}
 			}
 			

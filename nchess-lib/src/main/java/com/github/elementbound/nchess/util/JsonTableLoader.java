@@ -43,48 +43,72 @@ public class JsonTableLoader {
 		
 		//=====================================================================================
 		//Root must be an object
-		if(root.getValueType() != JsonValue.ValueType.OBJECT)
+		//region ValidateRoot
+		if(root.getValueType() != JsonValue.ValueType.OBJECT) {
+			System.out.println("Root object not an actual object!");
 			return false; 
+		}
 		
 		//Must have nodes
-		if(!root.containsKey("nodes"))
-			return false;
+		if(!root.containsKey("nodes")) {
+			System.out.println("Where dem nodes at?!");
+			return false; 
+		}
 		
 		//Must have links 
-		if(!root.containsKey("links"))
+		if(!root.containsKey("links")) {
+			System.out.println("Where dem links at?!");
 			return false; 
+		}
 		
 		//Must have players
-		if(!root.containsKey("players"))
-			return false;
+		if(!root.containsKey("players")) {
+			System.out.println("Where dem players at?!");
+			return false; 
+		}
 		
 		//Must have pieces
-		if(!root.containsKey("pieces"))
+		if(!root.containsKey("pieces")) {
+			System.out.println("Where dem pieces at?!");
 			return false; 
+		}
+		//endregion ValidateRoot
 		
 		//=====================================================================================
 		//Parse nodes
 		//JsonObject nodes = root.getJsonObject("nodes");
 		JsonValue nodes = root.get("nodes");
-		if(nodes.getValueType() != JsonValue.ValueType.ARRAY)
+		if(nodes.getValueType() != JsonValue.ValueType.ARRAY) {
+			System.out.println("Nodes array not actually an array!");
 			return false; 
+		}
 
 		for(JsonValue jsval : ((JsonArray)nodes)) {
-			if(jsval.getValueType() != JsonValue.ValueType.OBJECT)
+			if(jsval.getValueType() != JsonValue.ValueType.OBJECT) {
+				System.out.println("Node object is not an actual object!");
 				return false; 
+			}
 			
 			JsonObject jsnode = (JsonObject)jsval; 
-			if(!jsnode.containsKey("x"))
-				return false;
-			
-			if(!jsnode.containsKey("y"))
-				return false;
-			
-			if(!jsnode.containsKey("id"))
+			if(!jsnode.containsKey("x")) {
+				System.out.println("Node got no x coordinate!");
 				return false; 
+			}
 			
-			if(!jsnode.containsKey("visible"))
+			if(!jsnode.containsKey("y")) {
+				System.out.println("Node got no y coordinate!");
 				return false; 
+			}
+			
+			if(!jsnode.containsKey("id")) {
+				System.out.println("Node got no id!");
+				return false; 
+			}
+			
+			if(!jsnode.containsKey("visible")) {
+				System.out.println("Node got no visibility!");
+				return false; 
+			}
 			
 			long id = jsnode.getInt("id");
 			double x = jsnode.getJsonNumber("x").doubleValue();
@@ -92,8 +116,10 @@ public class JsonTableLoader {
 			boolean visible = jsnode.getBoolean("visible");
 			
 			//Negative IDs are prohibited
-			if(id < 0)
+			if(id < 0) {
+				System.out.printf("Invalid node ID: %d\n", id);
 				return false;
+			}
 			
 			resultTable.addNode(id, new Node(resultTable, id,x,y, visible));
 		}
@@ -101,29 +127,39 @@ public class JsonTableLoader {
 		//=====================================================================================
 		//Parse links 
 		JsonValue links = root.get("links");
-		if(links.getValueType() != JsonValue.ValueType.ARRAY)
+		if(links.getValueType() != JsonValue.ValueType.ARRAY) {
+			System.out.println("Links array not an actual array!");
 			return false; 
+		}
 		
 		for(JsonValue jsval : ((JsonArray)links)) {
-			if(jsval.getValueType() != JsonValue.ValueType.ARRAY)
+			if(jsval.getValueType() != JsonValue.ValueType.ARRAY) {
+				System.out.println("Link not an actual array!");
 				return false; 
+			}
 			
 			JsonArray link = (JsonArray)jsval; 
 			long fromId = link.getInt(0);
 			long toId = link.getInt(1);
-			if(!resultTable.linkNode(fromId, toId))
+			if(!resultTable.linkNode(fromId, toId)) {
+				System.out.printf("Couldn't establish link: %d -> %d\n", fromId, toId);
 				return false; 
+			}
 		}
 		
 		//=====================================================================================
 		//Parse players
 		JsonValue players = root.get("players");
-		if(players.getValueType() != JsonValue.ValueType.ARRAY)
+		if(players.getValueType() != JsonValue.ValueType.ARRAY) {
+			System.out.println("Players array actual array!");
 			return false; 
+		}
 		
 		for(JsonValue jsval : ((JsonArray)players)) {
-			if(jsval.getValueType() != JsonValue.ValueType.NUMBER)
+			if(jsval.getValueType() != JsonValue.ValueType.NUMBER) {
+				System.out.println("Player id not a number!");
 				return false; 
+			}
 			
 			JsonNumber player = (JsonNumber)jsval; 
 			resultTable.addPlayer(player.longValue());
@@ -133,26 +169,38 @@ public class JsonTableLoader {
 		//Parse pieces
 		
 		JsonValue pieces = root.get("pieces"); 
-		if(pieces.getValueType() != JsonValue.ValueType.ARRAY)
+		if(pieces.getValueType() != JsonValue.ValueType.ARRAY) {
+			System.out.println("Pieces array not an actual array!");
 			return false; 
+		}
 		
 		for(JsonValue jsval: ((JsonArray)pieces)) {
-			if(jsval.getValueType() != JsonValue.ValueType.OBJECT)
+			if(jsval.getValueType() != JsonValue.ValueType.OBJECT) {
+				System.out.println("Piece not an actual object!");
 				return false; 
+			}
 			
 			JsonObject piece = (JsonObject)jsval; 
 			
-			if(!piece.containsKey("id"))
+			if(!piece.containsKey("id")) {
+				System.out.println("Piece got no id!");
 				return false; 
+			}
 			
-			if(!piece.containsKey("at"))
-				return false;
-			
-			if(!piece.containsKey("player"))
+			if(!piece.containsKey("at")) {
+				System.out.println("Where the piece at?!");
 				return false; 
+			}
 			
-			if(!piece.containsKey("type"))
+			if(!piece.containsKey("player")) {
+				System.out.println("Piece got no player!");
 				return false; 
+			}
+			
+			if(!piece.containsKey("type")) {
+				System.out.println("Piece got no type!");
+				return false; 
+			}
 			
 			long id = piece.getInt("id");
 			long at = piece.getInt("at");

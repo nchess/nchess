@@ -21,7 +21,7 @@ public class TableUpdateMessage extends Message {
 	}
 	
 	public Table table() {
-		return this.table(); 
+		return this.table; 
 	}
 	
 	@Override
@@ -43,7 +43,7 @@ public class TableUpdateMessage extends Message {
 		if(!json.getString("type").equals("table-update"))
 			return null;
 
-		InputStream is = new ByteArrayInputStream(json.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(json.getJsonObject("table").toString().getBytes());
 		JsonTableLoader tableHandler = new JsonTableLoader(is);
 		if(!tableHandler.parse()) {
 			System.out.println("Ill-formed json");
