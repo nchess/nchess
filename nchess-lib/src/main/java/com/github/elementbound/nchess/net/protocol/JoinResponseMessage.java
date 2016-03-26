@@ -14,6 +14,14 @@ public class JoinResponseMessage extends Message {
 		this.approved = approved;
 	}
 	
+	public long playerId() {
+		return this.playerId; 
+	}
+	
+	public boolean approved() {
+		return this.approved; 
+	}
+	
 	@Override
 	public String toJSON() {
 		return getBuilder()

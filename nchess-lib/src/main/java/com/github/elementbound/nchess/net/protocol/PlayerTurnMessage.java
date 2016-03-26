@@ -13,6 +13,10 @@ public class PlayerTurnMessage extends Message {
 		this.playerId = pid;
 	}
 	
+	public long playerId() {
+		return this.playerId;
+	}
+	
 	@Override
 	public String toJSON() {
 		return getBuilder()
