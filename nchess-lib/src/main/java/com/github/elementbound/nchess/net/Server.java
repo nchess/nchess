@@ -71,6 +71,11 @@ public class Server {
 		this.table = table; 
 	}
 	
+	private void broadcast(Message msg) {
+		for(ClientData cd : clients)
+			cd.send(msg);
+	}
+	
 	public void run(int port) throws IOException {
 		ServerSocket listen = new ServerSocket(port);
 		
@@ -103,7 +108,8 @@ public class Server {
 		for(int i = 0; i < 64; i++) {	
 			for(ClientData cd : clients) {
 				//Send a player turn notif
-				cd.send(new PlayerTurnMessage(cd.id));
+				//cd.send(new PlayerTurnMessage(cd.id));
+				broadcast(new PlayerTurnMessage(cd.id));
 				
 				//Wait for response
 				Message msg = null;
