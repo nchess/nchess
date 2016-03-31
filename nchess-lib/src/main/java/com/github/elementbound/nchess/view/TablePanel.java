@@ -80,6 +80,8 @@ public class TablePanel extends JPanel {
 		} catch (NoninvertibleTransformException e) {
 			System.out.println("Warning: View transform not invertible");
 			e.printStackTrace();
+			
+			inverseViewTransform.setToIdentity();
 		}
 	}
 

@@ -17,7 +17,10 @@ import com.github.elementbound.nchess.net.protocol.MoveMessage;
 import com.github.elementbound.nchess.net.protocol.PlayerTurnMessage;
 import com.github.elementbound.nchess.net.protocol.TableUpdateMessage;
 
-public class Client {
+public class Client implements Runnable {
+	private String host; 
+	private int port; 
+	
 	private Socket socket; 
 	private Table table = null; 
 	private boolean isMyTurn = false; 
@@ -26,12 +29,19 @@ public class Client {
 	private PrintStream out; 
 	private InputStream in; 
 	private Scanner sin; 
+	
+	private ClientEventListener listener = null; 
+	
+	public Client(String host, int port) {
+		this.host = host; 
+		this.port = port; 
+	}
 
-	public void send(Message msg) {
+	protected void send(Message msg) {
 		this.out.print(msg.toJSON());
 	}
 	
-	public Message receive() {
+	protected Message receive() {
 		StringBuilder strb = new StringBuilder();
 		byte[] buffer = new byte[4096];
 
@@ -60,15 +70,27 @@ public class Client {
 		}
 	}
 	
-	public void run(String host, int port) {
+	public void run() {
 		try {
 			System.out.printf("Connecting to %s:%d\n", host, port);
 			
-			socket = new Socket(host, port);
+			try {
+				socket = new Socket(host, port);
+			}
+			catch (IOException e) {
+				System.out.println("Connection failed!");
+				
+				if(listener != null)
+					listener.onFailedConnect(this, e);
+				return; 
+			}
 			
 			out = new PrintStream(socket.getOutputStream());
 			in = socket.getInputStream();
 			sin = new Scanner(in);
+			
+			if(listener != null)
+				listener.onSuccessfulConnect(this);
 			
 			while(sin.hasNext()) {
 				String line = sin.nextLine();
@@ -80,8 +102,12 @@ public class Client {
 				}
 				
 				if(msg instanceof JoinResponseMessage) {
+					if(listener != null)
+						listener.onJoinResponse(this, 
+								((JoinResponseMessage) msg).approved(), 
+								((JoinResponseMessage) msg).playerId());
+					
 					if(!((JoinResponseMessage) msg).approved())
-						//TODO: Fire unapproved event
 						return; 
 					
 					this.playerId = ((JoinResponseMessage) msg).playerId();
@@ -91,8 +117,14 @@ public class Client {
 					this.isMyTurn = (((PlayerTurnMessage) msg).playerId() == this.playerId);
 					System.out.printf("Current player is %d\n", ((PlayerTurnMessage) msg).playerId());
 					
-					//TODO: fire event
-					send(new MoveMessage(new Move(0, 0)));
+					if(listener != null)
+						listener.onMyTurn(this);
+				}
+				else if(msg instanceof MoveMessage) {
+					this.table.applyMove(((MoveMessage) msg).move());
+					
+					if(this.listener != null)
+						this.listener.onMove(this, this.table, ((MoveMessage) msg).move());
 				}
 				else if(msg instanceof TableUpdateMessage) {
 					TableUpdateMessage tmsg = (TableUpdateMessage)msg;
@@ -103,6 +135,8 @@ public class Client {
 							tmsg.table().allPlayers().size());
 					
 					this.table = tmsg.table();
+					if(listener != null)
+						listener.onTableUpdate(this, this.table);
 				}
 			}
 			
@@ -120,5 +154,29 @@ public class Client {
 	
 	public Table table() {
 		return this.table; 
+	}
+	
+	public long playerId() {
+		return this.playerId;
+	}
+	
+	public void setListener(ClientEventListener listener) {
+		this.listener = listener; 
+	}
+	
+	public boolean move(Move move) {
+		if(!isMyTurn())
+			return false; 
+		
+		long pieceId = table.pieceAt(move.from());
+		if(pieceId < 0)
+			return false; 
+		
+		if(table.getPiece(pieceId).player() != playerId())
+			return false; 
+		
+		isMyTurn = false;
+		send(new MoveMessage(move));
+		return true;
 	}
 }

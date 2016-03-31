@@ -32,6 +32,14 @@ public abstract class Piece {
 		//Do nothing
 	}
 	
+	public boolean hasMove(Move moveCandidate, Table table) {
+		for(Move move : this.getMoves(table))
+			if(move.equals(moveCandidate))
+				return true; 
+		
+		return false; 
+	}
+	
 	@Override 
 	public String toString() {
 		return this.getName();

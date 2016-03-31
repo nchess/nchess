@@ -27,4 +27,16 @@ public class Move {
 			.append(this.toId) 
 			.toString();
 	}
+	
+	@Override 
+	public boolean equals(Object rhs) {
+		if(rhs == this)
+			return true; 
+		
+		if(!(rhs instanceof Move))
+			return false; 
+		
+		Move m = (Move)rhs;
+		return ((this.fromId == m.fromId) && (this.toId == m.toId));
+	}
 }

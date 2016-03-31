@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.json.stream.JsonParsingException;
 
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.protocol.JoinResponseMessage;
 import com.github.elementbound.nchess.net.protocol.Message;
@@ -76,6 +78,22 @@ public class Server {
 			cd.send(msg);
 	}
 	
+	public boolean validateMove(long playerId, Move move) {
+		long pieceId = this.table.pieceAt(move.from());
+		Piece piece = this.table.getPiece(pieceId);
+		
+		if(piece == null)
+			return false; 
+		
+		if(piece.player() != playerId)
+			return false; 
+		
+		if(!piece.hasMove(move, this.table))
+			return false; 
+		
+		return true; 
+	}
+	
 	public void run(int port) throws IOException {
 		ServerSocket listen = new ServerSocket(port);
 		
@@ -113,7 +131,7 @@ public class Server {
 				
 				//Wait for response
 				Message msg = null;
-				int responseTime = 5000;
+				int responseTime = 150000;
 				try {
 					for(long till = System.currentTimeMillis() + responseTime; 
 							System.currentTimeMillis() < till;
@@ -133,7 +151,19 @@ public class Server {
 				
 				if(msg instanceof MoveMessage) {
 					MoveMessage movemsg = (MoveMessage)msg;
-					table.applyMove(movemsg.move());
+					
+					if(!validateMove(cd.id, movemsg.move())) {
+						broadcast(new PlayerTurnMessage(cd.id));
+						System.out.printf("Invalid move from player %d!\n", cd.id);
+					}
+					else {
+						System.out.printf("Valid move %d => %d from %d, broadcasting.\n", 
+											movemsg.move().from(),
+											movemsg.move().to(), 
+											cd.id);
+						broadcast(movemsg);
+						table.applyMove(movemsg.move());
+					}
 				}
 				else {
 					//!

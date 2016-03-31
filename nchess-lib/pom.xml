@@ -105,6 +105,27 @@
 							</archive>
 						</configuration>
 					</execution>
+					
+					<!-- ClientUI -->
+					<execution>
+						<id>assemble-ClientUI</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						
+						<configuration>
+								<descriptorRefs>
+									<descriptorRef>jar-with-dependencies</descriptorRef>
+								</descriptorRefs>
+								<finalName>${project.artifactId}-ClientUI</finalName>
+							<archive>
+								<manifest>
+									<mainClass>com.github.elementbound.nchess.demos.ClientUI</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
