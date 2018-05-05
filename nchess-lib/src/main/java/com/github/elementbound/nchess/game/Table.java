@@ -44,7 +44,7 @@ public class Table {
 
         return from.getNeighbors().stream()
                 .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))
-                .get();
+                .orElse(null);
 	}
 
     // TODO: Refactor and unit test; and move?
@@ -54,7 +54,7 @@ public class Table {
 
         return from.getSecondaryNeighbors().stream()
                 .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))
-                .get();
+                .orElse(null);
 	}
 
     public static Builder builder() {

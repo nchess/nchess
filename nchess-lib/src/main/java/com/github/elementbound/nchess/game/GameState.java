@@ -83,6 +83,17 @@ public class GameState {
         return Collections.unmodifiableSet(pieces);
     }
 
+    /**
+     * Get piece at node.
+     * @param at to search
+     * @return optional piece
+     */
+    public Optional<Piece> getPieceAt(Node at) {
+        return pieces.stream()
+                .filter(piece -> at.equals(piece.getAt()))
+                .findFirst();
+    }
+
     public List<Player> getPlayers() {
         return Collections.unmodifiableList(players);
     }

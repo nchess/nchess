@@ -19,7 +19,7 @@ public abstract class Piece {
     }
 
     public abstract String getName();
-	public abstract Set<Move> getMoves(Table table);
+	public abstract Set<Move> getMoves(GameState state);
 
     public Node getAt() {
         return at;

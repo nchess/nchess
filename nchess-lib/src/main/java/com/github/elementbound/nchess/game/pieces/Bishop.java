@@ -1,17 +1,16 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Node;
-import com.github.elementbound.nchess.game.Piece;
-import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.util.GameStateUtils;
 
 public class Bishop extends Piece {
 
-	public Bishop(long player, long at) {
-		super(player, at);
+	public Bishop(Node at, Player player) {
+		super(at, player);
 	}
 
 	@Override
@@ -20,44 +19,40 @@ public class Bishop extends Piece {
 	}
 
 	@Override
-	public List<Move> getMoves(Table table) {
-		Node node = table.getNode(at);
-		
-		List<Move> moves = new ArrayList<>();
-		
-		for(int i = 0; i < node.secondaryNeighborCount(); i++) {
-			double direction = table.linkDirection(this.at, node.secondaryNeighbor(i));
-			
-			long from = at;
-			long to = table.secondaryNodeTowardsDirection(from, direction);
-			
-			while(to >= 0) {
-				if(!table.getNode(to).visible())
-					break;
-				
-				if(table.isNodeOccupiedByAlly(to, this.player))	
-					break;
-				
-				if(table.isNodeOccupiedByEnemy(to, this.player)) {
-					moves.add(new Move(this.at, to));
-					break;
-				}
-				
-				moves.add(new Move(this.at, to));
-				
-				//from = to;
-				long nextTo = table.secondaryNodeTowardsDirection(to, direction);
-				if(nextTo == from)
-					break;
-				
-				from = to;
-				to = nextTo;
-				
-				System.out.printf("Direction: %f; %d => %d\n", direction, from, to);
-			}
-		}
-		
-		return moves; 
+	public Set<Move> getMoves(GameState state) {
+		Set<Node> targetNodes = new HashSet<>();
+        Table table = state.getTable();
+
+		at.getSecondaryNeighbors().stream()
+                .forEach(towards -> {
+                    double direction = table.linkDirection(at, towards);
+
+                    while(towards != null) {
+                        // Stop if node is not visible
+                        if(!towards.isVisible())
+                            break;
+
+                        // Stop if node is occupied by ally
+                        if(GameStateUtils.isAllyAtNode(state, towards, this))
+                            break;
+
+                        targetNodes.add(towards);
+                        towards = table.nodeTowardsDirection(towards, direction);
+
+                        // Stop if node is occupied by enemy
+                        if(GameStateUtils.isEnemyAtNode(state, towards, this))
+                            break;
+                    }
+                });
+
+		return targetNodes.stream()
+                .map(to -> new Move(at, to))
+                .collect(Collectors.toSet());
 	}
+
+    @Override
+    public Piece move(Node to) {
+        return new Bishop(to, player);
+    }
 
 }
