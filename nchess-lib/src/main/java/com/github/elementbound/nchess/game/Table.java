@@ -1,17 +1,12 @@
 package com.github.elementbound.nchess.game;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import com.github.elementbound.nchess.util.MathUtils;
 import javafx.scene.control.Tab;
-
-import java.util.Set;
 
 public class Table {
 	private final Set<Node> nodes;
@@ -20,7 +15,11 @@ public class Table {
         this.nodes = nodes;
     }
 
-    //=========================================================================================
+	public Set<Node> getNodes() {
+		return Collections.unmodifiableSet(nodes);
+	}
+
+	//=========================================================================================
 	//Nodes 
 	//region Nodes
 
@@ -100,29 +99,7 @@ public class Table {
 
 	//=========================================================================================
 	//Moves 
-	//region Moves 
-
-    // TODO: Move to GameState
-    @Deprecated
-	public boolean applyMove(Move move) {
-		long fromPieceId = this.pieceAt(move.from());
-		long toPieceId = this.pieceAt(move.to());
-		
-		System.out.printf("Applying move %s\n", move.toString());
-		if(fromPieceId < 0)
-			return false; //Trying to move a nonexistent piece
-		
-		if(toPieceId >= 0)
-			this.removePiece(toPieceId); //To move over an existing piece is to eradicate it
-		//TODO: Check if moving over an allied piece, and if so, deny move 
-		
-		//Perform move
-		System.out.println("Done. ");
-		Piece piece = this.getPiece(fromPieceId);
-		piece.at(move.to());
-		piece.onMoveApplied(this, move.from(), move.to());
-		return true; 
-	}
+	//region Moves
 
 	// TODO: Move to controller?
     @Deprecated

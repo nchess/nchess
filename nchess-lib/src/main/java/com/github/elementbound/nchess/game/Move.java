@@ -8,23 +8,23 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 public class Move {
-	private long fromId; 
-	private long toId; 
-	
-	public Move(long fromId, long toId) {
-		this.fromId = fromId;
-		this.toId = toId;
-	}
-	
-	public long from() {
-		return this.fromId;
-	}
-	
-	public long to() {
-		return this.toId; 
-	}
-	
-	@Override 
+	private final Node from;
+	private final Node to;
+
+    public Move(Node from, Node to) {
+        this.from = from;
+        this.to = to;
+    }
+
+    public Node getFrom() {
+        return from;
+    }
+
+    public Node getTo() {
+        return to;
+    }
+
+    @Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
 	}
