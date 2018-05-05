@@ -14,7 +14,7 @@ import java.util.Set;
 public class Table {
 	private Map<Long, Node> nodes = new HashMap<>(); 
 	private Map<Long, Piece> pieces = new HashMap<>(); 
-	private Set<Long> players = new HashSet<>(); 
+	private Set<Player> players = new HashSet<>();
 	
 	//=========================================================================================
 	//Preprocess
