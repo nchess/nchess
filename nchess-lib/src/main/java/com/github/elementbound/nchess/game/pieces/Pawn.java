@@ -1,11 +1,13 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.util.GameStateUtils;
 import com.github.elementbound.nchess.util.TableUtils;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Pawn extends Piece {
 	private Optional<Double> direction;

@@ -1,21 +1,15 @@
 package com.github.elementbound.nchess.net;
 
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.net.protocol.*;
+
+import javax.json.stream.JsonParsingException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
-
-import javax.json.stream.JsonParsingException;
-
-import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Table;
-import com.github.elementbound.nchess.net.protocol.JoinResponseMessage;
-import com.github.elementbound.nchess.net.protocol.Message;
-import com.github.elementbound.nchess.net.protocol.MessageParser;
-import com.github.elementbound.nchess.net.protocol.MoveMessage;
-import com.github.elementbound.nchess.net.protocol.PlayerTurnMessage;
-import com.github.elementbound.nchess.net.protocol.TableUpdateMessage;
 
 public class Client implements Runnable {
 	private String host; 
@@ -62,7 +56,7 @@ public class Client implements Runnable {
 		
 		//System.out.printf("--- --- ---\n < \n%s\n\n", msgstr);
 		try {
-			return MessageParser.parse(strb.toString());
+			return ParsingMessageFactory.from(strb.toString());
 		}
 		catch(JsonParsingException e) {
 			System.out.printf("[Warning]Malformed JSON: %s\n", e.getMessage());
@@ -95,7 +89,7 @@ public class Client implements Runnable {
 			while(sin.hasNext()) {
 				String line = sin.nextLine();
 				
-				Message msg = MessageParser.parse(line);
+				Message msg = ParsingMessageFactory.from(line);
 				if(msg == null) {
 					System.out.println("Unknown message!");
 					continue; 

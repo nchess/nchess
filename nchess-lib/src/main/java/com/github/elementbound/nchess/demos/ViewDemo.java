@@ -1,22 +1,17 @@
 package com.github.elementbound.nchess.demos;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Image;
+import com.github.elementbound.nchess.util.JsonTableLoader;
+import com.github.elementbound.nchess.view.DefaultTablePanelListener;
+import com.github.elementbound.nchess.view.TablePanel;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.Window.Type;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-
-import com.github.elementbound.nchess.util.JsonTableLoader;
-import com.github.elementbound.nchess.view.DefaultTablePanelListener;
-import com.github.elementbound.nchess.view.TablePanel;
 
 public class ViewDemo {
 

@@ -1,9 +1,9 @@
 package com.github.elementbound.nchess.demos;
 
-import java.io.IOException;
-
 import com.github.elementbound.nchess.net.Server;
 import com.github.elementbound.nchess.util.JsonTableLoader;
+
+import java.io.IOException;
 
 public class CLIServer {
 	public static final int PORT = 60001;

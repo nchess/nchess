@@ -1,9 +1,9 @@
 package com.github.elementbound.nchess.net;
 
-import java.io.IOException;
-
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Table;
+
+import java.io.IOException;
 
 public interface ClientEventListener {
 	public void onTableUpdate(Client client, Table table);

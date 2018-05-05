@@ -1,8 +1,6 @@
 package com.github.elementbound.nchess.view;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;

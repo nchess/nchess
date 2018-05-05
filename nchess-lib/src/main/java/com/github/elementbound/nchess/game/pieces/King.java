@@ -1,11 +1,12 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.util.GameStateUtils;
+
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class King extends Piece {
 	public King(Node at, Player player) {

@@ -1,12 +1,16 @@
 package com.github.elementbound.nchess.game;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 import java.util.*;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * A node representing a cell in the game table.
  */
 public class Node {
-	private final Table parent;
 	private final long id;
 
 	private final double x;
@@ -16,8 +20,7 @@ public class Node {
 	private List<Node> neighbors;
 	private List<Node> secondaryNeighbors;
 
-	public Node(Table parent, long id, double x, double y, boolean visible) {
-		this.parent = parent;
+	public Node(long id, double x, double y, boolean visible) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -26,6 +29,19 @@ public class Node {
 		this.neighbors = new ArrayList<>();
 		this.secondaryNeighbors = new ArrayList<>();
 	}
+
+    public Node(Builder builder) {
+        this.id = builder.id;
+        this.x = builder.x;
+        this.y = builder.y;
+        this.visible = builder.visible;
+        this.neighbors = builder.neighbors;
+        this.secondaryNeighbors = builder.secondaryNeighbors;
+    }
+
+    public static Builder builder() {
+	    return new Builder();
+    }
 
 	// TODO: Move to builder, nodes shouldn't be mutable
     @Deprecated
@@ -59,10 +75,6 @@ public class Node {
 		}
 	}
 
-    public Table getParent() {
-        return parent;
-    }
-
     public long getId() {
         return id;
     }
@@ -85,5 +97,66 @@ public class Node {
 
     public List<Node> getSecondaryNeighbors() {
         return Collections.unmodifiableList(secondaryNeighbors);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return id == node.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+	    return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
+    }
+
+    public static class Builder {
+        private long id;
+        private double x;
+        private double y;
+        private boolean visible;
+        private List<Node> neighbors;
+        private List<Node> secondaryNeighbors;
+
+        public Builder id(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder x(double x) {
+            this.x = x;
+            return this;
+        }
+
+        public Builder y(double y) {
+            this.y = y;
+            return this;
+        }
+
+        public Builder visible(boolean visible) {
+            this.visible = visible;
+            return this;
+        }
+
+        public Builder neighbors(List<Node> neighbors) {
+            this.neighbors = neighbors;
+            return this;
+        }
+
+        public Builder secondaryNeighbors(List<Node> secondaryNeighbors) {
+            this.secondaryNeighbors = secondaryNeighbors;
+            return this;
+        }
+
+        public Node build() {
+            return new Node(this);
+        }
     }
 }

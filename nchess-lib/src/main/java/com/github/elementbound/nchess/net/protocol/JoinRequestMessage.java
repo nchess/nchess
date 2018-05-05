@@ -9,19 +9,16 @@ public class JoinRequestMessage extends Message {
 		AS_OBSERVER
 	}
 	
-	private JoinType joinType; 
-	
-	public JoinRequestMessage() {
-	}
-	
+	private final JoinType joinType;
+
 	public JoinRequestMessage(JoinType type) {
 		this.joinType = type; 
 	}
-	
-	public JoinType joinType() {
-		return this.joinType; 
+
+	public JoinType getJoinType() {
+		return joinType;
 	}
-	
+
 	@Override
 	public String toJSON() {
 		JsonObjectBuilder builder = getBuilder();
@@ -36,8 +33,7 @@ public class JoinRequestMessage extends Message {
 		return builder.build().toString();
 	}
 
-	@Override
-	public Message fromJSON(JsonObject json) {
+	public static Message fromJSON(JsonObject json) {
 		if(!json.getString("type").equals("join"))
 			return null; 
 		
@@ -47,6 +43,6 @@ public class JoinRequestMessage extends Message {
 		else if(joinAs.equals("observer"))
 			return new JoinRequestMessage(JoinType.AS_OBSERVER);
 		else 
-			return null;
+			throw new IllegalArgumentException(String.format("Unknown join type: %s", joinAs));
 	}
 }

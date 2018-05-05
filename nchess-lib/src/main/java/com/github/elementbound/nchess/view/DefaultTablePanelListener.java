@@ -1,16 +1,12 @@
 package com.github.elementbound.nchess.view;
 
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.util.List;
-
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
 
 public class DefaultTablePanelListener implements TablePanelListener, MouseWheelListener, MouseMotionListener, MouseListener {
 	private long moveFrom = -1;

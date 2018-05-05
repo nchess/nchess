@@ -1,14 +1,14 @@
 package com.github.elementbound.nchess.demos;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
-
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.Client;
 import com.github.elementbound.nchess.net.ClientEventListener;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
 
 public class EchoClient {
 	public static void main(String[] args) {

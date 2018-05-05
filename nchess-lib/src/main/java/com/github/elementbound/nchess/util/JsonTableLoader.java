@@ -2,26 +2,12 @@ package com.github.elementbound.nchess.util;
 
 import com.github.elementbound.nchess.game.Node;
 import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.pieces.*;
 
+import javax.json.*;
 import java.io.InputStream;
 import java.util.Map.Entry;
-
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
-import javax.json.JsonValue;
-
-import com.github.elementbound.nchess.game.Table;
-import com.github.elementbound.nchess.game.pieces.Bishop;
-import com.github.elementbound.nchess.game.pieces.King;
-import com.github.elementbound.nchess.game.pieces.Knight;
-import com.github.elementbound.nchess.game.pieces.Pawn;
-import com.github.elementbound.nchess.game.pieces.Queen;
-import com.github.elementbound.nchess.game.pieces.Rook;
 
 public class JsonTableLoader {
 	private Table resultTable = null;

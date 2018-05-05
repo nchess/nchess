@@ -1,32 +1,29 @@
 package com.github.elementbound.nchess.net.protocol;
 
 
+import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.util.JsonTableLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.json.JsonObject;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import javax.json.JsonObject;
-
-import com.github.elementbound.nchess.game.Table;
-import com.github.elementbound.nchess.util.JsonTableLoader;
-
 public class TableUpdateMessage extends Message {
-	private Table table;
-	
-	public TableUpdateMessage() {
-		this.table = null; 
-	}
+	private final Table table;
 	
 	public TableUpdateMessage(Table table) {
 		this.table = table; 
 	}
-	
-	public Table table() {
-		return this.table; 
+
+	public Table getTable() {
+		return table;
 	}
-	
+
 	@Override
 	public String toJSON() {
-		JsonTableLoader tableHandler = new JsonTableLoader(null); //Eek... refactor
+		JsonTableLoader tableHandler = new JsonTableLoader(null); // TODO: Eek... refactor
 		tableHandler.assignTable(this.table);
 		JsonObject jTable = tableHandler.serialize();
 		
@@ -36,18 +33,14 @@ public class TableUpdateMessage extends Message {
 				.build().toString();
 	}
 
-	@Override
-	public Message fromJSON(JsonObject json) {
-		System.out.printf("Testing message %s for table-update\n", json.getString("type"));
-		
+	public static Message fromJSON(JsonObject json) {
 		if(!json.getString("type").equals("table-update"))
 			return null;
 
 		InputStream is = new ByteArrayInputStream(json.getJsonObject("table").toString().getBytes());
 		JsonTableLoader tableHandler = new JsonTableLoader(is);
 		if(!tableHandler.parse()) {
-			System.out.println("Ill-formed json");
-			return null; 
+			throw new IllegalArgumentException("Ill-formed JSON!");
 		}
 		
 		return new TableUpdateMessage(tableHandler.getResult());

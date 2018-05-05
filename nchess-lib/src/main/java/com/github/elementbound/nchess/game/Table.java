@@ -1,15 +1,13 @@
 package com.github.elementbound.nchess.game;
 
-import java.awt.*;
-import java.util.*;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.function.Function;
-
 import com.github.elementbound.nchess.util.MathUtils;
 import com.github.elementbound.nchess.util.TableUtils;
 import com.sun.istack.internal.Nullable;
-import javafx.scene.control.Tab;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
 public class Table {
 	private final Set<Node> nodes;

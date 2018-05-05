@@ -1,34 +1,18 @@
 package com.github.elementbound.nchess.view;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.swing.JPanel;
-
 import com.github.elementbound.nchess.game.Node;
 import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.util.MathUtils;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.*;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class TablePanel extends JPanel {
 	private static final long serialVersionUID = -6705016017912569702L;
