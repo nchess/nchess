@@ -1,16 +1,15 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Node;
-import com.github.elementbound.nchess.game.Piece;
-import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.util.GameStateUtils;
 
 public class King extends Piece {
-	public King(long player, long at) {
-		super(player, at);
+	public King(Node at, Player player) {
+		super(at, player);
 	}
 
 	@Override
@@ -19,22 +18,17 @@ public class King extends Piece {
 	}
 
 	@Override
-	public List<Move> getMoves(Table table) {
-		Node node = table.getNode(at);
-		
-		List<Move> moves = new ArrayList<>();
-		
-		for(int i = 0; i < node.neighborCount(); i++) {
-			if(!table.isNodeOccupiedByAlly(node.neighbor(i), this.player))
-				moves.add(new Move(at, node.neighbor(i)));
-		}	
-		
-		for(int i = 0; i < node.secondaryNeighborCount(); i++) {
-			if(!table.isNodeOccupiedByAlly(node.secondaryNeighbor(i), this.player))
-				moves.add(new Move(at, node.secondaryNeighbor(i)));
-		}
-		
-		return moves;
+	public Set<Move> getMoves(GameState state) {
+        return Stream.of(at.getNeighbors(), at.getSecondaryNeighbors())
+                .flatMap(Collection::stream)
+                .filter(to -> !GameStateUtils.isAllyAtNode(state, to, this))
+                .map(to -> new Move(at, to))
+                .collect(Collectors.toSet());
 	}
+
+    @Override
+    public Piece move(Node to) {
+        return new King(to, player);
+    }
 
 }
