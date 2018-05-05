@@ -1,17 +1,19 @@
 package com.github.elementbound.nchess.game.pieces;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Node;
-import com.github.elementbound.nchess.game.Piece;
-import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.util.GameStateUtils;
+import com.github.elementbound.nchess.util.TableUtils;
 
 public class Knight extends Piece {
 
-	public Knight(long player, long at) {
-		super(player, at);
+	public Knight(Node at, Player player) {
+		super(at, player);
 	}
 
 	@Override
@@ -20,47 +22,42 @@ public class Knight extends Piece {
 	}
 
 	@Override
-	public List<Move> getMoves(Table table) {
-		//TODO: No duplicate moves
-		List<Move> moves = new ArrayList<>();
-		Node node = table.getNode(this.at);
-		
-		for(int i = 0; i < node.neighborCount(); i++) {
-			double direction = table.linkDirection(this.at, node.neighbor(i));
-			
-			long to = this.at;
-			//Take two steps in direction
-			for(int j = 0; j < 2; j++) {
-				to = table.nodeTowardsDirection(to, direction);
-				if(to < 0)
-					break;
-			}
-			
-			if(to < 0)
-				continue; 
-			
-			//Exclude third step node
-			long excluded = table.nodeTowardsDirection(to, direction);
-			
-			Node toNode = table.getNode(to);
-			for(int j = 0; j < toNode.neighborCount(); j++) {
-				if(table.isLink(this.at, toNode.neighbor(j)))
-					continue; 
-				
-				if(table.isSecondaryLink(this.at, toNode.neighbor(j)))
-					continue; 
-				
-				if(toNode.neighbor(j) == excluded)
-					continue;
-				
-				if(table.isNodeOccupiedByAlly(toNode.neighbor(j), this.player))
-					continue;
-				
-				moves.add(new Move(this.at, toNode.neighbor(j)));
-			}
-		}
-		
-		return moves;
+	public Set<Move> getMoves(GameState state) {
+		Set<Node> targetNodes = new HashSet<>();
+		Table table = state.getTable();
+
+		at.getNeighbors().forEach(towards -> {
+            double direction = TableUtils.linkDirection(at, towards);
+            Node target = at;
+
+            // Take two steps in direction
+            for(int i = 0; i < 2; i++) {
+                target = table.nodeTowardsDirection(target, direction);
+            }
+
+            // Got lost in the process
+            if(target == null)
+                return;
+
+            // Exclude third step node
+            Node excluded = table.nodeTowardsDirection(target, direction);
+
+            target.getNeighbors().stream()
+                    .filter(to -> to != excluded)
+                    .filter(to -> !table.isLink(at, to))
+                    .filter(to -> !table.isSecondaryLink(at, to))
+                    .filter(to -> !GameStateUtils.isAllyAtNode(state, to, this))
+                    .forEach(targetNodes::add);
+        });
+
+		return targetNodes.stream()
+                .map(to -> new Move(at, to))
+                .collect(Collectors.toSet());
 	}
+
+    @Override
+    public Piece move(Node to) {
+        return new Knight(to, player);
+    }
 
 }

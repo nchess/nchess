@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.util.GameStateUtils;
+import com.github.elementbound.nchess.util.TableUtils;
 
 public class Bishop extends Piece {
 
@@ -25,7 +26,7 @@ public class Bishop extends Piece {
 
 		at.getSecondaryNeighbors().stream()
                 .forEach(towards -> {
-                    double direction = table.linkDirection(at, towards);
+                    double direction = TableUtils.linkDirection(at, towards);
 
                     while(towards != null) {
                         // Stop if node is not visible

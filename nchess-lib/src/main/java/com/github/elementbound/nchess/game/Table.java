@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 import com.github.elementbound.nchess.util.MathUtils;
+import com.sun.istack.internal.Nullable;
 import javafx.scene.control.Tab;
 
 public class Table {
@@ -18,10 +19,6 @@ public class Table {
 
 	public Set<Node> getNodes() {
 		return Collections.unmodifiableSet(nodes);
-	}
-
-	public double linkDirection(Node a, Node b) {
-		return MathUtils.vectorDirection(a.getX(), a.getY(), b.getX(), b.getY());
 	}
 
 	// TODO: Where to move this even? Probably to Node?
@@ -38,7 +35,17 @@ public class Table {
 
 	// TODO: Move to own component?
 	// TODO: Refactor and unit test; move?
-	public Node nodeTowardsDirection(Node from, double dir) {
+    /**
+     * <p>Return {@code from}'s neighbor that is closest to {@code direction}.
+     * @param from starting node
+     * @param dir target direction
+     * @return best fitting node or null if none found
+     */
+	public Node nodeTowardsDirection(@Nullable Node from, double dir) {
+        if(from == null) {
+            return null;
+        }
+
         Function<Node, Double> directionSimilarity =
                 to -> MathUtils.directionSimilarity(dir, linkDirection(from, to));
 
@@ -48,6 +55,12 @@ public class Table {
 	}
 
     // TODO: Refactor and unit test; and move?
+    /**
+     * <p>Return {@code from}'s secondary neighbor that is closest to {@code direction}.
+     * @param from starting node
+     * @param dir target direction
+     * @return best fitting node or null if none found
+     */
 	public Node secondaryNodeTowardsDirection(Node from, double dir) {
         Function<Node, Double> directionSimilarity =
                 to -> MathUtils.directionSimilarity(dir, linkDirection(from, to));
