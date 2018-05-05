@@ -1,5 +1,6 @@
 package com.github.elementbound.nchess.game;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,117 +9,39 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.github.elementbound.nchess.util.MathUtils;
+import javafx.scene.control.Tab;
 
 import java.util.Set;
 
 public class Table {
-	private Map<Long, Node> nodes = new HashMap<>(); 
-	private Map<Long, Piece> pieces = new HashMap<>(); 
-	private Set<Player> players = new HashSet<>();
-	
-	//=========================================================================================
-	//Preprocess
+	private final Set<Node> nodes;
 
-    // TODO: Move to TablePreprocessor
-	@Deprecated
-	public void preprocess() {
-		System.out.println("Gathering secondary neighbors... ");
-		int i = 0;
-		for(Node n : nodes.values()) {
-			n.gatherSecondaryNeighbors();
-			i++;
-			System.out.printf("%d/%d\r", i, nodes.size());
-		}
-		System.out.println();
-	}
-	
-	//=========================================================================================
+    public Table(Set<Node> nodes) {
+        this.nodes = nodes;
+    }
+
+    //=========================================================================================
 	//Nodes 
 	//region Nodes
 
-    // TODO: Move to Table.Builder
-    @Deprecated
-	public boolean addNode(long id, Node node) {
-		if(!this.hasNode(id)) {
-			nodes.put(id, node);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-	// TODO: Just no.
 	@Deprecated
-	public boolean hasNode(long id) {
-		return nodes.containsKey(id);
-	}
-
-	// TODO: Move to Table.Builder
-	@Deprecated
-	public boolean linkNode(long fromId, long toId) {
-		if(!this.hasNode(fromId) || !this.hasNode(toId))
-			return false;
-		
-		nodes.get(fromId).link(toId);
-		return true; 
-	}
-
-	@Deprecated
-	public Node getNode(long id) {
-		return nodes.get(id);
-	}
-
-	// TODO: getNodes()
-	@Deprecated
-	public Set<Entry<Long, Node>> allNodes() {
-		return nodes.entrySet();
-	}
-
-	// TODO: There should be a Link class that knows about this
-	@Deprecated
-	public double linkDirection(long from, long to) {
-		if(!this.hasNode(from))
-			return Double.NaN;
-		
-		if(!this.hasNode(to))
-			return Double.NaN;
-		
-		Node a = this.getNode(from);
-		Node b = this.getNode(to);
-		
-		return MathUtils.vectorDirection(a.x(), a.y(), b.x(), b.y());
+	public double linkDirection(Node a, Node b) {
+		return MathUtils.vectorDirection(a.getX(), a.getY(), b.getX(), b.getY());
 	}
 
 	// TODO: Where to move this even? Probably to Node?
     @Deprecated
-	public boolean isLink(long from, long to) {
-		Node a = this.getNode(from);
-		if(a == null)
-			return false; 
-		
-		for(int i = 0; i < a.neighborCount(); i++)
-			if(to == a.neighbor(i))
-				return true;
-		
-		return false; 
+	public boolean isLink(Node from, Node to) {
+		return from.getNeighbors().contains(to);
 	}
 
 	// TODO: Move to Node?
 	@Deprecated
-	public boolean isSecondaryLink(long from, long to) {
-		Node a = this.getNode(from);
-		if(a == null)
-			return false; 
-		
-		for(int i = 0; i < a.secondaryNeighborCount(); i++)
-			if(to == a.secondaryNeighbor(i))
-				return true;
-		
-		return false; 
+	public boolean isSecondaryLink(Node from, Node to) {
+        return from.getSecondaryNeighbors().contains(to);
 	}
 
-	// TODO: Refactor and unit test
+	// TODO: Refactor and unit test; move?
 	public long nodeTowardsDirection(long from, double dir) {
 		Node node = this.getNode(from);
 		if(node == null)
@@ -150,7 +73,7 @@ public class Table {
 			return bestNode;
 	}
 
-    // TODO: Refactor and unit test
+    // TODO: Refactor and unit test; and move?
 	public long secondaryNodeTowardsDirection(long from, double dir) {
 		Node node = this.getNode(from);
 		if(node == null)
@@ -174,114 +97,6 @@ public class Table {
 		
 		return bestNode;
 	}
-
-    // TODO: getPieceAt() in GameState?
-    @Deprecated
-	public boolean isNodeOccupied(long node) {
-		long pieceId = this.pieceAt(node);
-		return (pieceId >= 0);
-	}
-
-	// TODO: getPieceAt() in GameState?
-    @Deprecated
-	public boolean isNodeOccupiedByAlly(long node, long playerId) {
-		long pieceId = this.pieceAt(node);
-		System.out.printf("Piece at %d is %d\n", node, pieceId);
-		if(pieceId < 0)
-			return false; 
-		
-		Piece piece = this.getPiece(pieceId);
-		if(piece.player() == playerId)
-			return true; 
-		
-		return false;
-	}
-
-    // TODO: getPieceAt() in GameState?
-    @Deprecated
-	public boolean isNodeOccupiedByEnemy(long node, long playerId) {
-		long pieceId = this.pieceAt(node);
-		if(pieceId < 0)
-			return false; 
-		
-		Piece piece = this.getPiece(pieceId);
-		if(piece.player() != playerId)
-			return true; 
-		
-		return false;
-	}
-	
-	//endregion Nodes
-	
-	//=========================================================================================
-	//Players
-	//region Players
-
-    // TODO: Move to GameState.Builder?
-    @Deprecated
-	public boolean addPlayer(long id) {
-		return players.add(id);
-	}
-
-	@Deprecated
-	public boolean hasPlayer(long id) {
-		return players.contains(id);
-	}
-
-	// TODO: GameState::getPlayers()
-	@Deprecated
-	public Set<Long> allPlayers() {
-		return players;
-	}
-	
-	//endregion
-
-	//=========================================================================================
-	//Pieces 
-	//region Pieces
-    // TODO: This whole region is deprecated, move to GameState.Builder or to GameState
-
-    @Deprecated
-	public boolean addPiece(long id, Piece piece) {
-		if(!this.hasPiece(id)) {
-			pieces.put(id, piece);
-			return true;
-		}
-		else {
-			return false; 
-		}
-	}
-
-    @Deprecated
-	public boolean hasPiece(long id) {
-		return pieces.containsKey(id);
-	}
-
-    @Deprecated
-	public boolean removePiece(long id) {
-		return pieces.remove(id) != null;
-	}
-
-    @Deprecated
-	public Piece getPiece(long id) {
-		return pieces.get(id);
-	}
-
-    @Deprecated
-	public Set<Entry<Long, Piece>> allPieces() {
-		return pieces.entrySet();
-	}
-
-    @Deprecated
-	public long pieceAt(long node) {
-		for(Entry<Long, Piece> e: pieces.entrySet())
-			if(e.getValue().at() == node)
-				return e.getKey();
-		
-		return -1;
-	}
-
-	//endregion Pieces
 
 	//=========================================================================================
 	//Moves 
@@ -328,5 +143,25 @@ public class Table {
 	}
 	
 	//endregion Moves
-	
+
+    public static Builder builder() {
+	    return new Builder();
+    }
+
+    public static class Builder {
+	    private Set<Node> nodes = new HashSet<>();
+
+	    private Builder() {
+        }
+
+        public Builder withNode(Node node) {
+	        nodes.add(node);
+	        return this;
+        }
+
+        public Table build() {
+            nodes.forEach(Node::gatherSecondaryNeighbors);
+            return new Table(nodes);
+        }
+    }
 }

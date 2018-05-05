@@ -2,6 +2,9 @@ package com.github.elementbound.nchess.game;
 
 import java.util.*;
 
+/**
+ * A node representing a cell in the game table.
+ */
 public class Node {
 	private final Table parent;
 	private final long id;
