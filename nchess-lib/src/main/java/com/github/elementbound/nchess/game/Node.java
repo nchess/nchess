@@ -1,90 +1,86 @@
 package com.github.elementbound.nchess.game;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Node {
-	//TODO: avoid circular dependencies in some nice way
-	private Table parent = null;
-	private long id; 
+	private final Table parent;
+	private final long id;
+
+	private final double x;
+	private final double y;
+	private final boolean visible;
 	
-	private double x;
-	private double y; 
-	private boolean visible; 
-	
-	private List<Long> neighbors;
-	private List<Long> secondaryNeighbors; 
+	private List<Node> neighbors;
+	private List<Node> secondaryNeighbors;
 
 	public Node(Table parent, long id, double x, double y, boolean visible) {
-		this.parent = parent; 
+		this.parent = parent;
 		this.id = id;
-		this.x = x; 
-		this.y = y; 
-		this.visible = visible; 
-		
-		//TODO: Organize neighbors on some criteria 
+		this.x = x;
+		this.y = y;
+		this.visible = visible;
+
 		this.neighbors = new ArrayList<>();
 		this.secondaryNeighbors = new ArrayList<>();
 	}
-	
-	public void link(long toId) {
-		if(!neighbors.contains(toId)) {
-			neighbors.add(toId);
+
+	// TODO: Move to builder, nodes shouldn't be mutable
+    @Deprecated
+	public void link(Node node) {
+		if(!neighbors.contains(node)) {
+			neighbors.add(node);
 		}
 	}
-	
-	public long id() {
-		return this.id; 
-	}
-	
-	public double x() {
-		return this.x;
-	}
-	
-	public double y() {
-		return this.y;
-	}
-	
-	public boolean visible() {
-		return this.visible; 
-	}
-	
-	public int neighborCount() {
-		return neighbors.size();
-	}
-	
-	public long neighbor(int i) {
-		return neighbors.get(i);
-	}
-	
-	public int secondaryNeighborCount() {
-		return secondaryNeighbors.size();
-	}
-	
-	public long secondaryNeighbor(int i) {
-		return secondaryNeighbors.get(i);
-	}
-	
+
+	// TODO: Should be moved to some kind of preprocessor
+	@Deprecated
 	public void gatherSecondaryNeighbors() {
 		secondaryNeighbors.clear();
 		for(int i = 0; i < neighbors.size(); i++) {
-			int j = (i+1) % neighbors.size(); 
+			int j = (i+1) % neighbors.size();
+
+			Set<Node> neighborsA = new HashSet<>();
+			Set<Node> neighborsB = new HashSet<>();
 			
-			Set<Long> neighborsA = new TreeSet<>();
-			Set<Long> neighborsB = new TreeSet<>();
-			
-			Node nodeA = parent.getNode(this.neighbor(i));
-			Node nodeB = parent.getNode(this.neighbor(j));
+			Node nodeA = neighbors.get(i);
+			Node nodeB = neighbors.get(j);
 			
 			neighborsA.addAll(nodeA.neighbors);
 			neighborsB.addAll(nodeB.neighbors);
-			Set<Long> secondary = new TreeSet<>(neighborsA);
+
+			Set<Node> secondary = new HashSet<>(neighborsA);
 			secondary.retainAll(neighborsB);
-			secondary.remove(id);
+			secondary.remove(this);
 			
 			secondaryNeighbors.addAll(secondary);
 		}
 	}
+
+    public Table getParent() {
+        return parent;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public List<Node> getNeighbors() {
+        return Collections.unmodifiableList(neighbors);
+    }
+
+    public List<Node> getSecondaryNeighbors() {
+        return Collections.unmodifiableList(secondaryNeighbors);
+    }
 }

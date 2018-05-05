@@ -1,5 +1,12 @@
 package com.github.elementbound.nchess.game;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 public class Move {
 	private long fromId; 
 	private long toId; 
@@ -19,24 +26,16 @@ public class Move {
 	
 	@Override 
 	public String toString() {
-		StringBuffer strb = new StringBuffer();
-		
-		return strb.append("[Move]")
-			.append(this.fromId)
-			.append(" => ")
-			.append(this.toId) 
-			.toString();
+		return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
 	}
 	
 	@Override 
-	public boolean equals(Object rhs) {
-		if(rhs == this)
-			return true; 
-		
-		if(!(rhs instanceof Move))
-			return false; 
-		
-		Move m = (Move)rhs;
-		return ((this.fromId == m.fromId) && (this.toId == m.toId));
+	public boolean equals(Object that) {
+		return EqualsBuilder.reflectionEquals(this, that);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
 	}
 }
