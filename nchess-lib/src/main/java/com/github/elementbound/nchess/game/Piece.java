@@ -34,6 +34,14 @@ public abstract class Piece {
                 .anyMatch(moveCandidate::equals);
 	}
 
+    /**
+     * <p>Returns a new piece of the same kind, now standing on a different node.
+     * <p>This does not modify the original instance.
+     * @param to where to move
+     * @return modified instance
+     */
+	public abstract Piece move(Node to);
+
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);

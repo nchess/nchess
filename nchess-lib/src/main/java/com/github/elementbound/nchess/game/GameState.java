@@ -3,9 +3,7 @@ package com.github.elementbound.nchess.game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,7 +54,7 @@ public class GameState {
                 .filter(piece -> ! move.getTo().equals(piece.getAt())) // Exclude piece we are stepping over
                 .map(piece ->
                     piece.getAt().equals(move.getFrom()) ?
-                    piece /* TODO: Move! */ :
+                    piece.move(move.getTo()) :
                     piece
                 )
                 .collect(Collectors.toSet());
@@ -67,6 +65,14 @@ public class GameState {
                 .pieces(resultingPieces)
                 .currentPlayer(nextPlayer(currentPlayer))
                 .build();
+    }
+
+    @Deprecated
+    public Set<Move> getMovesByPlayer(Player player) {
+        return pieces.stream()
+                .filter(piece -> piece.getPlayer().equals(player))
+                .flatMap(piece -> piece.getMoves(table).stream())
+                .collect(Collectors.toSet());
     }
 
     public Table getTable() {

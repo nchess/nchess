@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import com.github.elementbound.nchess.util.MathUtils;
 import javafx.scene.control.Tab;
@@ -19,11 +20,6 @@ public class Table {
 		return Collections.unmodifiableSet(nodes);
 	}
 
-	//=========================================================================================
-	//Nodes 
-	//region Nodes
-
-	@Deprecated
 	public double linkDirection(Node a, Node b) {
 		return MathUtils.vectorDirection(a.getX(), a.getY(), b.getX(), b.getY());
 	}
@@ -40,86 +36,26 @@ public class Table {
         return from.getSecondaryNeighbors().contains(to);
 	}
 
+	// TODO: Move to own component?
 	// TODO: Refactor and unit test; move?
-	public long nodeTowardsDirection(long from, double dir) {
-		Node node = this.getNode(from);
-		if(node == null)
-			return -1;
-		
-		double bestSimilarity = -2.0;
-		long bestNode = -1;
-		//System.out.printf("[Towards]From %d, in %f\n", from, dir);
-		
-		for(int i = 0; i < node.neighborCount(); i++) {
-			long ni = node.neighbor(i);
-			
-			double similarity = MathUtils.directionSimilarity(dir, this.linkDirection(from, ni));
-			//System.out.printf("[Towards]%d => %d, dir is %f, similarity is %f vs %f\n", from, ni, this.linkDirection(from, ni), similarity, bestSimilarity);
-			if(similarity > bestSimilarity) {
-				bestSimilarity = similarity;
-				bestNode = ni;
-				//System.out.printf("[Towards]New best: %d => %d, dir is %f, similarity is %f\n", from, ni, this.linkDirection(from, ni), similarity);
-			}
-		}
-		
-		if(bestNode < 0)
-			return -1;
-		
-		Node candidate = this.getNode(bestNode);
-		if(!candidate.visible())
-			return -1;
-		else
-			return bestNode;
+	public Node nodeTowardsDirection(Node from, double dir) {
+        Function<Node, Double> directionSimilarity =
+                to -> MathUtils.directionSimilarity(dir, linkDirection(from, to));
+
+        return from.getNeighbors().stream()
+                .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))
+                .get();
 	}
 
     // TODO: Refactor and unit test; and move?
-	public long secondaryNodeTowardsDirection(long from, double dir) {
-		Node node = this.getNode(from);
-		if(node == null)
-			return -1;
-		
-		double bestSimilarity = -2.0;
-		long bestNode = -1;
-		//System.out.printf("[Towards]From %d, in %f\n", from, dir);
-		
-		for(int i = 0; i < node.secondaryNeighborCount(); i++) {
-			long ni = node.secondaryNeighbor(i);
-			
-			double similarity = MathUtils.directionSimilarity(dir, this.linkDirection(from, ni));
-			//System.out.printf("[Towards]%d => %d, dir is %f, similarity is %f vs %f\n", from, ni, this.linkDirection(from, ni), similarity, bestSimilarity);
-			if(similarity > bestSimilarity) {
-				bestSimilarity = similarity;
-				bestNode = ni;
-				//System.out.printf("[Towards]New best: %d => %d, dir is %f, similarity is %f\n", from, ni, this.linkDirection(from, ni), similarity);
-			}
-		}
-		
-		return bestNode;
-	}
+	public Node secondaryNodeTowardsDirection(Node from, double dir) {
+        Function<Node, Double> directionSimilarity =
+                to -> MathUtils.directionSimilarity(dir, linkDirection(from, to));
 
-	//=========================================================================================
-	//Moves 
-	//region Moves
-
-	// TODO: Move to controller?
-    @Deprecated
-	public List<Move> getMovesByPlayer(long playerId) {
-		List<Move> result = new ArrayList<>();
-		
-		for(Entry<Long, Piece> p : this.allPieces()) {
-			long pieceId = p.getKey();
-			Piece piece = p.getValue();
-			
-			if(piece.player() != playerId)
-				continue; 
-			
-			result.addAll(piece.getMoves(this));
-		}
-		
-		return result; 
+        return from.getSecondaryNeighbors().stream()
+                .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))
+                .get();
 	}
-	
-	//endregion Moves
 
     public static Builder builder() {
 	    return new Builder();
