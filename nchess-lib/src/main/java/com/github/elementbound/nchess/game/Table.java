@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 import com.github.elementbound.nchess.util.MathUtils;
+import com.github.elementbound.nchess.util.TableUtils;
 import com.sun.istack.internal.Nullable;
 import javafx.scene.control.Tab;
 
@@ -47,7 +48,7 @@ public class Table {
         }
 
         Function<Node, Double> directionSimilarity =
-                to -> MathUtils.directionSimilarity(dir, linkDirection(from, to));
+                to -> MathUtils.directionSimilarity(dir, TableUtils.linkDirection(from, to));
 
         return from.getNeighbors().stream()
                 .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))
@@ -63,7 +64,7 @@ public class Table {
      */
 	public Node secondaryNodeTowardsDirection(Node from, double dir) {
         Function<Node, Double> directionSimilarity =
-                to -> MathUtils.directionSimilarity(dir, linkDirection(from, to));
+                to -> MathUtils.directionSimilarity(dir, TableUtils.linkDirection(from, to));
 
         return from.getSecondaryNeighbors().stream()
                 .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))

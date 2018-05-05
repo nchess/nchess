@@ -29,8 +29,8 @@ public abstract class Piece {
         return player;
     }
 	
-	public boolean hasMove(Move moveCandidate, Table table) {
-		return getMoves(table).stream()
+	public boolean hasMove(Move moveCandidate, GameState state) {
+		return getMoves(state).stream()
                 .anyMatch(moveCandidate::equals);
 	}
 
