@@ -1,13 +1,14 @@
 package com.github.elementbound.nchess.demos;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.Client;
 import com.github.elementbound.nchess.net.ClientEventListener;
-import com.github.elementbound.nchess.net.protocol.MoveMessage;
 
 public class EchoClient {
 	public static void main(String[] args) {
@@ -37,9 +38,12 @@ public class EchoClient {
 			
 			@Override
 			public void onMyTurn(Client client) {
-				// TODO Auto-generated method stub
-				//client.send(new MoveMessage(new Move(0, 0)));
-				client.move(new Move(0,0));
+				Table table = client.table();
+				List<Move> moves = table.getMovesByPlayer(client.playerId());
+				Random rng = new Random();
+				
+				//Choose a random move 
+				client.move(moves.get(rng.nextInt(moves.size())));
 			}
 			
 			@Override

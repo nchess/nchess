@@ -1,7 +1,9 @@
 package com.github.elementbound.nchess.game;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -253,7 +255,7 @@ public class Table {
 		
 		System.out.printf("Applying move %s\n", move.toString());
 		if(fromPieceId < 0)
-			return false; //Trying to move an unexisting piece
+			return false; //Trying to move a nonexistent piece
 		
 		if(toPieceId >= 0)
 			this.removePiece(toPieceId); //To move over an existing piece is to eradicate it
@@ -265,6 +267,22 @@ public class Table {
 		piece.at(move.to());
 		piece.onMoveApplied(this, move.from(), move.to());
 		return true; 
+	}
+	
+	public List<Move> getMovesByPlayer(long playerId) {
+		List<Move> result = new ArrayList<>();
+		
+		for(Entry<Long, Piece> p : this.allPieces()) {
+			long pieceId = p.getKey();
+			Piece piece = p.getValue();
+			
+			if(piece.player() != playerId)
+				continue; 
+			
+			result.addAll(piece.getMoves(this));
+		}
+		
+		return result; 
 	}
 	
 	//endregion Moves
