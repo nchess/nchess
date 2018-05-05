@@ -1,47 +1,51 @@
 package com.github.elementbound.nchess.game;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 import java.util.List;
+import java.util.Set;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 public abstract class Piece {
-	protected long at = -1; 
-	protected long player = -1;
-	
-	public Piece(long player, long at) {
-		this.player = player;
-		this.at = at; 
-	}
-	
-	public abstract String getName(); 
-	public abstract List<Move> getMoves(Table table); 
-	
-	public long at() {
-		return this.at;
-	}
-	
-	//TODO: Make this a bit harder to modify, so only the containing Table can move things around
-	//Interface segregation sounds like a fun thing to do here
-	public void at(long nowAt) {
-		this.at = nowAt; 
-	}
-	
-	public long player() {
-		return this.player;
-	}
-	
-	public void onMoveApplied(Table table, long fromId, long toId) {
-		//Do nothing
-	}
+	protected final Node at;
+	protected final Player player;
+
+    public Piece(Node at, Player player) {
+        this.at = at;
+        this.player = player;
+    }
+
+    public abstract String getName();
+	public abstract Set<Move> getMoves(Table table);
+
+    public Node getAt() {
+        return at;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
 	
 	public boolean hasMove(Move moveCandidate, Table table) {
-		for(Move move : this.getMoves(table))
-			if(move.equals(moveCandidate))
-				return true; 
-		
-		return false; 
+		return getMoves(table).stream()
+                .anyMatch(moveCandidate::equals);
 	}
-	
-	@Override 
+
+	@Override
 	public String toString() {
-		return this.getName();
+		return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
+	}
+
+	@Override
+	public boolean equals(Object that) {
+		return EqualsBuilder.reflectionEquals(this, that);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
 	}
 }

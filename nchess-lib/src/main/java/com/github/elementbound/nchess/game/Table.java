@@ -18,7 +18,9 @@ public class Table {
 	
 	//=========================================================================================
 	//Preprocess
-	
+
+    // TODO: Move to TablePreprocessor
+	@Deprecated
 	public void preprocess() {
 		System.out.println("Gathering secondary neighbors... ");
 		int i = 0;
@@ -33,7 +35,9 @@ public class Table {
 	//=========================================================================================
 	//Nodes 
 	//region Nodes
-	
+
+    // TODO: Move to Table.Builder
+    @Deprecated
 	public boolean addNode(long id, Node node) {
 		if(!this.hasNode(id)) {
 			nodes.put(id, node);
@@ -43,11 +47,15 @@ public class Table {
 			return false;
 		}
 	}
-	
+
+	// TODO: Just no.
+	@Deprecated
 	public boolean hasNode(long id) {
 		return nodes.containsKey(id);
 	}
-	
+
+	// TODO: Move to Table.Builder
+	@Deprecated
 	public boolean linkNode(long fromId, long toId) {
 		if(!this.hasNode(fromId) || !this.hasNode(toId))
 			return false;
@@ -55,15 +63,20 @@ public class Table {
 		nodes.get(fromId).link(toId);
 		return true; 
 	}
-	
+
+	@Deprecated
 	public Node getNode(long id) {
 		return nodes.get(id);
 	}
-	
+
+	// TODO: getNodes()
+	@Deprecated
 	public Set<Entry<Long, Node>> allNodes() {
 		return nodes.entrySet();
 	}
-	
+
+	// TODO: There should be a Link class that knows about this
+	@Deprecated
 	public double linkDirection(long from, long to) {
 		if(!this.hasNode(from))
 			return Double.NaN;
@@ -76,7 +89,9 @@ public class Table {
 		
 		return MathUtils.vectorDirection(a.x(), a.y(), b.x(), b.y());
 	}
-	
+
+	// TODO: Where to move this even? Probably to Node?
+    @Deprecated
 	public boolean isLink(long from, long to) {
 		Node a = this.getNode(from);
 		if(a == null)
@@ -88,7 +103,9 @@ public class Table {
 		
 		return false; 
 	}
-	
+
+	// TODO: Move to Node?
+	@Deprecated
 	public boolean isSecondaryLink(long from, long to) {
 		Node a = this.getNode(from);
 		if(a == null)
@@ -100,7 +117,8 @@ public class Table {
 		
 		return false; 
 	}
-	
+
+	// TODO: Refactor and unit test
 	public long nodeTowardsDirection(long from, double dir) {
 		Node node = this.getNode(from);
 		if(node == null)
@@ -131,7 +149,8 @@ public class Table {
 		else
 			return bestNode;
 	}
-	
+
+    // TODO: Refactor and unit test
 	public long secondaryNodeTowardsDirection(long from, double dir) {
 		Node node = this.getNode(from);
 		if(node == null)
@@ -156,11 +175,15 @@ public class Table {
 		return bestNode;
 	}
 
+    // TODO: getPieceAt() in GameState?
+    @Deprecated
 	public boolean isNodeOccupied(long node) {
 		long pieceId = this.pieceAt(node);
 		return (pieceId >= 0);
 	}
-	
+
+	// TODO: getPieceAt() in GameState?
+    @Deprecated
 	public boolean isNodeOccupiedByAlly(long node, long playerId) {
 		long pieceId = this.pieceAt(node);
 		System.out.printf("Piece at %d is %d\n", node, pieceId);
@@ -174,6 +197,8 @@ public class Table {
 		return false;
 	}
 
+    // TODO: getPieceAt() in GameState?
+    @Deprecated
 	public boolean isNodeOccupiedByEnemy(long node, long playerId) {
 		long pieceId = this.pieceAt(node);
 		if(pieceId < 0)
@@ -191,15 +216,20 @@ public class Table {
 	//=========================================================================================
 	//Players
 	//region Players
-	
+
+    // TODO: Move to GameState.Builder?
+    @Deprecated
 	public boolean addPlayer(long id) {
 		return players.add(id);
 	}
-	
+
+	@Deprecated
 	public boolean hasPlayer(long id) {
 		return players.contains(id);
 	}
-	
+
+	// TODO: GameState::getPlayers()
+	@Deprecated
 	public Set<Long> allPlayers() {
 		return players;
 	}
@@ -209,6 +239,9 @@ public class Table {
 	//=========================================================================================
 	//Pieces 
 	//region Pieces
+    // TODO: This whole region is deprecated, move to GameState.Builder or to GameState
+
+    @Deprecated
 	public boolean addPiece(long id, Piece piece) {
 		if(!this.hasPiece(id)) {
 			pieces.put(id, piece);
@@ -219,22 +252,27 @@ public class Table {
 		}
 	}
 
+    @Deprecated
 	public boolean hasPiece(long id) {
 		return pieces.containsKey(id);
 	}
 
+    @Deprecated
 	public boolean removePiece(long id) {
 		return pieces.remove(id) != null;
 	}
 
+    @Deprecated
 	public Piece getPiece(long id) {
 		return pieces.get(id);
 	}
 
+    @Deprecated
 	public Set<Entry<Long, Piece>> allPieces() {
 		return pieces.entrySet();
 	}
-	
+
+    @Deprecated
 	public long pieceAt(long node) {
 		for(Entry<Long, Piece> e: pieces.entrySet())
 			if(e.getValue().at() == node)
@@ -248,7 +286,9 @@ public class Table {
 	//=========================================================================================
 	//Moves 
 	//region Moves 
-	
+
+    // TODO: Move to GameState
+    @Deprecated
 	public boolean applyMove(Move move) {
 		long fromPieceId = this.pieceAt(move.from());
 		long toPieceId = this.pieceAt(move.to());
@@ -268,7 +308,9 @@ public class Table {
 		piece.onMoveApplied(this, move.from(), move.to());
 		return true; 
 	}
-	
+
+	// TODO: Move to controller?
+    @Deprecated
 	public List<Move> getMovesByPlayer(long playerId) {
 		List<Move> result = new ArrayList<>();
 		
