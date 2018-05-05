@@ -1,22 +1,24 @@
 package com.github.elementbound.nchess.game.pieces;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Piece;
-import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.*;
 
 public class Queen extends Piece {
 
 	private Rook helperRook;
 	private Bishop helperBishop; 
 	
-	public Queen(long player, long at) {
-		super(player, at);
+	public Queen(Node at, Player player) {
+		super(at, player);
 		
-		helperRook = new Rook(player, at);
-		helperBishop = new Bishop(player, at);
+		helperRook = new Rook(at, player);
+		helperBishop = new Bishop(at, player);
 	}
 
 	@Override
@@ -25,15 +27,15 @@ public class Queen extends Piece {
 	}
 
 	@Override
-	public List<Move> getMoves(Table table) {
-		helperRook.at(this.at); 
-		helperBishop.at(this.at);
-		
-		List<Move> moves = new ArrayList<>();
-		moves.addAll(helperRook.getMoves(table));
-		moves.addAll(helperBishop.getMoves(table));
-
-		return moves;
+	public Set<Move> getMoves(GameState state) {
+		return Stream.of(helperBishop.getMoves(state), helperRook.getMoves(state))
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
 	}
+
+    @Override
+    public Piece move(Node to) {
+        return new Queen(to, player);
+    }
 
 }
