@@ -1,22 +1,23 @@
 package com.github.elementbound.nchess.net.event.client;
 
+import com.github.elementbound.nchess.game.Player;
 import com.github.elementbound.nchess.net.Client;
 
 public class JoinResponseEvent extends ClientEvent {
     private final boolean approved;
-    private final String playerId;
+    private final Player player;
 
-    public JoinResponseEvent(Client client, boolean approved, String playerId) {
+    public JoinResponseEvent(Client client, boolean approved, Player player) {
         super(client);
         this.approved = approved;
-        this.playerId = playerId;
+        this.player = player;
     }
 
     public boolean isApproved() {
         return approved;
     }
 
-    public String getPlayerId() {
-        return playerId;
+    public Player getPlayer() {
+        return player;
     }
 }

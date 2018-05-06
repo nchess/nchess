@@ -1,19 +1,20 @@
 package com.github.elementbound.nchess.net.event.client;
 
+import com.github.elementbound.nchess.game.Player;
 import com.github.elementbound.nchess.net.Client;
 
 public class TurnEvent extends ClientEvent {
-    private final String playerId;
+    private final Player player;
     private final boolean myTurn;
 
-    public TurnEvent(Client client, String playerId, boolean myTurn) {
+    public TurnEvent(Client client, Player player, boolean myTurn) {
         super(client);
-        this.playerId = playerId;
+        this.player = player;
         this.myTurn = myTurn;
     }
 
-    public String getPlayerId() {
-        return playerId;
+    public Player getPlayer() {
+        return player;
     }
 
     public boolean isMyTurn() {

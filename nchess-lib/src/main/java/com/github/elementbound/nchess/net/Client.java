@@ -2,6 +2,7 @@ package com.github.elementbound.nchess.net;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Player;
 import com.github.elementbound.nchess.net.event.EventSource;
 import com.github.elementbound.nchess.net.event.client.*;
 import com.github.elementbound.nchess.net.protocol.*;
@@ -21,7 +22,7 @@ public class Client implements Runnable {
 	private final int port;
 
 	private GameState gameState;
-	private String playerId;
+	private Player player;
 	private boolean myTurn;
     private PrintStream out;
 
@@ -74,19 +75,19 @@ public class Client implements Runnable {
 				if(msg instanceof JoinResponseMessage) {
 				    joinResponseEventSource.emit(new JoinResponseEvent(this,
                             ((JoinResponseMessage) msg).isApproved(),
-                            ((JoinResponseMessage) msg).getPlayerId()));
+                            ((JoinResponseMessage) msg).getPlayer()));
 					
 					if(!((JoinResponseMessage) msg).isApproved())
 						return; 
 					
-					playerId = ((JoinResponseMessage) msg).getPlayerId();
-					LOGGER.info("Server approved as player {}", playerId);
+					player = ((JoinResponseMessage) msg).getPlayer();
+					LOGGER.info("Server approved as player {}", player);
 				} 
 				else if(msg instanceof PlayerTurnMessage) {
-					myTurn = (((PlayerTurnMessage) msg).getPlayerId() == playerId);
-					LOGGER.info("Current player is {}", ((PlayerTurnMessage) msg).getPlayerId());
+					myTurn = (((PlayerTurnMessage) msg).getPlayer() == player);
+					LOGGER.info("Current player is {}", ((PlayerTurnMessage) msg).getPlayer());
 
-					turnEventSource.emit(new TurnEvent(this, ((PlayerTurnMessage) msg).getPlayerId(), isMyTurn()));
+					turnEventSource.emit(new TurnEvent(this, ((PlayerTurnMessage) msg).getPlayer(), isMyTurn()));
 				}
 				else if(msg instanceof MoveMessage) {
 					gameState = gameState.applyMove(((MoveMessage) msg).getMove());
@@ -132,8 +133,8 @@ public class Client implements Runnable {
         return gameState;
     }
 
-    public String getPlayerId() {
-        return playerId;
+    public Player getPlayer() {
+        return player;
     }
 
     public boolean isMyTurn() {

@@ -1,18 +1,20 @@
 package com.github.elementbound.nchess.net.protocol;
 
+import com.github.elementbound.nchess.game.Player;
+
 import javax.json.JsonObject;
 
 public class JoinResponseMessage extends Message {
-	private final String playerId; //TODO: Support spectators
+	private final Player player; //TODO: Support spectators
 	private final boolean approved;
 
-    public JoinResponseMessage(String playerId, boolean approved) {
-        this.playerId = playerId;
+    public JoinResponseMessage(Player player, boolean approved) {
+        this.player = player;
         this.approved = approved;
     }
 
-    public String getPlayerId() {
-        return playerId;
+    public Player getPlayer() {
+        return player;
     }
 
     public boolean isApproved() {
@@ -23,7 +25,7 @@ public class JoinResponseMessage extends Message {
 	public String toJSON() {
 		return getBuilder()
 				.add("type", "join-response")
-				.add("as", playerId)
+				.add("as", player.getId())
 				.add("approved", approved)
 				.build()
 				.toString();
@@ -33,7 +35,9 @@ public class JoinResponseMessage extends Message {
 		if(!json.getString("type").equals("join-response"))
 			return null;
 		
-		return new JoinResponseMessage(json.getString("as"), json.getBoolean("approved"));
+		return new JoinResponseMessage(
+		        new Player(json.getString("as")),
+                json.getBoolean("approved"));
 	}
 
 }
