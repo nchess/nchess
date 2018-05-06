@@ -36,7 +36,7 @@ public class JoinResponseMessage extends Message {
 			return null;
 		
 		return new JoinResponseMessage(
-		        new Player(json.getString("as")),
+		        new Player(json.getInt("as")),
                 json.getBoolean("approved"));
 	}
 

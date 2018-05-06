@@ -29,7 +29,7 @@ public class PlayerTurnMessage extends Message {
 			return null;
 		
 		return new PlayerTurnMessage(
-		        new Player(json.getString("player"))
+		        new Player(json.getInt("player"))
         );
 	}
 

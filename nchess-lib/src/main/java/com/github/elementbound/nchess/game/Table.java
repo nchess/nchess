@@ -2,7 +2,6 @@ package com.github.elementbound.nchess.game;
 
 import com.github.elementbound.nchess.util.MathUtils;
 import com.github.elementbound.nchess.util.TableUtils;
-import com.sun.istack.internal.Nullable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -41,11 +40,11 @@ public class Table {
 	// TODO: Refactor and unit test; move?
     /**
      * <p>Return {@code from}'s neighbor that is closest to {@code direction}.
-     * @param from starting node
+     * @param from starting node; can be null
      * @param dir target direction
      * @return best fitting node or null if none found
      */
-	public Node nodeTowardsDirection(@Nullable Node from, double dir) {
+	public Node nodeTowardsDirection(Node from, double dir) {
         if(from == null) {
             return null;
         }
