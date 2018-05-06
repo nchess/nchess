@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public interface ClientEventListener {
 	public void onTableUpdate(Client client, Table table);
-	public void onJoinResponse(Client client, boolean approved, long playerId);
+	public void onJoinResponse(Client client, boolean approved, String playerId);
 	public void onMyTurn(Client client);
 	public void onMove(Client client, Table table, Move move);
 	

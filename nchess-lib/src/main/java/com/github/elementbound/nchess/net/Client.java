@@ -1,10 +1,12 @@
 package com.github.elementbound.nchess.net;
 
+import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.protocol.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.json.stream.JsonParsingException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -12,18 +14,16 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client implements Runnable {
-	private String host; 
-	private int port; 
-	
-	private Socket socket; 
-	private Table table = null; 
-	private boolean isMyTurn = false; 
-	private long playerId = -1;
-	
-	private PrintStream out; 
-	private InputStream in; 
-	private Scanner sin; 
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
+
+	private final String host;
+	private final int port;
+
+	private GameState gameState;
+	private String playerId;
+	private boolean myTurn;
+    private PrintStream out;
+
 	private ClientEventListener listener = null; 
 	
 	public Client(String host, int port) {
@@ -31,48 +31,20 @@ public class Client implements Runnable {
 		this.port = port; 
 	}
 
-	protected void send(Message msg) {
-		this.out.print(msg.toJSON());
-	}
-	
-	protected Message receive() {
-		StringBuilder strb = new StringBuilder();
-		byte[] buffer = new byte[4096];
-
-		try {
-			while(in.available() != 0) {
-				int read;
-					read = in.read(buffer, 0, 4096);
-				strb.append(new String(buffer, 0, read));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null; 
-		}
-
-		String msgstr = strb.toString();
-		if(msgstr.isEmpty())
-			return null; 
-		
-		//System.out.printf("--- --- ---\n < \n%s\n\n", msgstr);
-		try {
-			return ParsingMessageFactory.from(strb.toString());
-		}
-		catch(JsonParsingException e) {
-			System.out.printf("[Warning]Malformed JSON: %s\n", e.getMessage());
-			return null;
-		}
+	protected void send(PrintStream out, Message msg) {
+		out.print(msg.toJSON());
 	}
 	
 	public void run() {
 		try {
-			System.out.printf("Connecting to %s:%d\n", host, port);
-			
+			LOGGER.info("Connecting to {}:{}", host, port);
+			Socket socket;
+
 			try {
 				socket = new Socket(host, port);
 			}
 			catch (IOException e) {
-				System.out.println("Connection failed!");
+                LOGGER.error("Connecting to {}:{} failed!", host, port);
 				
 				if(listener != null)
 					listener.onFailedConnect(this, e);
@@ -80,8 +52,8 @@ public class Client implements Runnable {
 			}
 			
 			out = new PrintStream(socket.getOutputStream());
-			in = socket.getInputStream();
-			sin = new Scanner(in);
+			InputStream in = socket.getInputStream();
+			Scanner sin = new Scanner(in);
 			
 			if(listener != null)
 				listener.onSuccessfulConnect(this);
@@ -91,86 +63,77 @@ public class Client implements Runnable {
 				
 				Message msg = ParsingMessageFactory.from(line);
 				if(msg == null) {
-					System.out.println("Unknown message!");
+					LOGGER.error("Unknown message! Contents: {}", line);
 					continue; 
 				}
 				
 				if(msg instanceof JoinResponseMessage) {
 					if(listener != null)
 						listener.onJoinResponse(this, 
-								((JoinResponseMessage) msg).approved(), 
-								((JoinResponseMessage) msg).playerId());
+								((JoinResponseMessage) msg).isApproved(),
+								((JoinResponseMessage) msg).getPlayerId());
 					
-					if(!((JoinResponseMessage) msg).approved())
+					if(!((JoinResponseMessage) msg).isApproved())
 						return; 
 					
-					this.playerId = ((JoinResponseMessage) msg).playerId();
-					System.out.printf("Server approved as player %d\n", this.playerId);
+					playerId = ((JoinResponseMessage) msg).getPlayerId();
+					LOGGER.info("Server approved as player {}", playerId);
 				} 
 				else if(msg instanceof PlayerTurnMessage) {
-					this.isMyTurn = (((PlayerTurnMessage) msg).playerId() == this.playerId);
-					System.out.printf("Current player is %d\n", ((PlayerTurnMessage) msg).playerId());
+					myTurn = (((PlayerTurnMessage) msg).getPlayerId() == playerId);
+					LOGGER.info("Current player is {}", ((PlayerTurnMessage) msg).getPlayerId());
 					
-					if(listener != null)
+					if(listener != null && isMyTurn())
 						listener.onMyTurn(this);
 				}
 				else if(msg instanceof MoveMessage) {
-					this.table.applyMove(((MoveMessage) msg).move());
+					gameState = gameState.applyMove(((MoveMessage) msg).getMove());
 					
 					if(this.listener != null)
-						this.listener.onMove(this, this.table, ((MoveMessage) msg).move());
+						this.listener.onMove(this, gameState, ((MoveMessage) msg).getMove());
 				}
 				else if(msg instanceof TableUpdateMessage) {
 					TableUpdateMessage tmsg = (TableUpdateMessage)msg;
 					
-					System.out.printf("Updated table with %d nodes, %d pieces, and %d players\n", 
-							tmsg.table().allNodes().size(),
-							tmsg.table().allPieces().size(),
-							tmsg.table().allPlayers().size());
+					LOGGER.info("Updated table with {} nodes, {} pieces, and {} players\n",
+							tmsg.getTable().getNodes().size(),
+							tmsg.getTable().allPieces().size(),
+							tmsg.getTable().allPlayers().size());
 					
-					this.table = tmsg.table();
+					this.gameState = tmsg.getTable();
 					if(listener != null)
-						listener.onTableUpdate(this, this.table);
+						listener.onTableUpdate(this, gameState);
 				}
 			}
 			
 			out.close();
 			socket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Socket communication error!", e);
 		}
 	}
 	
 	public boolean isMyTurn() {
-		return this.isMyTurn;
+		return this.myTurn;
 	}
-	
-	public Table table() {
-		return this.table; 
-	}
-	
-	public long playerId() {
-		return this.playerId;
-	}
-	
-	public void setListener(ClientEventListener listener) {
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public void setListener(ClientEventListener listener) {
 		this.listener = listener; 
 	}
 	
 	public boolean move(Move move) {
 		if(!isMyTurn())
 			return false; 
-		
-		long pieceId = table.pieceAt(move.from());
-		if(pieceId < 0)
-			return false; 
-		
-		if(table.getPiece(pieceId).player() != playerId())
-			return false; 
-		
-		isMyTurn = false;
-		send(new MoveMessage(move));
+
+		send(out, new MoveMessage(move));
 		return true;
 	}
 }

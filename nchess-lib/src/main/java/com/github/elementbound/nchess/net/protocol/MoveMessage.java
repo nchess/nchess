@@ -11,12 +11,12 @@ public class MoveMessage extends Message {
 	public MoveMessage(Move move) {
 		this.move = move;
 	}
-	
-	public Move move() {
-		return this.move; 
-	}
-	
-	@Override
+
+    public Move getMove() {
+        return move;
+    }
+
+    @Override
 	public String toJSON() {
 		return getBuilder()
 				.add("type", "move")
