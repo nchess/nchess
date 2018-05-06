@@ -2,7 +2,8 @@ package com.github.elementbound.nchess.net;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.net.event.EventSource;
+import com.github.elementbound.nchess.net.event.client.*;
 import com.github.elementbound.nchess.net.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,14 @@ public class Client implements Runnable {
 	private boolean myTurn;
     private PrintStream out;
 
-	private ClientEventListener listener = null; 
+	// Event sources
+    private final EventSource<GameStateUpdateEvent> gameStateUpdateEventSource = new EventSource<>();
+    private final EventSource<JoinResponseEvent> joinResponseEventSource = new EventSource<>();
+    private final EventSource<TurnEvent> turnEventSource = new EventSource<>();
+    private final EventSource<MoveEvent> moveEventSource = new EventSource<>();
+
+    private final EventSource<ConnectFailEvent> failedConnectEventSource = new EventSource<>();
+    private final EventSource<ConnectSuccessEvent> successfulConnectEventSource = new EventSource<>();
 	
 	public Client(String host, int port) {
 		this.host = host; 
@@ -45,18 +53,14 @@ public class Client implements Runnable {
 			}
 			catch (IOException e) {
                 LOGGER.error("Connecting to {}:{} failed!", host, port);
-				
-				if(listener != null)
-					listener.onFailedConnect(this, e);
+				failedConnectEventSource.emit(new ConnectFailEvent(this, e, host, port));
 				return; 
 			}
 			
 			out = new PrintStream(socket.getOutputStream());
 			InputStream in = socket.getInputStream();
 			Scanner sin = new Scanner(in);
-			
-			if(listener != null)
-				listener.onSuccessfulConnect(this);
+			successfulConnectEventSource.emit(new ConnectSuccessEvent(this, host, port));
 			
 			while(sin.hasNext()) {
 				String line = sin.nextLine();
@@ -68,10 +72,9 @@ public class Client implements Runnable {
 				}
 				
 				if(msg instanceof JoinResponseMessage) {
-					if(listener != null)
-						listener.onJoinResponse(this, 
-								((JoinResponseMessage) msg).isApproved(),
-								((JoinResponseMessage) msg).getPlayerId());
+				    joinResponseEventSource.emit(new JoinResponseEvent(this,
+                            ((JoinResponseMessage) msg).isApproved(),
+                            ((JoinResponseMessage) msg).getPlayerId()));
 					
 					if(!((JoinResponseMessage) msg).isApproved())
 						return; 
@@ -82,15 +85,12 @@ public class Client implements Runnable {
 				else if(msg instanceof PlayerTurnMessage) {
 					myTurn = (((PlayerTurnMessage) msg).getPlayerId() == playerId);
 					LOGGER.info("Current player is {}", ((PlayerTurnMessage) msg).getPlayerId());
-					
-					if(listener != null && isMyTurn())
-						listener.onMyTurn(this);
+
+					turnEventSource.emit(new TurnEvent(this, ((PlayerTurnMessage) msg).getPlayerId(), isMyTurn()));
 				}
 				else if(msg instanceof MoveMessage) {
 					gameState = gameState.applyMove(((MoveMessage) msg).getMove());
-					
-					if(this.listener != null)
-						this.listener.onMove(this, gameState, ((MoveMessage) msg).getMove());
+					moveEventSource.emit(new MoveEvent(this, gameState, ((MoveMessage) msg).getMove()));
 				}
 				else if(msg instanceof TableUpdateMessage) {
 					TableUpdateMessage tmsg = (TableUpdateMessage)msg;
@@ -101,8 +101,7 @@ public class Client implements Runnable {
 							tmsg.getTable().allPlayers().size());
 					
 					this.gameState = tmsg.getTable();
-					if(listener != null)
-						listener.onTableUpdate(this, gameState);
+					gameStateUpdateEventSource.emit(new GameStateUpdateEvent(this, gameState));
 				}
 			}
 			
@@ -113,9 +112,21 @@ public class Client implements Runnable {
 		}
 	}
 	
-	public boolean isMyTurn() {
-		return this.myTurn;
+	public boolean move(Move move) {
+		if(!isMyTurn())
+			return false; 
+
+		send(out, new MoveMessage(move));
+		return true;
 	}
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
 
     public GameState getGameState() {
         return gameState;
@@ -125,15 +136,31 @@ public class Client implements Runnable {
         return playerId;
     }
 
-    public void setListener(ClientEventListener listener) {
-		this.listener = listener; 
-	}
-	
-	public boolean move(Move move) {
-		if(!isMyTurn())
-			return false; 
+    public boolean isMyTurn() {
+        return myTurn;
+    }
 
-		send(out, new MoveMessage(move));
-		return true;
-	}
+    public EventSource<GameStateUpdateEvent> getGameStateUpdateEventSource() {
+        return gameStateUpdateEventSource;
+    }
+
+    public EventSource<JoinResponseEvent> getJoinResponseEventSource() {
+        return joinResponseEventSource;
+    }
+
+    public EventSource<TurnEvent> getTurnEventSource() {
+        return turnEventSource;
+    }
+
+    public EventSource<MoveEvent> getMoveEventSource() {
+        return moveEventSource;
+    }
+
+    public EventSource<ConnectFailEvent> getFailedConnectEventSource() {
+        return failedConnectEventSource;
+    }
+
+    public EventSource<ConnectSuccessEvent> getSuccessfulConnectEventSource() {
+        return successfulConnectEventSource;
+    }
 }

@@ -3,7 +3,6 @@ package com.github.elementbound.nchess.demos;
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.Client;
-import com.github.elementbound.nchess.net.ClientEventListener;
 
 import java.io.IOException;
 import java.util.List;

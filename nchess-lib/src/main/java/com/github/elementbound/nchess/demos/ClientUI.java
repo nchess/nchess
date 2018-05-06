@@ -4,7 +4,6 @@ import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.Client;
-import com.github.elementbound.nchess.net.ClientEventListener;
 import com.github.elementbound.nchess.view.TablePanel;
 import com.github.elementbound.nchess.view.TablePanelListener;
 
