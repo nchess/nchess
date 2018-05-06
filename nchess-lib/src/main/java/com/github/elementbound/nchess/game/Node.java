@@ -114,7 +114,9 @@ public class Node {
 
     @Override
     public String toString() {
-	    return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
+	    return new ReflectionToStringBuilder(this)
+                .setExcludeFieldNames("neighbors", "secondaryNeighbors")
+                .build();
     }
 
     public static class Builder {

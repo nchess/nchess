@@ -5,6 +5,7 @@ import com.github.elementbound.nchess.util.TableUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -79,7 +80,9 @@ public class Table {
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
+        return new ReflectionToStringBuilder(this)
+                .setExcludeFieldNames("nodes")
+                .build();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.github.elementbound.nchess.demos;
 
+import ch.qos.logback.classic.Level;
 import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.game.exception.InvalidMoveException;
 import com.github.elementbound.nchess.net.Client;
@@ -29,6 +30,7 @@ public class ClientUI {
 
     private JFrame frame;
     private JPanel toolsPanel;
+    private JPanel gamePanelWrapper;
     private JButton btnConnect;
     private JButton btnResign;
     private JButton btnQuit;
@@ -134,12 +136,12 @@ public class ClientUI {
             }
 
             gamePanel.getNodeSelectEventEventSource().subscribe(this::onNodeSelect);
-        }
 
-        gamePanel.add(gamePanel, BorderLayout.CENTER);
-        gamePanel.setGameState(gameState);
-        gamePanel.setBounds(gamePanel.getBounds());
-        gamePanel.repaint();
+            gamePanelWrapper.add(gamePanel, BorderLayout.CENTER);
+            gamePanel.setGameState(gameState);
+            gamePanel.setBounds(gamePanelWrapper.getBounds());
+            gamePanel.repaint();
+        }
     }
 
     private InputStream getResourceAsStream(String pieceFile) {
@@ -147,7 +149,7 @@ public class ClientUI {
     }
 
     private void deinitState() {
-        gamePanel.remove(gamePanel);
+        gamePanelWrapper.remove(gamePanel);
     }
 
     /**
@@ -180,9 +182,9 @@ public class ClientUI {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
-        gamePanel = new GamePanel();
-        frame.getContentPane().add(gamePanel, BorderLayout.CENTER);
-        gamePanel.setLayout(new BorderLayout(0, 0));
+        gamePanelWrapper = new JPanel();
+        frame.getContentPane().add(gamePanelWrapper, BorderLayout.CENTER);
+        gamePanelWrapper.setLayout(new BorderLayout(0, 0));
 
         toolsPanel = new JPanel();
         frame.getContentPane().add(toolsPanel, BorderLayout.EAST);

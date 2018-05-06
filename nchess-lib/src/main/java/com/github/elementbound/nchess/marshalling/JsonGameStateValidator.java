@@ -117,10 +117,6 @@ public class JsonGameStateValidator {
 
         JsonObject piece = (JsonObject)jsval;
 
-        if(!piece.containsKey("id")) {
-            throw new IllegalArgumentException("Piece got no id!");
-        }
-
         if(!piece.containsKey("at")) {
             throw new IllegalArgumentException("Where the piece at?!");
         }

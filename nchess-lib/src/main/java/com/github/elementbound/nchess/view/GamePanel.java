@@ -18,6 +18,9 @@ import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+
 public class GamePanel extends JPanel {
     private static final long serialVersionUID = -6705016017912569702L;
     private static final Logger LOGGER = LoggerFactory.getLogger(GamePanel.class);
@@ -46,6 +49,13 @@ public class GamePanel extends JPanel {
         //Make it fancy
         setDoubleBuffered(true);
         addMouseListener(new NodeSelectListener());
+
+        // Initialize with empty game state
+        gameState = GameState.builder()
+                .table(Table.builder().build())
+                .players(emptyList())
+                .pieces(emptySet())
+                .build();
     }
 
     @Override
@@ -124,6 +134,7 @@ public class GamePanel extends JPanel {
     }
 
     public void setGameState(GameState gameState) {
+        LOGGER.info("Updating game state");
         updateState(this.gameState, gameState);
 
         this.gameState = gameState;
@@ -154,10 +165,10 @@ public class GamePanel extends JPanel {
 
     private void updateState(GameState oldState, GameState newState) {
         //Create polygons
-        Table oldTable = oldState.getTable();
+        Table oldTable = oldState != null ? oldState.getTable() : null;
         Table newTable = newState.getTable();
 
-        if(!oldTable.equals(newTable)) {
+        if(newTable != oldTable) {
             updatePolygons(newTable);
         }
 
@@ -174,10 +185,10 @@ public class GamePanel extends JPanel {
         LOGGER.info("Table center: [{};{}]", bounds.getCenterX(), bounds.getCenterY());
 
         //Assign colors to players
-        List<Player> oldPlayers = oldState.getPlayers();
+        List<Player> oldPlayers = oldState != null ? oldState.getPlayers() : null;
         List<Player> newPlayers = newState.getPlayers();
 
-        if(!oldPlayers.equals(newPlayers)) {
+        if(!newPlayers.equals(oldPlayers)) {
             updatePlayerColors(newState);
 
             //Create piece images in needed colors
@@ -204,7 +215,7 @@ public class GamePanel extends JPanel {
     }
 
     private void updatePlayerColors(GameState gameState) {
-        playerColors = new HashMap<>();
+        playerColors.clear();
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             Player player = gameState.getPlayers().get(i);
             Color color = calculatePlayerColor(i);
@@ -214,9 +225,13 @@ public class GamePanel extends JPanel {
     }
 
     private void updatePolygons(Table table) {
+        LOGGER.info("Recalculating polygons; table={}", table);
+
         polygons.clear();
         int intersects = 0;
+
         for (Node node : table.getNodes()) {
+
             if (!node.isVisible())
                 continue;
 
@@ -283,7 +298,7 @@ public class GamePanel extends JPanel {
         double maxx = Double.NaN;
         double maxy = Double.NaN;
 
-        for (Path2D p : polygons) {
+        /*for (Path2D p : polygons) {
             if (firstBoundIter) {
                 minx = p.getBounds2D().getMinX();
                 miny = p.getBounds2D().getMinY();
@@ -299,7 +314,27 @@ public class GamePanel extends JPanel {
                 maxx = Math.max(maxx, p.getBounds2D().getMaxX());
                 maxy = Math.max(maxy, p.getBounds2D().getMaxY());
             }
-        }
+        }*/
+
+        minx = polygons.stream()
+                .map(Path2D::getBounds)
+                .mapToDouble(Rectangle::getMinX)
+                .min().getAsDouble();
+
+        maxx = polygons.stream()
+                .map(Path2D::getBounds)
+                .mapToDouble(Rectangle::getMaxX)
+                .max().getAsDouble();
+
+        miny = polygons.stream()
+                .map(Path2D::getBounds)
+                .mapToDouble(Rectangle::getMinY)
+                .min().getAsDouble();
+
+        maxy = polygons.stream()
+                .map(Path2D::getBounds)
+                .mapToDouble(Rectangle::getMaxY)
+                .max().getAsDouble();
 
         return new Rectangle2D.Double(minx, miny, maxx - minx, maxy - miny);
     }
