@@ -4,7 +4,7 @@ import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.Client;
-import com.github.elementbound.nchess.view.TablePanel;
+import com.github.elementbound.nchess.view.GamePanel;
 import com.github.elementbound.nchess.view.TablePanelListener;
 
 import javax.imageio.ImageIO;
@@ -26,7 +26,7 @@ public class ClientUI {
 	private JButton btnResign; 
 	private JButton btnQuit; 
 	private JTextPane eventLog; 
-	private TablePanel tablePanel = null;
+	private GamePanel gamePanel = null;
 	
 	private Client client = null;
 	
@@ -66,7 +66,7 @@ public class ClientUI {
 		@Override
 		public void onMove(Client client, Table table, Move move) {
 			System.out.printf("Got move %s, repainting field\n", move.toString());
-			tablePanel.repaint();
+			gamePanel.repaint();
 		}
 	}
 
@@ -74,7 +74,7 @@ public class ClientUI {
 		long selectedNode = -1;
 
 		@Override
-		public void nodeSelect(TablePanel source, long nodeId) {
+		public void nodeSelect(GamePanel source, long nodeId) {
 			source.clearHighlights();
 			
 			if(selectedNode >= 0) {
@@ -119,8 +119,8 @@ public class ClientUI {
 	}
 	
 	private void initTable(Table table) {
-		if(tablePanel == null) {
-			tablePanel = new TablePanel();
+		if(gamePanel == null) {
+			gamePanel = new GamePanel();
 			
 			Map<String, String> imageFiles = new HashMap<>();
 			imageFiles.put("pawn", "pieces/pawn.png");
@@ -135,7 +135,7 @@ public class ClientUI {
 				Image image;
 				try {
 					image = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream(e.getValue()));
-					tablePanel.pieceImages.put(e.getKey(), image);
+					gamePanel.pieceImages.put(e.getKey(), image);
 					System.out.println("success");
 				} catch (IOException e1) {
 					System.out.println("fail");
@@ -143,17 +143,17 @@ public class ClientUI {
 				}
 			}
 			
-			tablePanel.addListener(new ViewHandler());
+			gamePanel.addListener(new ViewHandler());
 		}
 		
-		gamePanel.add(tablePanel, BorderLayout.CENTER);
-		tablePanel.assignTable(table);
-		tablePanel.setBounds(gamePanel.getBounds());
+		gamePanel.add(gamePanel, BorderLayout.CENTER);
+		gamePanel.assignTable(table);
+		gamePanel.setBounds(gamePanel.getBounds());
 		gamePanel.repaint();
 	}
 	
 	private void deinitTable() {
-		gamePanel.remove(tablePanel);
+		gamePanel.remove(gamePanel);
 	}
 	
 	/**

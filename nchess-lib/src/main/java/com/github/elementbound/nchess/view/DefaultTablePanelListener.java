@@ -12,7 +12,7 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 	private long moveFrom = -1;
 	private Point dragFrom = null;
 
-	public void assignTo(TablePanel tp) {
+	public void assignTo(GamePanel tp) {
 		tp.addListener(this);
 		tp.addMouseWheelListener(this);
 		tp.addMouseMotionListener(this);
@@ -22,7 +22,7 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 	//=========================================================================================
 	//TablePanelListener
 	@Override
-	public void nodeSelect(TablePanel source, long nodeId) {
+	public void nodeSelect(GamePanel source, long nodeId) {
 		source.clearHighlights();
 		
 		Table table = source.getTable();
@@ -66,7 +66,7 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int clicks = e.getWheelRotation();
-		TablePanel panel = (TablePanel)e.getSource();
+		GamePanel panel = (GamePanel)e.getSource();
 		
 		if(clicks < 0) { //Wheel rotated upwards, zoom in
 			for(int i = 0; i > clicks; i--)
@@ -106,7 +106,7 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 		int dy = e.getY() - (int)dragFrom.getY();
 		
 		//System.out.printf("\tTranslate: %d,%d\n", dx,dy);
-		TablePanel panel = (TablePanel)e.getSource();
+		GamePanel panel = (GamePanel)e.getSource();
 		panel.viewOffset.setLocation(panel.viewOffset.getX() + dx/panel.viewZoom, 
 									 panel.viewOffset.getY() + dy/panel.viewZoom);
 		dragFrom = e.getPoint();

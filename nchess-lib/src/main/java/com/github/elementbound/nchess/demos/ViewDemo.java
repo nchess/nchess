@@ -2,7 +2,7 @@ package com.github.elementbound.nchess.demos;
 
 import com.github.elementbound.nchess.marshalling.JsonTableParser;
 import com.github.elementbound.nchess.view.DefaultTablePanelListener;
-import com.github.elementbound.nchess.view.TablePanel;
+import com.github.elementbound.nchess.view.GamePanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -49,7 +49,7 @@ public class ViewDemo {
 		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		TablePanel panel = new TablePanel();
+		GamePanel panel = new GamePanel();
 		panel.setBounds(frame.getContentPane().getBounds());
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
 		
