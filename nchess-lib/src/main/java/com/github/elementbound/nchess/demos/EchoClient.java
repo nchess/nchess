@@ -43,7 +43,7 @@ public class EchoClient {
         Player player = event.getPlayer();
         Client client = event.getClient();
 
-        if(player.equals(myPlayer)) {
+        if(event.isMyTurn()) {
             GameState gameState = event.getClient().getGameState();
             Set<Move> possibleMoves = gameState.getMovesByPlayer(myPlayer);
 
