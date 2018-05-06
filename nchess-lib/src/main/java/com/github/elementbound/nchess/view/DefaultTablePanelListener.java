@@ -25,9 +25,7 @@ public class DefaultTablePanelListener implements MouseWheelListener, MouseMotio
 
 		gamePanel.getNodeSelectEventEventSource().subscribe(this::nodeSelect);
 	}
-	
-	//=========================================================================================
-	//TablePanelListener
+
 	public void nodeSelect(NodeSelectEvent event) {
 	    GamePanel gamePanel = event.getSource();
 	    Node node = event.getNode();

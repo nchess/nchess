@@ -5,7 +5,6 @@ import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.Client;
 import com.github.elementbound.nchess.view.GamePanel;
-import com.github.elementbound.nchess.view.TablePanelListener;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -70,7 +69,7 @@ public class ClientUI {
 		}
 	}
 
-	class ViewHandler implements TablePanelListener {
+	class ViewHandler {
 		long selectedNode = -1;
 
 		@Override
