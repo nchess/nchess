@@ -93,6 +93,6 @@ public class ViewDemo {
 		panel.setBackground(Color.white);
 		
 		DefaultTablePanelListener listener = new DefaultTablePanelListener();
-		listener.assignTo(panel);
+		listener.attachTo(panel);
 	}
 }

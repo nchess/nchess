@@ -1,5 +1,6 @@
 package com.github.elementbound.nchess.game;
 
+import com.github.elementbound.nchess.game.exception.InvalidMoveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +44,13 @@ public class GameState {
     }
 
     // TODO: Maybe move to its own component?
-    public GameState applyMove(Move move) {
+    public GameState applyMove(Move move) throws InvalidMoveException {
         LOGGER.info("Applying move: {}", move);
 
         if(!validateMove(move)) {
             LOGGER.error("Invalid move: {}", move);
             // TODO: proper throw
-            throw new RuntimeException("Invalid move!");
+            throw new InvalidMoveException();
         }
 
         //Perform move

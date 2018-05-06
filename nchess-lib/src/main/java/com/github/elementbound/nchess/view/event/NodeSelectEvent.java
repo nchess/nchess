@@ -5,18 +5,18 @@ import com.github.elementbound.nchess.view.GamePanel;
 
 public class NodeSelectEvent {
     private final GamePanel source;
-    private final Node nodeId;
+    private final Node node;
 
-    public NodeSelectEvent(GamePanel source, Node nodeId) {
+    public NodeSelectEvent(GamePanel source, Node node) {
         this.source = source;
-        this.nodeId = nodeId;
+        this.node = node;
     }
 
     public GamePanel getSource() {
         return source;
     }
 
-    public Node getNodeId() {
-        return nodeId;
+    public Node getNode() {
+        return node;
     }
 }

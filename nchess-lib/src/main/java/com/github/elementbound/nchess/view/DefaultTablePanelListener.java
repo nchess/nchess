@@ -1,64 +1,65 @@
 package com.github.elementbound.nchess.view;
 
-import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Piece;
-import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.exception.InvalidMoveException;
+import com.github.elementbound.nchess.view.event.NodeSelectEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.swing.text.html.Option;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.Optional;
 
-public class DefaultTablePanelListener implements TablePanelListener, MouseWheelListener, MouseMotionListener, MouseListener {
-	private long moveFrom = -1;
+public class DefaultTablePanelListener implements MouseWheelListener, MouseMotionListener, MouseListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultTablePanelListener.class);
+
+	private Optional<Node> moveFrom = Optional.empty();
 	private Point dragFrom = null;
 
-	public void assignTo(GamePanel tp) {
-		tp.addListener(this);
-		tp.addMouseWheelListener(this);
-		tp.addMouseMotionListener(this);
-		tp.addMouseListener(this);
+	public void attachTo(GamePanel gamePanel) {
+		gamePanel.addMouseWheelListener(this);
+		gamePanel.addMouseMotionListener(this);
+		gamePanel.addMouseListener(this);
+
+		gamePanel.getNodeSelectEventEventSource().subscribe(this::nodeSelect);
 	}
 	
 	//=========================================================================================
 	//TablePanelListener
-	@Override
-	public void nodeSelect(GamePanel source, long nodeId) {
-		source.clearHighlights();
-		
-		Table table = source.getTable();
-		
-		if(moveFrom >= 0) {
-			long moveTo = nodeId; 
+	public void nodeSelect(NodeSelectEvent event) {
+	    GamePanel gamePanel = event.getSource();
+	    Node node = event.getNode();
 
-			Piece piece = table.getPiece(table.pieceAt(moveFrom));
-			List<Move> moves = piece.getMoves(table);
-			
-			for(Move move: moves) {
-				if(move.to() == moveTo) {
-					table.applyMove(move);
-					break;
-				}
-			}
-			
-			moveFrom = -1;
-			source.clearHighlights();
+        gamePanel.getHighlitNodes().clear();
+
+        GameState gameState = gamePanel.getGameState();
+		
+		if(moveFrom.isPresent()) {
+            try {
+                Move move = new Move(moveFrom.get(), node);
+			    GameState newState = gameState.applyMove(move);
+
+			    gamePanel.setGameState(newState);
+			    gamePanel.getHighlitNodes().clear();
+            } catch(InvalidMoveException e) {
+                LOGGER.info("Invalid move", e);
+            }
 		} 
 		else {
-			if(table.pieceAt(nodeId) >= 0) {
-				source.highlightNode(nodeId);
-				
-				Piece piece = table.getPiece(table.pieceAt(nodeId));
-				List<Move> moves = piece.getMoves(table);
-				moveFrom = nodeId;
-				
-				for(Move move: moves) {
-					//From is already highlit
-					source.highlightNode(move.to());
-				}
-			}
+		    gameState.getPieceAt(node).ifPresent(piece -> {
+		        // Higlight piece
+		        gamePanel.getHighlitNodes().add(node);
+
+		        // Higlight possible moves
+                piece.getMoves(gameState).stream()
+                        .map(Move::getTo)
+                        .forEach(gamePanel.getHighlitNodes()::add);
+            });
 		}
 		
-		source.repaint(); 
+		gamePanel.repaint();
 	}
 
 	//=========================================================================================
@@ -85,9 +86,7 @@ public class DefaultTablePanelListener implements TablePanelListener, MouseWheel
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		//System.out.printf("Mouse drag\n\tPosition: %d,%d\n\tModifiers: %s\n", 
-		//					e.getX(), e.getY(), MouseEvent.getMouseModifiersText(e.getModifiers()));
-		
+	    // TODO: Refactor to single if statement, move condition to method
 		while(true) {
 			if((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0)
 				break;

@@ -26,6 +26,9 @@ public class GamePanel extends JPanel {
     private static final Color OUTLINE_COLOR = Color.black;
     private static final Color HIGHLIGHT_COLOR = Color.cyan; //MY EYES
 
+    private final Map<Pair<Player, String>, Image> tintedPieceImages = new HashMap<>();
+    private final EventSource<NodeSelectEvent> nodeSelectEventEventSource = new EventSource<>();
+
     private GameState gameState;
     private Map<Node, Path2D> polygons = new HashMap<>();
     private Rectangle2D bounds = new Rectangle2D.Double();
@@ -33,12 +36,9 @@ public class GamePanel extends JPanel {
     private AffineTransform viewTransform = new AffineTransform();
     private AffineTransform inverseViewTransform = new AffineTransform();
 
-    private final EventSource<NodeSelectEvent> nodeSelectEventEventSource = new EventSource<>();
+    public Point2D viewOffset = new Point2D.Double(0.0, 0.0);
+    public double viewZoom = 1.0;
 
-    private Point2D viewOffset = new Point2D.Double(0.0, 0.0);
-    private double viewZoom = 1.0;
-
-    private Map<Pair<Player, String>, Image> tintedPieceImages;
     public Map<String, Image> pieceImages = new HashMap<>();
     private Map<Player, Color> playerColors = new HashMap<>();
 
@@ -124,10 +124,9 @@ public class GamePanel extends JPanel {
     }
 
     public void setGameState(GameState gameState) {
-        this.gameState = gameState;
-        Table table = gameState.getTable();
+        updateState(this.gameState, gameState);
 
-        updateState(gameState, table);
+        this.gameState = gameState;
     }
 
     private void fitView() {
@@ -153,9 +152,14 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void updateState(GameState gameState, Table table) {
+    private void updateState(GameState oldState, GameState newState) {
         //Create polygons
-        updatePolygons(table);
+        Table oldTable = oldState.getTable();
+        Table newTable = newState.getTable();
+
+        if(!oldTable.equals(newTable)) {
+            updatePolygons(newTable);
+        }
 
         //Calculate table bounds based on polygons
         bounds = calculateBounds(polygons.values());
@@ -170,14 +174,18 @@ public class GamePanel extends JPanel {
         LOGGER.info("Table center: [{};{}]", bounds.getCenterX(), bounds.getCenterY());
 
         //Assign colors to players
-        updatePlayerColors(gameState);
+        List<Player> oldPlayers = oldState.getPlayers();
+        List<Player> newPlayers = newState.getPlayers();
 
-        //Create piece images in needed colors
-        updateTintedPieces(gameState);
+        if(!oldPlayers.equals(newPlayers)) {
+            updatePlayerColors(newState);
+
+            //Create piece images in needed colors
+            updateTintedPieces(newState);
+        }
     }
 
     private void updateTintedPieces(GameState gameState) {
-        tintedPieceImages = new HashMap<>();
         TintedImageRenderer tinter = new TintedImageRenderer();
 
         for (Entry<String, Image> e : pieceImages.entrySet()) {

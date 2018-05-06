@@ -3,11 +3,16 @@ package com.github.elementbound.nchess.game;
 import com.github.elementbound.nchess.util.MathUtils;
 import com.github.elementbound.nchess.util.TableUtils;
 import com.sun.istack.internal.Nullable;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 public class Table {
 	private final Set<Node> nodes;
@@ -71,6 +76,21 @@ public class Table {
 
     public static Builder builder() {
 	    return new Builder();
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        return EqualsBuilder.reflectionEquals(this, that);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
     public static class Builder {
