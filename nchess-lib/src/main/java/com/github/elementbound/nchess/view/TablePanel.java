@@ -39,14 +39,13 @@ public class TablePanel extends JPanel {
 	
 	public TablePanel() {
 		//Make it fancy
-		this.setDoubleBuffered(true);
-		
-		this.addMouseListener(new NodeSelectListener(this));
+		setDoubleBuffered(true);
+		addMouseListener(new NodeSelectListener(this));
 	}
 	
-	public void fitView() {
-		double minView = (double)Math.min(this.getWidth(), this.getHeight());
-		double maxTable = (double)Math.max(this.bounds.getWidth(), this.bounds.getHeight());
+	private void fitView() {
+		double minView = Math.min(getWidth(), getHeight());
+		double maxTable = Math.max(bounds.getWidth(), bounds.getHeight());
 		double scale = minView/maxTable;
 		scale *= viewZoom;
 		
@@ -239,11 +238,14 @@ public class TablePanel extends JPanel {
 	
 	//=========================================================================================
 	//Node highlights
-	
+    // TODO: This section can be thrown away, just expose the set instead of writing a separate api for it
+
+    @Deprecated
 	public void clearHighlights() {
 		highlitNodes.clear();
 	}
-	
+
+	@Deprecated
 	public void highlightNode(long id) {
 		if(!polys.containsKey(id))
 			return; 
@@ -252,17 +254,20 @@ public class TablePanel extends JPanel {
 	}
 	
 	//TODO: Naming could be ambigious, once a node can have more flags
+    @Deprecated
 	public void resetNode(long id) {
 		highlitNodes.remove(id);
 	}
-	
+
+	@Deprecated
 	public void toggleNode(long id) {
 		if(isNodeHighlit(id))
 			resetNode(id);
 		else 
 			highlightNode(id);
 	}
-	
+
+	@Deprecated
 	public boolean isNodeHighlit(long id) {
 		return highlitNodes.contains(id);
 	}
@@ -311,7 +316,10 @@ public class TablePanel extends JPanel {
 	}
 	
 	//=========================================================================================
-	//Inner types 
+	//Inner types
+    // TODO: Have separate event sources and subsribe to them with lambdas
+
+    @Deprecated
 	class NodeSelectListener implements MouseListener {
 		private TablePanel parent = null;
 		
