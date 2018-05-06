@@ -49,7 +49,7 @@ public class JsonTableParser {
         Table.Builder tableBuilder = Table.builder();
         nodes.forEach(tableBuilder::withNode);
 
-        GameState.builder()
+        return GameState.builder()
                 .table(tableBuilder.build())
                 .players(players)
                 .currentPlayer(players.get(0))
@@ -96,7 +96,7 @@ public class JsonTableParser {
         for (JsonValue jsval : ((JsonArray) players)) {
             JsonNumber playerId = (JsonNumber) jsval;
 
-            result.add(new Player(playerId.toString()));
+            result.add(new Player(playerId.longValue()));
         }
 
         return result;
@@ -109,7 +109,6 @@ public class JsonTableParser {
         for (JsonValue jsval : ((JsonArray) pieces)) {
             JsonObject piece = (JsonObject) jsval;
 
-            long id = piece.getInt("id");
             long atId = piece.getInt("at");
             long playerId = piece.getInt("player");
             String type = piece.getString("type");
@@ -123,7 +122,7 @@ public class JsonTableParser {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException(String.format("Unknown node id: %d", atId)));
 
-            Player player = new Player(String.valueOf(playerId));
+            Player player = new Player(playerId);
 
             PieceFactory pieceFactory = pieceFactories.get(type);
             Piece pieceInstance = pieceFactory.from(atNode, player);

@@ -9,13 +9,13 @@ import java.util.UUID;
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 public class Player {
-    private final String id;
+    private final long id;
 
-    public Player(String id) {
+    public Player(long id) {
         this.id = id;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
