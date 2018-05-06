@@ -2,9 +2,7 @@ package com.github.elementbound.nchess.net.protocol;
 
 
 import com.github.elementbound.nchess.game.Table;
-import com.github.elementbound.nchess.util.JsonTableLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.elementbound.nchess.marshalling.JsonTableParser;
 
 import javax.json.JsonObject;
 import java.io.ByteArrayInputStream;
@@ -23,7 +21,7 @@ public class TableUpdateMessage extends Message {
 
 	@Override
 	public String toJSON() {
-		JsonTableLoader tableHandler = new JsonTableLoader(null); // TODO: Eek... refactor
+		JsonTableParser tableHandler = new JsonTableParser(null); // TODO: Eek... refactor
 		tableHandler.assignTable(this.table);
 		JsonObject jTable = tableHandler.serialize();
 		
@@ -38,7 +36,7 @@ public class TableUpdateMessage extends Message {
 			return null;
 
 		InputStream is = new ByteArrayInputStream(json.getJsonObject("table").toString().getBytes());
-		JsonTableLoader tableHandler = new JsonTableLoader(is);
+		JsonTableParser tableHandler = new JsonTableParser(is);
 		if(!tableHandler.parse()) {
 			throw new IllegalArgumentException("Ill-formed JSON!");
 		}

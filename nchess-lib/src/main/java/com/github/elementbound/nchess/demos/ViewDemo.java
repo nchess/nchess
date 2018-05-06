@@ -1,6 +1,6 @@
 package com.github.elementbound.nchess.demos;
 
-import com.github.elementbound.nchess.util.JsonTableLoader;
+import com.github.elementbound.nchess.marshalling.JsonTableParser;
 import com.github.elementbound.nchess.view.DefaultTablePanelListener;
 import com.github.elementbound.nchess.view.TablePanel;
 
@@ -59,7 +59,7 @@ public class ViewDemo {
 			return; 
 		}
 		
-		JsonTableLoader jsonLoader = new JsonTableLoader(this.getClass().getClassLoader().getResourceAsStream(fname));
+		JsonTableParser jsonLoader = new JsonTableParser(this.getClass().getClassLoader().getResourceAsStream(fname));
 		if(!jsonLoader.parse()) {
 			System.out.println("Ill-formatted json");
 			return; 

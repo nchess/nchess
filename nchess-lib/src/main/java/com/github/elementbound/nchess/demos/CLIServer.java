@@ -1,7 +1,7 @@
 package com.github.elementbound.nchess.demos;
 
 import com.github.elementbound.nchess.net.Server;
-import com.github.elementbound.nchess.util.JsonTableLoader;
+import com.github.elementbound.nchess.marshalling.JsonTableParser;
 
 import java.io.IOException;
 
@@ -22,7 +22,7 @@ public class CLIServer {
 			return; 
 		}
 		
-		JsonTableLoader jsonLoader = new JsonTableLoader(this.getClass().getClassLoader().getResourceAsStream(fname));
+		JsonTableParser jsonLoader = new JsonTableParser(this.getClass().getClassLoader().getResourceAsStream(fname));
 		if(!jsonLoader.parse()) {
 			System.out.println("Ill-formatted json");
 			return; 
