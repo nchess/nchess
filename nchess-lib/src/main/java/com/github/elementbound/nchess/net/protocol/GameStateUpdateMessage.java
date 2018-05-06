@@ -2,9 +2,8 @@ package com.github.elementbound.nchess.net.protocol;
 
 
 import com.github.elementbound.nchess.game.GameState;
-import com.github.elementbound.nchess.game.Table;
-import com.github.elementbound.nchess.marshalling.JsonTableParser;
-import com.github.elementbound.nchess.marshalling.JsonTableSerializer;
+import com.github.elementbound.nchess.marshalling.JsonGameStateParser;
+import com.github.elementbound.nchess.marshalling.JsonGameStateSerializer;
 
 import javax.json.JsonObject;
 import java.io.ByteArrayInputStream;
@@ -23,7 +22,7 @@ public class GameStateUpdateMessage extends Message {
 
     @Override
 	public String toJSON() {
-        JsonTableSerializer serializer = new JsonTableSerializer();
+        JsonGameStateSerializer serializer = new JsonGameStateSerializer();
 
         return getBuilder()
                 .add("type", "game-update")
@@ -36,7 +35,7 @@ public class GameStateUpdateMessage extends Message {
 			return null;
 
 		InputStream is = new ByteArrayInputStream(json.getJsonObject("state").toString().getBytes());
-		JsonTableParser tableHandler = new JsonTableParser();
+		JsonGameStateParser tableHandler = new JsonGameStateParser();
 		
 		return new GameStateUpdateMessage(tableHandler.parse(is));
 	}

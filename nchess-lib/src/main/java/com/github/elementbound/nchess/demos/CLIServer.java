@@ -1,44 +1,47 @@
 package com.github.elementbound.nchess.demos;
 
+import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.net.Server;
-import com.github.elementbound.nchess.marshalling.JsonTableParser;
+import com.github.elementbound.nchess.marshalling.JsonGameStateParser;
+import com.google.common.io.Resources;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class CLIServer {
-	public static final int PORT = 60001;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CLIServer.class);
+	private static final int PORT = 60001;
 
 	public static void main(String[] args) {
 		CLIServer app = new CLIServer();
 		app.run(args);
 	}
 
-	public void run(String[] args) {
+	private void run(String[] args) {
 		String fname = "2hexa.json";
-		System.out.printf("Loading map %s...\n", fname);
+		LOGGER.info("Loading map {}", fname);
+        InputStream fin = this.getClass().getClassLoader().getResourceAsStream(fname);
 		
-		if(this.getClass().getClassLoader().getResourceAsStream(fname) == null) {
-			System.out.println("Couldn't load " + fname);
+		if(fin == null) {
+			LOGGER.error("Couldn't load map {}", fname);
 			return; 
 		}
 		
-		JsonTableParser jsonLoader = new JsonTableParser(this.getClass().getClassLoader().getResourceAsStream(fname));
-		if(!jsonLoader.parse()) {
-			System.out.println("Ill-formatted json");
-			return; 
-		}
+		JsonGameStateParser jsonLoader = new JsonGameStateParser();
+		GameState gameState = jsonLoader.parse(fin);
 		
-		System.out.println("Map loaded!");
+		LOGGER.info("Map successfully loaded!");
 		
 		//=====================================================================================
 		
-		System.out.println("Starting server... ");
-		Server server = new Server(jsonLoader.getResult());
+		LOGGER.info("Starting server");
+		Server server = new Server(gameState);
 		try {
 			server.run(PORT);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Communication exception", e);
 		}
 	}
 }

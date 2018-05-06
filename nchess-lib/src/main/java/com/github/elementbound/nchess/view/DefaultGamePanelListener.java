@@ -6,14 +6,12 @@ import com.github.elementbound.nchess.view.event.NodeSelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.html.Option;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.List;
 import java.util.Optional;
 
-public class DefaultTablePanelListener implements MouseWheelListener, MouseMotionListener, MouseListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultTablePanelListener.class);
+public class DefaultGamePanelListener implements MouseWheelListener, MouseMotionListener, MouseListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultGamePanelListener.class);
 
 	private Optional<Node> moveFrom = Optional.empty();
 	private Point dragFrom = null;

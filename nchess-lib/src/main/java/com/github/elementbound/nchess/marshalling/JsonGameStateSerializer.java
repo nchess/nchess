@@ -4,7 +4,7 @@ import com.github.elementbound.nchess.game.*;
 
 import javax.json.*;
 
-public class JsonTableSerializer {
+public class JsonGameStateSerializer {
     public JsonObject serialize(GameState gameState) {
         Table table = gameState.getTable();
 

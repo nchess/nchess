@@ -4,7 +4,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
-public class JsonTableValidator {
+public class JsonGameStateValidator {
     public void validate(JsonObject root) {
         validateRoot(root);
         validateRootTypes(root);

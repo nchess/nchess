@@ -1,19 +1,24 @@
 package com.github.elementbound.nchess.demos;
 
-import com.github.elementbound.nchess.marshalling.JsonTableParser;
-import com.github.elementbound.nchess.view.DefaultTablePanelListener;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.marshalling.JsonGameStateParser;
+import com.github.elementbound.nchess.view.DefaultGamePanelListener;
 import com.github.elementbound.nchess.view.GamePanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Window.Type;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class ViewDemo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ViewDemo.class);
 
 	private JFrame frame;
 
@@ -21,14 +26,12 @@ public class ViewDemo {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ViewDemo window = new ViewDemo();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		EventQueue.invokeLater(() -> {
+			try {
+				ViewDemo window = new ViewDemo();
+				window.frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
@@ -54,17 +57,17 @@ public class ViewDemo {
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
 		
 		String fname = "2hexa.json";
-		if(this.getClass().getClassLoader().getResourceAsStream(fname) == null) {
-			System.out.println("Couldn't load " + fname);
+		InputStream fileInput = getResourceAsStream(fname);
+		if(fileInput == null) {
+			LOGGER.error("Couldn't load {}", fname);
 			return; 
 		}
 		
-		JsonTableParser jsonLoader = new JsonTableParser(this.getClass().getClassLoader().getResourceAsStream(fname));
-		if(!jsonLoader.parse()) {
-			System.out.println("Ill-formatted json");
-			return; 
-		}
-		
+		JsonGameStateParser jsonLoader = new JsonGameStateParser();
+        GameState gameState = jsonLoader.parse(fileInput);
+        LOGGER.info("Map {} successfully loaded", fname);
+
+        LOGGER.info("Loading piece images");
 		Map<String, String> imageFiles = new HashMap<>();
 		imageFiles.put("pawn", "pieces/pawn.png");
 		imageFiles.put("rook", "pieces/rook.png");
@@ -74,25 +77,31 @@ public class ViewDemo {
 		imageFiles.put("king", "pieces/king.png");
 		
 		for(Entry<String, String> e: imageFiles.entrySet()) {
-			System.out.printf("Loading %s for %s... ", e.getValue(), e.getKey());
+            String pieceFile = e.getValue();
+            String pieceName = e.getKey();
+            LOGGER.info("Loading {} for {}... ", pieceFile, pieceName);
+
 			Image image;
 			try {
-				image = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream(e.getValue()));
-				panel.pieceImages.put(e.getKey(), image);
-				System.out.println("success");
+				image = ImageIO.read(getResourceAsStream(pieceFile));
+				panel.pieceImages.put(pieceName, image);
 			} catch (IOException e1) {
-				System.out.println("fail");
-				e1.printStackTrace();
+			    LOGGER.error("Failed loading {}", pieceFile);
 			}
 		}
 
 		panel.setPreferredSize(new Dimension(800, 600));
 		frame.pack();
-		panel.assignTable(jsonLoader.getResult());
+
+		panel.setGameState(gameState);
 		panel.setForeground(Color.black);
 		panel.setBackground(Color.white);
 		
-		DefaultTablePanelListener listener = new DefaultTablePanelListener();
+		DefaultGamePanelListener listener = new DefaultGamePanelListener();
 		listener.attachTo(panel);
 	}
+
+    private InputStream getResourceAsStream(String value) {
+        return this.getClass().getClassLoader().getResourceAsStream(value);
+    }
 }

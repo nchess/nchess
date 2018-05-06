@@ -10,9 +10,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.json.*;
 import java.io.InputStream;
 import java.util.*;
-import java.util.Map.Entry;
 
-public class JsonTableParser {
+public class JsonGameStateParser {
     private static final Map<String, PieceFactory> pieceFactories = ImmutableMap.<String, PieceFactory>builder()
             .put("pawn", Pawn::new)
             .put("rook", Rook::new)
@@ -22,7 +21,7 @@ public class JsonTableParser {
             .put("king", King::new)
             .build();
 
-    private final JsonTableValidator validator = new JsonTableValidator();
+    private final JsonGameStateValidator validator = new JsonGameStateValidator();
 
     public GameState parse(InputStream is) {
         JsonReader reader = Json.createReader(is);
