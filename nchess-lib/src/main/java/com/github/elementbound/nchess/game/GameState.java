@@ -109,7 +109,7 @@ public class GameState {
         return new Builder();
     }
 
-    private static class Builder {
+    public static class Builder {
         private Table table;
         private Set<Piece> pieces;
         private List<Player> players;

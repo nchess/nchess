@@ -1,16 +1,15 @@
 package com.github.elementbound.nchess.marshalling;
 
-import com.github.elementbound.nchess.game.Node;
-import com.github.elementbound.nchess.game.Piece;
-import com.github.elementbound.nchess.game.Player;
-import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.game.pieces.*;
 import com.github.elementbound.nchess.util.PieceFactory;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.json.*;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class JsonTableParser {
@@ -25,78 +24,42 @@ public class JsonTableParser {
 
     private final JsonTableValidator validator = new JsonTableValidator();
 
-    private Table resultTable = null;
-    private InputStream is;
-
-    public JsonTableParser(InputStream is) {
-        this.is = is;
-    }
-
-    public boolean parse() {
-        if (this.resultTable == null)
-            this.resultTable = new Table();
-
+    public GameState parse(InputStream is) {
         JsonReader reader = Json.createReader(is);
         JsonObject root = reader.readObject();
 
+        // Validate input
         validator.validate(root);
 
-        parseNodes(root);
-        parseLinks(root);
-        parsePlayers(root);
-        parsePieces(root);
+        // Extract data
+        Set<Node> nodes = parseNodes(root);
+        Set<Pair<Long, Long>> links = parseLinks(root);
+        List<Player> players = parsePlayers(root);
+        Set<Piece> pieces = parsePieces(root, nodes);
 
-        resultTable.preprocess();
-        return true;
+        // Apply links
+        links.forEach(link -> {
+            // TODO: Refactor this
+            Node from = nodes.stream().filter(n -> n.getId() == link.getLeft()).findFirst().orElseThrow(IllegalArgumentException::new);
+            Node to = nodes.stream().filter(n -> n.getId() == link.getRight()).findFirst().orElseThrow(IllegalArgumentException::new);
+
+            from.link(to);
+        });
+
+        Table.Builder tableBuilder = Table.builder();
+        nodes.forEach(tableBuilder::withNode);
+
+        GameState.builder()
+                .table(tableBuilder.build())
+                .players(players)
+                .currentPlayer(players.get(0))
+                .pieces(pieces)
+                .build();
     }
 
-    private void parsePieces(JsonObject root) {
-        JsonValue pieces = root.get("pieces");
-
-        for (JsonValue jsval : ((JsonArray) pieces)) {
-            JsonObject piece = (JsonObject) jsval;
-
-            long id = piece.getInt("id");
-            long at = piece.getInt("at");
-            long player = piece.getInt("player");
-            String type = piece.getString("type");
-
-            if (!pieceFactories.containsKey(type)) {
-                throw new IllegalArgumentException(String.format("Unknown piece type: %s", type));
-            }
-
-            PieceFactory pieceFactory = pieceFactories.get(type);
-            Piece pieceInstance = pieceFactory.from(at, player);
-
-            resultTable.addPiece(id, pieceInstance);
-        }
-    }
-
-    private void parsePlayers(JsonObject root) {
-        JsonValue players = root.get("players");
-
-        for (JsonValue jsval : ((JsonArray) players)) {
-            JsonNumber playerId = (JsonNumber) jsval;
-            Player player = new Player(playerId.toString());
-            resultTable.addPlayer(player.longValue());
-        }
-    }
-
-    private void parseLinks(JsonObject root) {
-        JsonValue links = root.get("links");
-
-        for (JsonValue jsval : ((JsonArray) links)) {
-            JsonArray link = (JsonArray) jsval;
-            long fromId = link.getInt(0);
-            long toId = link.getInt(1);
-            if (!resultTable.linkNode(fromId, toId)) {
-                throw new IllegalArgumentException(String.format("Couldn't establish link: %d -> %d\n", fromId, toId));
-            }
-        }
-    }
-
-    private void parseNodes(JsonObject root) {
+    private Set<Node> parseNodes(JsonObject root) {
         JsonValue nodes = root.get("nodes");
+        Set<Node> result = new HashSet<>();
 
         for (JsonValue jsval : ((JsonArray) nodes)) {
             JsonObject jsnode = (JsonObject) jsval;
@@ -106,17 +69,68 @@ public class JsonTableParser {
             double y = jsnode.getJsonNumber("y").doubleValue();
             boolean visible = jsnode.getBoolean("visible");
 
-            Node node = new Node(id, x, y, visible);
-
-            resultTable.addNode(node.getId(), node);
+            result.add(new Node(id, x, y, visible));
         }
+
+        return result;
     }
 
-    public Table getResult() {
-        return this.resultTable;
+    private Set<Pair<Long, Long>> parseLinks(JsonObject root) {
+        JsonValue links = root.get("links");
+        Set<Pair<Long, Long>> result = new HashSet<>();
+
+        for (JsonValue jsval : ((JsonArray) links)) {
+            JsonArray link = (JsonArray) jsval;
+            long fromId = link.getInt(0);
+            long toId = link.getInt(1);
+            result.add(new ImmutablePair<>(fromId, toId));
+        }
+
+        return result;
     }
 
-    public void assignTable(Table table) {
-        this.resultTable = table;
+    private List<Player> parsePlayers(JsonObject root) {
+        JsonValue players = root.get("players");
+        List<Player> result = new ArrayList<>();
+
+        for (JsonValue jsval : ((JsonArray) players)) {
+            JsonNumber playerId = (JsonNumber) jsval;
+
+            result.add(new Player(playerId.toString()));
+        }
+
+        return result;
+    }
+
+    private Set<Piece> parsePieces(JsonObject root, Set<Node> nodes) {
+        JsonValue pieces = root.get("pieces");
+        Set<Piece> result = new HashSet<>();
+
+        for (JsonValue jsval : ((JsonArray) pieces)) {
+            JsonObject piece = (JsonObject) jsval;
+
+            long id = piece.getInt("id");
+            long atId = piece.getInt("at");
+            long playerId = piece.getInt("player");
+            String type = piece.getString("type");
+
+            if (!pieceFactories.containsKey(type)) {
+                throw new IllegalArgumentException(String.format("Unknown piece type: %s", type));
+            }
+
+            Node atNode = nodes.stream()
+                    .filter(node -> node.getId() == atId)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(String.format("Unknown node id: %d", atId)));
+
+            Player player = new Player(String.valueOf(playerId));
+
+            PieceFactory pieceFactory = pieceFactories.get(type);
+            Piece pieceInstance = pieceFactory.from(atNode, player);
+
+            result.add(pieceInstance);
+        }
+
+        return result;
     }
 }
