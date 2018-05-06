@@ -3,8 +3,8 @@ package com.github.elementbound.nchess.net;
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Player;
-import com.github.elementbound.nchess.net.event.EventSource;
-import com.github.elementbound.nchess.net.event.client.*;
+import com.github.elementbound.nchess.util.event.EventSource;
+import com.github.elementbound.nchess.util.event.client.*;
 import com.github.elementbound.nchess.net.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,15 +93,16 @@ public class Client implements Runnable {
 					gameState = gameState.applyMove(((MoveMessage) msg).getMove());
 					moveEventSource.emit(new MoveEvent(this, gameState, ((MoveMessage) msg).getMove()));
 				}
-				else if(msg instanceof TableUpdateMessage) {
-					TableUpdateMessage tmsg = (TableUpdateMessage)msg;
+				else if(msg instanceof GameStateUpdateMessage) {
+					GameStateUpdateMessage stateUpdateMessage = (GameStateUpdateMessage)msg;
+
+					LOGGER.info("Updated table with {} nodes, {} pieces, and {} players", new Object[]{
+                            stateUpdateMessage.getGameState().getTable().getNodes().size(),
+                            stateUpdateMessage.getGameState().getPieces().size(),
+                            stateUpdateMessage.getGameState().getPlayers().size()
+                    });
 					
-					LOGGER.info("Updated table with {} nodes, {} pieces, and {} players\n",
-							tmsg.getTable().getNodes().size(),
-							tmsg.getTable().allPieces().size(),
-							tmsg.getTable().allPlayers().size());
-					
-					this.gameState = tmsg.getTable();
+					gameState = stateUpdateMessage.getGameState();
 					gameStateUpdateEventSource.emit(new GameStateUpdateEvent(this, gameState));
 				}
 			}

@@ -47,7 +47,7 @@ public class Server {
                     //Don't care for join requests atm, just approve them as player
                     ClientData cd = new ClientData(player, s);
                     cd.send(new JoinResponseMessage(player, true));
-                    cd.send(new TableUpdateMessage(gameState.getTable())); // TODO: Send GameState
+                    cd.send(new GameStateUpdateMessage(gameState));
                     clients.add(cd);
 
                     LOGGER.info("Accepted player {}", player);

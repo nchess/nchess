@@ -15,7 +15,7 @@ public class ParsingMessageFactory {
 		knownTypes.add(JoinResponseMessage::fromJSON);
 		knownTypes.add(MoveMessage::fromJSON);
 		knownTypes.add(PlayerTurnMessage::fromJSON);
-		knownTypes.add(TableUpdateMessage::fromJSON);
+		knownTypes.add(GameStateUpdateMessage::fromJSON);
 	}
 	
 	public static Message from(String msg) {

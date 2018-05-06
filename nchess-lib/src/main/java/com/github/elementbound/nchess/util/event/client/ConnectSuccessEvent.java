@@ -1,4 +1,4 @@
-package com.github.elementbound.nchess.net.event.client;
+package com.github.elementbound.nchess.util.event.client;
 
 import com.github.elementbound.nchess.net.Client;
 

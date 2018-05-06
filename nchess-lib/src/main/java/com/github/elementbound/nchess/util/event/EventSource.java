@@ -1,4 +1,4 @@
-package com.github.elementbound.nchess.net.event;
+package com.github.elementbound.nchess.util.event;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
