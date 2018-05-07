@@ -108,6 +108,7 @@ public class Table {
 
         public Table build() {
             nodes.forEach(Node::gatherSecondaryNeighbors);
+            nodes.forEach(Node::sortLinks);
             return new Table(nodes);
         }
     }

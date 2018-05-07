@@ -1,5 +1,6 @@
 package com.github.elementbound.nchess.game;
 
+import com.github.elementbound.nchess.util.TableUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
@@ -74,6 +75,13 @@ public class Node {
 			secondaryNeighbors.addAll(secondary);
 		}
 	}
+
+	// TODO: Move to some kind of preprocessor
+    @Deprecated
+    public void sortLinks() {
+        // Sort links by directions
+        neighbors.sort((a,b) -> (int)Math.signum(TableUtils.linkDirection(this,a) - TableUtils.linkDirection(this, b)));
+    }
 
     public long getId() {
         return id;
