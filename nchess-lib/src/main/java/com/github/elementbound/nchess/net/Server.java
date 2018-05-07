@@ -1,6 +1,7 @@
 package com.github.elementbound.nchess.net;
 
 import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.exception.InvalidMoveException;
 import com.github.elementbound.nchess.net.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +13,15 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Server {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientData.class);
     public static final int CLIENT_TIMEOUT = 150000;
+    public static final int INVALID_MOVE_RETRY_COUNT = 8;
+
+    private final MoveValidator moveValidator = new MoveValidator();
 
     private GameState gameState;
 	private List<ClientData> clients = new ArrayList<>();
@@ -27,15 +32,6 @@ public class Server {
 
     private void broadcast(Message message) {
 	    clients.forEach(client -> client.send(message));
-	}
-
-	// TODO: Move to its own component?
-	private boolean validateMove(Player player, Move move) {
-	    return gameState.getPieceAt(move.getFrom())
-                .filter(p -> p.getPlayer().equals(player))
-                .filter(p -> p.getMoves(gameState).contains(move))
-                .isPresent()
-                || true;
 	}
 
 	private void waitForPlayers(ServerSocket listen) {
@@ -67,29 +63,31 @@ public class Server {
 		listen.close();
 		
 		//Play for some steps then quit 
-		for(int i = 0; i < 64; i++) {	
-			for(ClientData cd : clients) {
+		for(int i = 0; i < 64; i++) {
+            for(ClientData client : clients) {
 				//Send a player turn notif
-				broadcast(new PlayerTurnMessage(cd.getPlayer()));
+				broadcast(new PlayerTurnMessage(client.getPlayer()));
 				
 				//Wait for response
-                Message msg = waitForMessage(cd, CLIENT_TIMEOUT);
+                Message msg = waitForMessage(client, CLIENT_TIMEOUT);
                 if (msg == null) continue;
 				
 				if(msg instanceof MoveMessage) {
 					MoveMessage moveMessage = (MoveMessage)msg;
                     Move move = moveMessage.getMove(gameState);
 
-                    if(!validateMove(cd.getPlayer(), move)) {
-						broadcast(new PlayerTurnMessage(cd.getPlayer()));
-						LOGGER.error("Invalid move from player {}!", cd.getPlayer());
-					}
-					else {
-					    LOGGER.info("Valid move: {}; broadcasting", moveMessage);
-
-						broadcast(moveMessage);
-						gameState = gameState.applyMove(move);
-					}
+                    for(int j = 0; j < INVALID_MOVE_RETRY_COUNT; ++j) {
+                        try {
+                            gameState = gameState.applyMove(move);
+                            LOGGER.info("Valid move: {}; broadcasting", moveMessage);
+                            broadcast(moveMessage);
+                            break;
+                        } catch (InvalidMoveException e) {
+                            LOGGER.error("Invalid move!", e);
+                            LOGGER.info("Player {} sent invalid turn, retrying {}/{}", new Object[] {client.getPlayer(), j, INVALID_MOVE_RETRY_COUNT});
+                            broadcast(new PlayerTurnMessage(client.getPlayer()));
+                        }
+                    }
 				}
 				else {
 					//!

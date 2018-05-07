@@ -19,11 +19,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 
 public class ClientUI {
     private static Logger LOGGER = LoggerFactory.getLogger(ClientUI.class);
@@ -37,6 +35,7 @@ public class ClientUI {
     private JTextPane eventLog;
     private GamePanel gamePanel;
 
+    private String message;
     private Client client = null;
 
     private Optional<Node> selectedNode = Optional.empty();
@@ -56,13 +55,20 @@ public class ClientUI {
 
     private void onSuccessfulConnect(ConnectSuccessEvent event) {
         LOGGER.info("Connection successful!", event);
+        setMessage("Connection successful!");
 
         btnConnect.setText("Connect");
         btnConnect.setEnabled(false);
     }
 
     private void onMove(MoveEvent event) {
+        Player currentPlayer = gamePanel.getGameState().getCurrentPlayer();
+        Player nextPlayer = event.getGameState().getCurrentPlayer();
+        Player myPlayer = client.getPlayer();
+
         LOGGER.info("Move event", event);
+        setMessage(String.format("Last move by %s, next up is %s ( you are %s )", currentPlayer, nextPlayer, myPlayer));
+
         gamePanel.setGameState(event.getGameState());
     }
 
@@ -255,4 +261,14 @@ public class ClientUI {
         client.getMoveEventSource().subscribe(this::onMove);
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        String dateString = Date.from(Instant.now()).toString();
+        this.message = message;
+
+        eventLog.setText(String.format("[%s] %s", dateString, message));
+    }
 }

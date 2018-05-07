@@ -21,20 +21,13 @@ public class GameState {
     private final List<Player> players;
     private final Player currentPlayer;
 
+    private final MoveValidator moveValidator = new MoveValidator();
+
     public GameState(Builder builder) {
         this.table = builder.table;
         this.pieces = builder.pieces;
         this.players = builder.players;
         this.currentPlayer = builder.currentPlayer;
-    }
-
-    // TODO: Maybe move to its own component?
-    // TODO: Possibly throw instead of returning a boolean?
-    public boolean validateMove(Move move) {
-        // TODO: check if the right player is moving the piece
-        // TODO: check if the piece can do that move
-        // TODO: check if moving over an allied piece
-        return true;
     }
 
     // TODO: Maybe move to its own component?
@@ -47,10 +40,9 @@ public class GameState {
     public GameState applyMove(Move move) throws InvalidMoveException {
         LOGGER.info("Applying move: {}", move);
 
-        if(!validateMove(move)) {
+        if(!moveValidator.validate(this, move)) {
             LOGGER.error("Invalid move: {}", move);
-            // TODO: proper throw
-            throw new InvalidMoveException();
+            throw new InvalidMoveException(this, move);
         }
 
         //Perform move

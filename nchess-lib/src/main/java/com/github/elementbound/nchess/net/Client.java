@@ -16,17 +16,17 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client implements Runnable {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
-	private final String host;
-	private final int port;
+    private final String host;
+    private final int port;
 
-	private GameState gameState;
-	private Player player;
-	private boolean myTurn;
+    private GameState gameState;
+    private Player player;
+    private boolean myTurn;
     private PrintStream out;
 
-	// Event sources
+    // Event sources
     private final EventSource<GameStateUpdateEvent> gameStateUpdateEventSource = new EventSource<>();
     private final EventSource<JoinResponseEvent> joinResponseEventSource = new EventSource<>();
     private final EventSource<TurnEvent> turnEventSource = new EventSource<>();
@@ -34,94 +34,105 @@ public class Client implements Runnable {
 
     private final EventSource<ConnectFailEvent> failedConnectEventSource = new EventSource<>();
     private final EventSource<ConnectSuccessEvent> successfulConnectEventSource = new EventSource<>();
-	
-	public Client(String host, int port) {
-		this.host = host; 
-		this.port = port; 
-	}
 
-	protected void send(PrintStream out, Message msg) {
-		out.print(msg.toJSON());
-	}
-	
-	public void run() {
-		try {
-			LOGGER.info("Connecting to {}:{}", host, port);
-			Socket socket;
+    public Client(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
 
-			try {
-				socket = new Socket(host, port);
-			}
-			catch (IOException e) {
+    void send(PrintStream out, Message msg) {
+        out.print(msg.toJSON());
+    }
+
+    public void run() {
+        try {
+            LOGGER.info("Connecting to {}:{}", host, port);
+            Socket socket;
+
+            try {
+                socket = new Socket(host, port);
+            } catch (IOException e) {
                 LOGGER.error("Connecting to {}:{} failed!", host, port);
-				failedConnectEventSource.emit(new ConnectFailEvent(this, e, host, port));
-				return; 
-			}
-			
-			out = new PrintStream(socket.getOutputStream());
-			InputStream in = socket.getInputStream();
-			Scanner sin = new Scanner(in);
-			successfulConnectEventSource.emit(new ConnectSuccessEvent(this, host, port));
-			
-			while(sin.hasNext()) {
-				String line = sin.nextLine();
-				
-				Message msg = ParsingMessageFactory.from(line);
-				if(msg == null) {
-					LOGGER.error("Unknown message! Contents: {}", line);
-					continue; 
-				}
-				
-				if(msg instanceof JoinResponseMessage) {
-				    joinResponseEventSource.emit(new JoinResponseEvent(this,
-                            ((JoinResponseMessage) msg).isApproved(),
-                            ((JoinResponseMessage) msg).getPlayer()));
-					
-					if(!((JoinResponseMessage) msg).isApproved())
-						return; 
-					
-					player = ((JoinResponseMessage) msg).getPlayer();
-					LOGGER.info("Server approved as player {}", player);
-				} 
-				else if(msg instanceof PlayerTurnMessage) {
-					myTurn = (((PlayerTurnMessage) msg).getPlayer().equals(player));
-					LOGGER.info("Current player is {}", ((PlayerTurnMessage) msg).getPlayer());
+                failedConnectEventSource.emit(new ConnectFailEvent(this, e, host, port));
+                return;
+            }
 
-					turnEventSource.emit(new TurnEvent(this, ((PlayerTurnMessage) msg).getPlayer(), isMyTurn()));
-				}
-				else if(msg instanceof MoveMessage) {
-					Move move = ((MoveMessage) msg).getMove(gameState);
-					gameState = gameState.applyMove(move);
-					moveEventSource.emit(new MoveEvent(this, gameState, move));
-				}
-				else if(msg instanceof GameStateUpdateMessage) {
-					GameStateUpdateMessage stateUpdateMessage = (GameStateUpdateMessage)msg;
+            out = new PrintStream(socket.getOutputStream());
+            InputStream in = socket.getInputStream();
+            Scanner sin = new Scanner(in);
+            successfulConnectEventSource.emit(new ConnectSuccessEvent(this, host, port));
 
-					LOGGER.info("Updated table with {} nodes, {} pieces, and {} players", new Object[]{
-                            stateUpdateMessage.getGameState().getTable().getNodes().size(),
-                            stateUpdateMessage.getGameState().getPieces().size(),
-                            stateUpdateMessage.getGameState().getPlayers().size()
-                    });
-					
-					gameState = stateUpdateMessage.getGameState();
-					gameStateUpdateEventSource.emit(new GameStateUpdateEvent(this, gameState));
-				}
-			}
-			
-			out.close();
-			socket.close();
-		} catch (IOException e) {
-			LOGGER.error("Socket communication error!", e);
-		}
-	}
-	
-	public boolean move(Move move) {
-		if(!isMyTurn())
-			return false; 
+            while (sin.hasNext()) {
+                String line = sin.nextLine();
 
-		send(out, new MoveMessage(move));
-		return true;
-	}
+                Message msg = ParsingMessageFactory.from(line);
+                if (msg == null) {
+                    LOGGER.error("Unknown message! Contents: {}", line);
+                    continue;
+                }
+
+                if (msg instanceof JoinResponseMessage) {
+                    handleJoinResponseMessage((JoinResponseMessage) msg);
+                } else if (msg instanceof PlayerTurnMessage) {
+                    handlePlayerTurnMessage((PlayerTurnMessage) msg);
+                } else if (msg instanceof MoveMessage) {
+                    handleMoveMessage((MoveMessage) msg);
+                } else if (msg instanceof GameStateUpdateMessage) {
+                    handleGameStateUpdateMessage((GameStateUpdateMessage) msg);
+                }
+            }
+
+            out.close();
+            socket.close();
+        } catch (IOException e) {
+            LOGGER.error("Socket communication error!", e);
+        }
+    }
+
+    private void handleGameStateUpdateMessage(GameStateUpdateMessage msg) {
+        GameStateUpdateMessage stateUpdateMessage = msg;
+
+        LOGGER.info("Updated table with {} nodes, {} pieces, and {} players", new Object[]{
+                stateUpdateMessage.getGameState().getTable().getNodes().size(),
+                stateUpdateMessage.getGameState().getPieces().size(),
+                stateUpdateMessage.getGameState().getPlayers().size()
+        });
+
+        gameState = stateUpdateMessage.getGameState();
+        gameStateUpdateEventSource.emit(new GameStateUpdateEvent(this, gameState));
+    }
+
+    private void handleMoveMessage(MoveMessage msg) {
+        Move move = msg.getMove(gameState);
+        gameState = gameState.applyMove(move);
+        moveEventSource.emit(new MoveEvent(this, gameState, move));
+    }
+
+    private void handlePlayerTurnMessage(PlayerTurnMessage msg) {
+        myTurn = msg.getPlayer().equals(player);
+        LOGGER.info("Current player is {}", msg.getPlayer());
+
+        turnEventSource.emit(new TurnEvent(this, msg.getPlayer(), isMyTurn()));
+    }
+
+    private void handleJoinResponseMessage(JoinResponseMessage msg) {
+        joinResponseEventSource.emit(new JoinResponseEvent(this,
+                msg.isApproved(),
+                msg.getPlayer()));
+
+        if (msg.isApproved()) {
+            player = msg.getPlayer();
+            LOGGER.info("Server approved as player {}", player);
+        }
+    }
+
+    public boolean move(Move move) {
+        if (!isMyTurn())
+            return false;
+
+        send(out, new MoveMessage(move));
+        return true;
+    }
 
     public String getHost() {
         return host;
