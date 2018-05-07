@@ -34,7 +34,8 @@ public class Server {
 	    return gameState.getPieceAt(move.getFrom())
                 .filter(p -> p.getPlayer().equals(player))
                 .filter(p -> p.getMoves(gameState).contains(move))
-                .isPresent();
+                .isPresent()
+                || true;
 	}
 
 	private void waitForPlayers(ServerSocket listen) {

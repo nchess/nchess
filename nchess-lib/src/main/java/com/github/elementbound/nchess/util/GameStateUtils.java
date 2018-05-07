@@ -16,4 +16,8 @@ public class GameStateUtils {
                 .filter(piece -> !me.getPlayer().equals(piece.getPlayer()))
                 .isPresent();
     }
+
+    public static boolean isValidTargetNode(GameState state, Node target, Piece me) {
+        return target != null && target.isVisible() && !GameStateUtils.isAllyAtNode(state, target, me);
+    }
 }

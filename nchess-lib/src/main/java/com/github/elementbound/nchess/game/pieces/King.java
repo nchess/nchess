@@ -22,7 +22,7 @@ public class King extends Piece {
 	public Set<Move> getMoves(GameState state) {
         return Stream.of(at.getNeighbors(), at.getSecondaryNeighbors())
                 .flatMap(Collection::stream)
-                .filter(to -> !GameStateUtils.isAllyAtNode(state, to, this))
+                .filter(to -> GameStateUtils.isValidTargetNode(state, to, this))
                 .map(to -> new Move(at, to))
                 .collect(Collectors.toSet());
 	}

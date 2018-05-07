@@ -28,21 +28,14 @@ public class Bishop extends Piece {
                 .forEach(towards -> {
                     double direction = TableUtils.linkDirection(at, towards);
 
-                    while(towards != null) {
-                        // Stop if node is not visible
-                        if(!towards.isVisible())
-                            break;
-
-                        // Stop if node is occupied by ally
-                        if(GameStateUtils.isAllyAtNode(state, towards, this))
-                            break;
-
+                    while(GameStateUtils.isValidTargetNode(state, towards, this)) {
                         targetNodes.add(towards);
-                        towards = table.nodeTowardsDirection(towards, direction);
 
                         // Stop if node is occupied by enemy
                         if(GameStateUtils.isEnemyAtNode(state, towards, this))
                             break;
+
+                        towards = table.secondaryNodeTowardsDirection(towards, direction);
                     }
                 });
 

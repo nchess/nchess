@@ -13,135 +13,138 @@ import java.util.Optional;
 public class DefaultGamePanelListener implements MouseWheelListener, MouseMotionListener, MouseListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultGamePanelListener.class);
 
-	private Optional<Node> moveFrom = Optional.empty();
-	private Point dragFrom = null;
+    private Optional<Node> moveFrom = Optional.empty();
+    private Point dragFrom = null;
 
-	public void attachTo(GamePanel gamePanel) {
-		gamePanel.addMouseWheelListener(this);
-		gamePanel.addMouseMotionListener(this);
-		gamePanel.addMouseListener(this);
+    public void attachTo(GamePanel gamePanel) {
+        gamePanel.addMouseWheelListener(this);
+        gamePanel.addMouseMotionListener(this);
+        gamePanel.addMouseListener(this);
 
-		gamePanel.getNodeSelectEventEventSource().subscribe(this::nodeSelect);
-	}
+        gamePanel.getNodeSelectEventEventSource().subscribe(this::nodeSelect);
+    }
 
-	public void nodeSelect(NodeSelectEvent event) {
-	    GamePanel gamePanel = event.getSource();
-	    Node node = event.getNode();
+    public void nodeSelect(NodeSelectEvent event) {
+        GamePanel gamePanel = event.getSource();
+        GameState gameState = gamePanel.getGameState();
+        Node node = event.getNode();
+        Optional<Piece> pieceAtNode = gameState.getPieceAt(node);
 
         gamePanel.getHighlitNodes().clear();
 
-        GameState gameState = gamePanel.getGameState();
-		
-		if(moveFrom.isPresent()) {
+        if (moveFrom.isPresent()) {
             try {
                 Move move = new Move(moveFrom.get(), node);
-			    GameState newState = gameState.applyMove(move);
+                GameState newState = gameState.applyMove(move);
 
-			    gamePanel.setGameState(newState);
-			    gamePanel.getHighlitNodes().clear();
-            } catch(InvalidMoveException e) {
+                gamePanel.setGameState(newState);
+                gamePanel.getHighlitNodes().clear();
+                moveFrom = Optional.empty();
+            } catch (InvalidMoveException e) {
                 LOGGER.info("Invalid move", e);
             }
-		} 
-		else {
-		    gameState.getPieceAt(node).ifPresent(piece -> {
-		        // Higlight piece
-		        gamePanel.getHighlitNodes().add(node);
+        } else if (pieceAtNode.isPresent()) {
+            Piece piece = pieceAtNode.get();
 
-		        // Higlight possible moves
-                piece.getMoves(gameState).stream()
-                        .map(Move::getTo)
-                        .forEach(gamePanel.getHighlitNodes()::add);
-            });
-		}
-		
-		gamePanel.repaint();
-	}
+            // Higlight piece
+            gamePanel.getHighlitNodes().add(node);
 
-	//=========================================================================================
-	//MouseWheelListener
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		int clicks = e.getWheelRotation();
-		GamePanel panel = (GamePanel)e.getSource();
-		
-		if(clicks < 0) { //Wheel rotated upwards, zoom in
-			for(int i = 0; i > clicks; i--)
-				panel.viewZoom *= Math.pow(2.0, 1.0/4.0);
-		}
-		else { //Wheel rotated downwards, zoom out
-			for(int i = 0; i < clicks; i++)
-				panel.viewZoom /= Math.pow(2.0, 1.0/4.0);
-		}
-		
-		panel.repaint();
-	}
+            // Higlight possible moves
+            piece.getMoves(gameState).stream()
+                    .map(Move::getTo)
+                    .forEach(gamePanel.getHighlitNodes()::add);
 
-	//=========================================================================================
-	//MouseMotionListener
-	
-	@Override
-	public void mouseDragged(MouseEvent e) {
-	    // TODO: Refactor to single if statement, move condition to method
-		while(true) {
-			if((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0)
-				break;
-			
-			if((e.getModifiers() & MouseEvent.SHIFT_MASK) != 0 && 
-			   (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
-				break;
-			
-			return;
-		}
-		
-		if(dragFrom == null)
-			return;
-		
-		int dx = e.getX() - (int)dragFrom.getX();
-		int dy = e.getY() - (int)dragFrom.getY();
-		
-		//System.out.printf("\tTranslate: %d,%d\n", dx,dy);
-		GamePanel panel = (GamePanel)e.getSource();
-		panel.viewOffset.setLocation(panel.viewOffset.getX() + dx/panel.viewZoom, 
-									 panel.viewOffset.getY() + dy/panel.viewZoom);
-		dragFrom = e.getPoint();
-		panel.repaint();
-	}
+            moveFrom = Optional.of(node);
+        } else {
+            moveFrom = Optional.empty();
+        }
 
-	@Override
-	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	//=========================================================================================
-	//MouseListener
+        gamePanel.repaint();
+    }
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-	}
+    //=========================================================================================
+    //MouseWheelListener
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int clicks = e.getWheelRotation();
+        GamePanel panel = (GamePanel) e.getSource();
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+        if (clicks < 0) { //Wheel rotated upwards, zoom in
+            for (int i = 0; i > clicks; i--)
+                panel.viewZoom *= Math.pow(2.0, 1.0 / 4.0);
+        } else { //Wheel rotated downwards, zoom out
+            for (int i = 0; i < clicks; i++)
+                panel.viewZoom /= Math.pow(2.0, 1.0 / 4.0);
+        }
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+        panel.repaint();
+    }
 
-	@Override
-	public void mousePressed(MouseEvent e) {
-		if(dragFrom == null)
-			dragFrom = e.getPoint();
-	}
+    //=========================================================================================
+    //MouseMotionListener
 
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		dragFrom = null;
-	}
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        // TODO: Refactor to single if statement, move condition to method
+        while (true) {
+            if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0)
+                break;
+
+            if ((e.getModifiers() & MouseEvent.SHIFT_MASK) != 0 &&
+                    (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
+                break;
+
+            return;
+        }
+
+        if (dragFrom == null)
+            return;
+
+        int dx = e.getX() - (int) dragFrom.getX();
+        int dy = e.getY() - (int) dragFrom.getY();
+
+        //System.out.printf("\tTranslate: %d,%d\n", dx,dy);
+        GamePanel panel = (GamePanel) e.getSource();
+        panel.viewOffset.setLocation(panel.viewOffset.getX() + dx / panel.viewZoom,
+                panel.viewOffset.getY() + dy / panel.viewZoom);
+        dragFrom = e.getPoint();
+        panel.repaint();
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    //=========================================================================================
+    //MouseListener
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (dragFrom == null)
+            dragFrom = e.getPoint();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        dragFrom = null;
+    }
 
 }

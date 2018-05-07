@@ -55,6 +55,8 @@ public class Node {
 	// TODO: Should be moved to some kind of preprocessor
 	@Deprecated
 	public void gatherSecondaryNeighbors() {
+	    sortLinks();
+
 		secondaryNeighbors.clear();
 		for(int i = 0; i < neighbors.size(); i++) {
 			int j = (i+1) % neighbors.size();
@@ -78,7 +80,7 @@ public class Node {
 
 	// TODO: Move to some kind of preprocessor
     @Deprecated
-    public void sortLinks() {
+    private void sortLinks() {
         // Sort links by directions
         neighbors.sort((a,b) -> (int)Math.signum(TableUtils.linkDirection(this,a) - TableUtils.linkDirection(this, b)));
     }

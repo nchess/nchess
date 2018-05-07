@@ -54,7 +54,7 @@ public class Table {
                 to -> MathUtils.directionSimilarity(dir, TableUtils.linkDirection(from, to));
 
         return from.getNeighbors().stream()
-                .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))
+                .max((a, b) -> (int) Math.signum(directionSimilarity.apply(a) - directionSimilarity.apply(b)))
                 .orElse(null);
 	}
 
@@ -70,7 +70,7 @@ public class Table {
                 to -> MathUtils.directionSimilarity(dir, TableUtils.linkDirection(from, to));
 
         return from.getSecondaryNeighbors().stream()
-                .max((a, b) -> (int) (directionSimilarity.apply(a) - directionSimilarity.apply(b)))
+                .max((a, b) -> (int) Math.signum(directionSimilarity.apply(a) - directionSimilarity.apply(b)))
                 .orElse(null);
 	}
 
@@ -108,7 +108,6 @@ public class Table {
 
         public Table build() {
             nodes.forEach(Node::gatherSecondaryNeighbors);
-            nodes.forEach(Node::sortLinks);
             return new Table(nodes);
         }
     }
