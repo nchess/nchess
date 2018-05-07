@@ -1,27 +1,48 @@
 package com.github.elementbound.nchess.net.protocol;
 
+import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Node;
 
 import javax.json.JsonObject;
+import java.util.Set;
 
 public class MoveMessage extends Message {
-	private final Move move;
+	private final long fromId;
+	private final long toId;
 
-	public MoveMessage(Move move) {
-		this.move = move;
-	}
+    public MoveMessage(long fromId, long toId) {
+        this.fromId = fromId;
+        this.toId = toId;
+    }
 
-    public Move getMove() {
-        return move;
+    public MoveMessage(Move move) {
+        this.fromId = move.getFrom().getId();
+        this.toId = move.getTo().getId();
+    }
+
+    public long getFromId() {
+        return fromId;
+    }
+
+    public long getToId() {
+        return toId;
+    }
+
+    public Move getMove(GameState gameState) {
+        Set<Node> nodes = gameState.getTable().getNodes();
+        Node from = nodes.stream().filter(n -> n.getId() == fromId).findFirst().get();
+        Node to = nodes.stream().filter(n -> n.getId() == toId).findFirst().get();
+
+        return new Move(from, to);
     }
 
     @Override
 	public String toJSON() {
 		return getBuilder()
 				.add("type", "move")
-				.add("from", move.getFrom().getId())
-				.add("to", move.getTo().getId())
+				.add("from", fromId)
+				.add("to", toId)
 				.build()
 				.toString();
 	}
@@ -33,9 +54,6 @@ public class MoveMessage extends Message {
 		long fromId = json.getInt("from");
         long toId = json.getInt("to");
 
-        Node from = Node.builder().id(fromId).build();
-        Node to = Node.builder().id(toId).build();
-
-		return new MoveMessage(new Move(from, to));
+		return new MoveMessage(fromId, toId);
 	}
 }

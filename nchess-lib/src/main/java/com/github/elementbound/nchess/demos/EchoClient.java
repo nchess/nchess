@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.*;
 
 public class EchoClient {
-    private Player myPlayer;
-
 	public static void main(String[] args) {
 		new EchoClient().run(args);
 	}
@@ -40,12 +38,11 @@ public class EchoClient {
      * @param event turn event
      */
 	private void onTurn(TurnEvent event) {
-        Player player = event.getPlayer();
         Client client = event.getClient();
 
         if(event.isMyTurn()) {
             GameState gameState = event.getClient().getGameState();
-            Set<Move> possibleMoves = gameState.getMovesByPlayer(myPlayer);
+            Set<Move> possibleMoves = gameState.getMovesByPlayer(event.getPlayer());
 
             ArrayList<Move> movesList = new ArrayList<>(possibleMoves);
             Collections.shuffle(movesList);

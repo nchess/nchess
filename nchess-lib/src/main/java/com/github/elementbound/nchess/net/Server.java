@@ -77,8 +77,9 @@ public class Server {
 				
 				if(msg instanceof MoveMessage) {
 					MoveMessage moveMessage = (MoveMessage)msg;
-					
-					if(!validateMove(cd.getPlayer(), moveMessage.getMove())) {
+                    Move move = moveMessage.getMove(gameState);
+
+                    if(!validateMove(cd.getPlayer(), move)) {
 						broadcast(new PlayerTurnMessage(cd.getPlayer()));
 						LOGGER.error("Invalid move from player {}!", cd.getPlayer());
 					}
@@ -86,7 +87,7 @@ public class Server {
 					    LOGGER.info("Valid move: {}; broadcasting", moveMessage);
 
 						broadcast(moveMessage);
-						gameState = gameState.applyMove(moveMessage.getMove());
+						gameState = gameState.applyMove(move);
 					}
 				}
 				else {

@@ -71,7 +71,7 @@ public class ClientUI {
         Set<Node> highlitNodes = gamePanel.getHighlitNodes();
         GameState gameState = gamePanel.getGameState();
         Node node = event.getNode();
-        Optional<Piece> pieceAtNode = gameState.getPieceAt(node);
+        Optional<Piece> pieceAtNode = gameState.getPieceAt(node).filter(p -> p.getPlayer().equals(client.getPlayer()));
 
         highlitNodes.clear();
 
@@ -82,16 +82,14 @@ public class ClientUI {
             LOGGER.info("Selected node: {}", selected);
             LOGGER.info("Selected piece: {}", piece);
 
-            try {
-                Move move = new Move(selected, node);
-                GameState newState = gameState.applyMove(move);
-                gamePanel.setGameState(newState);
+            Move move = new Move(selected, node);
+            LOGGER.info("Trying move: {}", move);
 
-                selectedNode = Optional.empty();
-            } catch (InvalidMoveException e) {
-                LOGGER.warn("Failed move", e);
-            }
+            client.move(move);
+            selectedNode = Optional.empty();
         } else if(pieceAtNode.isPresent()) {
+            LOGGER.info("Selecting node: {}", node);
+
             Piece piece = pieceAtNode.get();
 
             // Highlight piece and nodes it can reach
@@ -100,7 +98,10 @@ public class ClientUI {
             piece.getMoves(gameState).stream()
                     .map(Move::getTo)
                     .forEach(highlitNodes::add);
+
+            selectedNode = Optional.of(node);
         } else {
+            LOGGER.info("Clearing selection");
             selectedNode = Optional.empty();
         }
 

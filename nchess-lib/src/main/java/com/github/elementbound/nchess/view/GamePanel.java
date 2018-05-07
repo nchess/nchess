@@ -78,6 +78,7 @@ public class GamePanel extends JPanel {
         // Render highlit cells
         g2.setColor(HIGHLIGHT_COLOR);
         highlitNodes.stream()
+                .filter(polygons::containsKey)
                 .map(polygons::get)
                 .forEach(g2::fill);
 
@@ -138,6 +139,7 @@ public class GamePanel extends JPanel {
         updateState(this.gameState, gameState);
 
         this.gameState = gameState;
+        this.repaint();
     }
 
     private void fitView() {

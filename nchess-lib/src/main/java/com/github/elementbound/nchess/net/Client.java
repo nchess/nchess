@@ -84,14 +84,15 @@ public class Client implements Runnable {
 					LOGGER.info("Server approved as player {}", player);
 				} 
 				else if(msg instanceof PlayerTurnMessage) {
-					myTurn = (((PlayerTurnMessage) msg).getPlayer() == player);
+					myTurn = (((PlayerTurnMessage) msg).getPlayer().equals(player));
 					LOGGER.info("Current player is {}", ((PlayerTurnMessage) msg).getPlayer());
 
 					turnEventSource.emit(new TurnEvent(this, ((PlayerTurnMessage) msg).getPlayer(), isMyTurn()));
 				}
 				else if(msg instanceof MoveMessage) {
-					gameState = gameState.applyMove(((MoveMessage) msg).getMove());
-					moveEventSource.emit(new MoveEvent(this, gameState, ((MoveMessage) msg).getMove()));
+					Move move = ((MoveMessage) msg).getMove(gameState);
+					gameState = gameState.applyMove(move);
+					moveEventSource.emit(new MoveEvent(this, gameState, move));
 				}
 				else if(msg instanceof GameStateUpdateMessage) {
 					GameStateUpdateMessage stateUpdateMessage = (GameStateUpdateMessage)msg;
