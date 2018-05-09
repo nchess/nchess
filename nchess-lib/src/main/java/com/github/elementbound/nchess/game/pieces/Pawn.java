@@ -9,6 +9,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * <p>Class to represent the Pawn piece.
+ * <p>
+ *     On their first step, pawns can choose any ( non-diagonal ) direction, to take a single step.
+ *     After this step has been made, pawns will have to stick to that direction.
+ * <p>
+ *     Pawns can take down other pieces in any direction, except their chosen direction, and their previous position.
+ */
 public class Pawn extends Piece {
 	private Optional<Double> direction;
 
@@ -31,6 +39,7 @@ public class Pawn extends Piece {
 		return "pawn";
 	}
 
+	// TODO: Pawn hits and blockages need to be implemented
 	@Override
 	public Set<Move> getMoves(GameState state) {
         Table table = state.getTable();

@@ -8,6 +8,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * <p>Class to represent the Rook piece.
+ * <p>
+ *     The rook can move an arbitrary amount of steps in any stright direction - that is, choosing a neighbor for
+ *     direction, and then keeping that direction for the subsequent steps.
+ * @see Bishop
+ */
 public class Rook extends Piece {
 
 	public Rook(Node at, Player player) {

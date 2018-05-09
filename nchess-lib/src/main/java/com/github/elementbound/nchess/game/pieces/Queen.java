@@ -7,6 +7,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * <p>Class to represent the Queen piece.
+ * <p>The moveset of the queen is defined as the union of the rook's and the bishop's.
+ */
 public class Queen extends Piece {
 
 	private Rook helperRook;

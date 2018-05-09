@@ -8,6 +8,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * <p>Class to represent the Knight piece.
+ * <p>
+ *     The knight can take two steps in an arbitrary direction, then take another step in a different direction.
+ *     The last step can't be taken backwards, meaning the knight can't step on the first node it moved onto
+ *     in the process. Also, the last step must be taken in a way that the knight's distance to its previous position
+ *     should be larger than two.
+ * <p>
+ *     The move can't be made if the knight would land on a blocked node.
+ * <p>
+ *     The knight is the only piece that can jump over other pieces.
+ */
 public class Knight extends Piece {
 
 	public Knight(Node at, Player player) {
