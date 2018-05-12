@@ -40,14 +40,6 @@ public class GameState {
         return getNextPlayer(currentPlayer);
     }
 
-    @Deprecated
-    public Set<Move> getMovesByPlayer(Player player) {
-        return pieces.stream()
-                .filter(piece -> piece.getPlayer().equals(player))
-                .flatMap(piece -> piece.getMoves(this).stream())
-                .collect(Collectors.toSet());
-    }
-
     public Table getTable() {
         return table;
     }
