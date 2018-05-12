@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -86,13 +87,17 @@ public class Table {
     }
 
     @Override
-    public boolean equals(Object that) {
-        return EqualsBuilder.reflectionEquals(this, that);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Table table = (Table) o;
+        return Objects.equals(nodes, table.nodes);
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+
+        return Objects.hash(nodes);
     }
 
     public static class Builder {

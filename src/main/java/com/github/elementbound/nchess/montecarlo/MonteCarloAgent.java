@@ -60,12 +60,16 @@ public class MonteCarloAgent {
      * @param node to play from
      */
     private void playout(GameTreeNode node) {
+        LOGGER.info("Playouts for {}", node);
         GameTreeNode at = node;
 
         while(!isEndNode(at)) {
+            LOGGER.info("Gathering applicable operators for policy");
             Set<Operator> applicableOperators = gatherApplicableOperators(at.getState());
+            LOGGER.info("Applying policy on {}", at);
             Operator operator = policy.apply(at, applicableOperators);
 
+            LOGGER.info("Expanding on operator {}", operator);
             at = at.expand(operator);
         }
     }
@@ -80,11 +84,15 @@ public class MonteCarloAgent {
 
         // Do playouts for each
         expand(gameTree);
+
+        LOGGER.info("Initial playouts");
         gameTree.getChildren().values()
                 .forEach(this::playout);
 
         // Do a few iterations
         for(int i = 0; i < ITERATION_COUNT; i++) {
+            LOGGER.info("Iteration {}/{}", i, ITERATION_COUNT);
+
             //select
             GameTreeNode toExpand = selectNode(gameTree);
 

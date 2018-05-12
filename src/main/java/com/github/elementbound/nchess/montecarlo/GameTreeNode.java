@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class GameTreeNode {
@@ -57,16 +58,22 @@ public class GameTreeNode {
 
     @Override
     public String toString() {
-        return new ReflectionToStringBuilder(this).setExcludeFieldNames("children").toString();
+        return new ReflectionToStringBuilder(this).setExcludeFieldNames("children", "parent").toString();
     }
 
     @Override
-    public boolean equals(Object that) {
-        return EqualsBuilder.reflectionEquals(this, that);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameTreeNode that = (GameTreeNode) o;
+        return Objects.equals(state, that.state) &&
+                Objects.equals(parent, that.parent) &&
+                Objects.equals(children, that.children) &&
+                Objects.equals(winCounts, that.winCounts);
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        return Objects.hash(state, parent);
     }
 }

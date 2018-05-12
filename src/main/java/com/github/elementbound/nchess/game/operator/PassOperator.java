@@ -27,14 +27,4 @@ public class PassOperator implements Operator {
     public String toString() {
         return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
     }
-
-    @Override
-    public boolean equals(Object that) {
-        return EqualsBuilder.reflectionEquals(this, that);
-    }
-
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
 }

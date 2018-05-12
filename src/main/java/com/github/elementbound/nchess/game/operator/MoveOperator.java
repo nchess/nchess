@@ -7,17 +7,14 @@ import com.github.elementbound.nchess.util.GameStateUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 public class MoveOperator implements Operator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MoveOperator.class);
-
     private final Move move;
 
     public MoveOperator(Move move) {
@@ -39,8 +36,6 @@ public class MoveOperator implements Operator {
 
     @Override
     public GameState apply(GameState state) {
-        LOGGER.info("Applying move: {}", move);
-
         //Perform move
         Set<Piece> resultingPieces = state.getPieces().stream()
                 .filter(piece -> ! move.getTo().equals(piece.getAt())) // Exclude piece we are stepping over
@@ -64,19 +59,21 @@ public class MoveOperator implements Operator {
     }
 
     @Override
-    public boolean equals(Object that) {
-        return EqualsBuilder.reflectionEquals(this, that);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MoveOperator that = (MoveOperator) o;
+        return Objects.equals(move, that.move);
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        return Objects.hash(move);
     }
 
     private boolean isOwnKingPresent(GameState state) {
         return state.getPieces().stream()
-                .filter(piece -> piece.getPlayer().equals(state.getCurrentPlayer()))
-                .anyMatch(piece -> piece.getName().equals("king"));
+                .anyMatch(piece -> piece.getPlayer().equals(state.getCurrentPlayer())  && piece.getName().equals("king"));
     }
 
     private boolean isPiecePresent(GameState state, Move move) {
