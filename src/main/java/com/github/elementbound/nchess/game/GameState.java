@@ -31,9 +31,13 @@ public class GameState {
     }
 
     // TODO: Maybe move to its own component?
-    private Player nextPlayer(Player player) {
+    public Player getNextPlayer(Player player) {
         int nextIndex = (players.indexOf(player) + 1) % players.size();
         return players.get(nextIndex);
+    }
+
+    public Player getNextPlayer() {
+        return getNextPlayer(currentPlayer);
     }
 
     // TODO: Maybe move to its own component?
@@ -59,7 +63,7 @@ public class GameState {
                 .table(table)
                 .players(players)
                 .pieces(resultingPieces)
-                .currentPlayer(nextPlayer(currentPlayer))
+                .currentPlayer(getNextPlayer(currentPlayer))
                 .build();
     }
 
