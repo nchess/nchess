@@ -30,7 +30,8 @@ public class MoveOperator implements Operator {
 
     @Override
     public boolean isApplicable(GameState state) {
-        return isPiecePresent(state, move) &&
+        return isOwnKingPresent(state) &&
+                isPiecePresent(state, move) &&
                 isPieceBelongingToPlayer(state, move) &&
                 isTargetNodeValid(state, move) &&
                 isPieceAbleToDoMove(state, move);
@@ -70,6 +71,12 @@ public class MoveOperator implements Operator {
     @Override
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    private boolean isOwnKingPresent(GameState state) {
+        return state.getPieces().stream()
+                .filter(piece -> piece.getPlayer().equals(state.getCurrentPlayer()))
+                .anyMatch(piece -> piece.getName().equals("king"));
     }
 
     private boolean isPiecePresent(GameState state, Move move) {

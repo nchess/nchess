@@ -3,6 +3,8 @@ package com.github.elementbound.nchess.net;
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.operator.MoveOperator;
+import com.github.elementbound.nchess.game.operator.Operator;
 import com.github.elementbound.nchess.util.event.EventSource;
 import com.github.elementbound.nchess.util.event.client.*;
 import com.github.elementbound.nchess.net.protocol.*;
@@ -104,7 +106,9 @@ public class Client implements Runnable {
 
     private void handleMoveMessage(MoveMessage msg) {
         Move move = msg.getMove(gameState);
-        gameState = gameState.applyMove(move);
+        Operator operator = new MoveOperator(move);
+        gameState = operator.apply(gameState);
+
         moveEventSource.emit(new MoveEvent(this, gameState, move));
     }
 

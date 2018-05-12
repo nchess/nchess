@@ -2,6 +2,8 @@ package com.github.elementbound.nchess.view;
 
 import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.game.exception.InvalidMoveException;
+import com.github.elementbound.nchess.game.operator.MoveOperator;
+import com.github.elementbound.nchess.game.operator.Operator;
 import com.github.elementbound.nchess.view.event.NodeSelectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,8 @@ public class DefaultGamePanelListener implements MouseWheelListener, MouseMotion
         if (moveFrom.isPresent()) {
             try {
                 Move move = new Move(moveFrom.get(), node);
-                GameState newState = gameState.applyMove(move);
+                Operator operator = new MoveOperator(move);
+                GameState newState = operator.apply(gameState);
 
                 gamePanel.setGameState(newState);
                 gamePanel.getHighlitNodes().clear();

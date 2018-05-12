@@ -40,33 +40,6 @@ public class GameState {
         return getNextPlayer(currentPlayer);
     }
 
-    // TODO: Maybe move to its own component?
-    public GameState applyMove(Move move) throws InvalidMoveException {
-        LOGGER.info("Applying move: {}", move);
-
-        if(!moveValidator.validate(this, move)) {
-            LOGGER.error("Invalid move: {}", move);
-            throw new InvalidMoveException(this, move);
-        }
-
-        //Perform move
-        Set<Piece> resultingPieces = pieces.stream()
-                .filter(piece -> ! move.getTo().equals(piece.getAt())) // Exclude piece we are stepping over
-                .map(piece ->
-                    piece.getAt().equals(move.getFrom()) ?
-                    piece.move(move.getTo()) :
-                    piece
-                )
-                .collect(Collectors.toSet());
-
-        return builder()
-                .table(table)
-                .players(players)
-                .pieces(resultingPieces)
-                .currentPlayer(getNextPlayer(currentPlayer))
-                .build();
-    }
-
     @Deprecated
     public Set<Move> getMovesByPlayer(Player player) {
         return pieces.stream()

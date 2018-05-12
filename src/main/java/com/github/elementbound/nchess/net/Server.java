@@ -2,6 +2,8 @@ package com.github.elementbound.nchess.net;
 
 import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.game.exception.InvalidMoveException;
+import com.github.elementbound.nchess.game.operator.MoveOperator;
+import com.github.elementbound.nchess.game.operator.Operator;
 import com.github.elementbound.nchess.net.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,20 +76,7 @@ public class Server {
 				
 				if(msg instanceof MoveMessage) {
 					MoveMessage moveMessage = (MoveMessage)msg;
-                    Move move = moveMessage.getMove(gameState);
-
-                    for(int j = 0; j < INVALID_MOVE_RETRY_COUNT; ++j) {
-                        try {
-                            gameState = gameState.applyMove(move);
-                            LOGGER.info("Valid move: {}; broadcasting", moveMessage);
-                            broadcast(moveMessage);
-                            break;
-                        } catch (InvalidMoveException e) {
-                            LOGGER.error("Invalid move!", e);
-                            LOGGER.info("Player {} sent invalid turn, retrying {}/{}", new Object[] {client.getPlayer(), j, INVALID_MOVE_RETRY_COUNT});
-                            broadcast(new PlayerTurnMessage(client.getPlayer()));
-                        }
-                    }
+                    handleMoveMessage(client, moveMessage);
 				}
 				else {
 					//!
@@ -95,6 +84,24 @@ public class Server {
 			}
 		}
 	}
+
+    private void handleMoveMessage(ClientData client, MoveMessage moveMessage) {
+        Move move = moveMessage.getMove(gameState);
+        Operator operator = new MoveOperator(move);
+
+        for(int j = 0; j < INVALID_MOVE_RETRY_COUNT; ++j) {
+            if(operator.isApplicable(gameState)) {
+                gameState = operator.apply(gameState);
+                LOGGER.info("Valid move: {}; broadcasting", moveMessage);
+                broadcast(moveMessage);
+                break;
+            } else {
+                LOGGER.error("Invalid operator!", operator);
+                LOGGER.info("Player {} sent invalid turn, retrying {}/{}", new Object[] {client.getPlayer(), j, INVALID_MOVE_RETRY_COUNT});
+                broadcast(new PlayerTurnMessage(client.getPlayer()));
+            }
+        }
+    }
 
     private Message waitForMessage(ClientData cd, long timeout) throws IOException {
         Message msg = null;

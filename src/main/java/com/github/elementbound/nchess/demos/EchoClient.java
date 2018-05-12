@@ -2,15 +2,24 @@ package com.github.elementbound.nchess.demos;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.Node;
 import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.operator.MoveOperator;
+import com.github.elementbound.nchess.game.operator.Operator;
 import com.github.elementbound.nchess.net.Client;
+import com.github.elementbound.nchess.util.event.client.GameStateUpdateEvent;
 import com.github.elementbound.nchess.util.event.client.TurnEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EchoClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EchoClient.class);
+
+    private Set<Operator> operators;
+
     public static void main(String[] args) {
         new EchoClient().run(args);
     }
@@ -28,9 +37,27 @@ public class EchoClient {
         sc.close();
 
         Client client = new Client(host, port);
+        client.getGameStateUpdateEventSource().subscribe(this::onGameStateUpdate);
         client.getTurnEventSource().subscribe(this::onTurn);
 
         client.run();
+    }
+
+    private void onGameStateUpdate(GameStateUpdateEvent event) {
+        LOGGER.info("Game state update");
+
+        GameState state = event.getGameState();
+        Table table = state.getTable();
+        Set<Node> nodes = table.getNodes();
+
+        operators = nodes.stream().flatMap(
+                from -> nodes.stream()
+                    .filter(to -> !to.equals(from))
+                    .map(to -> new Move(from, to)))
+            .map(MoveOperator::new)
+            .collect(Collectors.toSet());
+
+        LOGGER.info("Gathered {} possible operators on {} nodes", operators.size(), nodes.size());
     }
 
     /**
@@ -42,12 +69,22 @@ public class EchoClient {
         Client client = event.getClient();
 
         if (event.isMyTurn()) {
-            GameState gameState = event.getClient().getGameState();
-            Set<Move> possibleMoves = gameState.getMovesByPlayer(event.getPlayer());
+            LOGGER.info("Agent's turn");
 
-            ArrayList<Move> movesList = new ArrayList<>(possibleMoves);
-            Collections.shuffle(movesList);
-            client.move(movesList.get(0));
+            GameState gameState = event.getClient().getGameState();
+
+            List<Operator> applicableOperators = operators.stream()
+                    .filter(operator -> operator.isApplicable(gameState))
+                    .collect(Collectors.toList());
+
+            LOGGER.info("Gathered {} applicable operators", applicableOperators.size());
+
+            Collections.shuffle(applicableOperators);
+            MoveOperator operator = (MoveOperator) applicableOperators.get(0);
+            Move move = operator.getMove();
+
+            LOGGER.info("Responding with move {}", move);
+            client.move(move);
         }
     }
 }
