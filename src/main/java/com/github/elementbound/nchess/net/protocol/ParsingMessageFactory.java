@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParsingMessageFactory {
-	public static List<JsonMessageParser> knownTypes = new ArrayList<>();
+	private static List<JsonMessageParser> knownTypes = new ArrayList<>();
 	
 	static {
 		knownTypes.add(JoinRequestMessage::fromJSON);
@@ -16,6 +16,7 @@ public class ParsingMessageFactory {
 		knownTypes.add(MoveMessage::fromJSON);
 		knownTypes.add(PlayerTurnMessage::fromJSON);
 		knownTypes.add(GameStateUpdateMessage::fromJSON);
+		knownTypes.add(GameEndMessage::fromJSON);
 	}
 	
 	public static Message from(String msg) {

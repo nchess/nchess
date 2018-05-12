@@ -1,13 +1,8 @@
 package com.github.elementbound.nchess.demos;
 
-import ch.qos.logback.classic.Level;
 import com.github.elementbound.nchess.game.*;
-import com.github.elementbound.nchess.game.exception.InvalidMoveException;
 import com.github.elementbound.nchess.net.Client;
-import com.github.elementbound.nchess.util.event.client.ConnectFailEvent;
-import com.github.elementbound.nchess.util.event.client.ConnectSuccessEvent;
-import com.github.elementbound.nchess.util.event.client.GameStateUpdateEvent;
-import com.github.elementbound.nchess.util.event.client.MoveEvent;
+import com.github.elementbound.nchess.util.event.client.*;
 import com.github.elementbound.nchess.view.GamePanel;
 import com.github.elementbound.nchess.view.event.NodeSelectEvent;
 import org.slf4j.Logger;
@@ -37,6 +32,7 @@ public class ClientUI {
 
     private String message;
     private Client client = null;
+    private boolean selectionEnabled = true;
 
     private Optional<Node> selectedNode = Optional.empty();
 
@@ -73,6 +69,10 @@ public class ClientUI {
     }
 
     private void onNodeSelect(NodeSelectEvent event) {
+        if(!selectionEnabled) {
+            return;
+        }
+
         GamePanel gamePanel = event.getSource();
         Set<Node> highlitNodes = gamePanel.getHighlitNodes();
         GameState gameState = gamePanel.getGameState();
@@ -112,6 +112,19 @@ public class ClientUI {
         }
 
         gamePanel.repaint();
+    }
+
+    private void onGameEnd(GameEndEvent event) {
+        Player winner = event.getWinner();
+
+        if(winner.equals(client.getPlayer())) {
+            setMessage("You win!");
+        } else {
+            setMessage(String.format("The winner is %s", winner));
+        }
+
+        selectionEnabled = false;
+        LOGGER.info("Game ended with {} as winner", winner);
     }
 
     private void initState(GameState gameState) {
@@ -259,6 +272,7 @@ public class ClientUI {
         client.getFailedConnectEventSource().subscribe(this::onFailedConnect);
         client.getGameStateUpdateEventSource().subscribe(this::onGameStateUpdate);
         client.getMoveEventSource().subscribe(this::onMove);
+        client.getGameEndEventEventSource().subscribe(this::onGameEnd);
     }
 
     public String getMessage() {

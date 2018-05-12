@@ -75,6 +75,18 @@ public class GameState {
         return currentPlayer;
     }
 
+    public Optional<Player> getWinner() {
+        List<Player> playersWithKing = pieces.stream()
+                .filter(piece -> piece.getName().equals("king"))
+                .map(Piece::getPlayer)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return playersWithKing.size() == 1 ?
+                Optional.of(playersWithKing.get(0)) :
+                Optional.empty();
+    }
+
     public static Builder builder() {
         return new Builder();
     }

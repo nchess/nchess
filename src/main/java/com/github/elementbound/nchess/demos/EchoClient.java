@@ -7,6 +7,7 @@ import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.game.operator.MoveOperator;
 import com.github.elementbound.nchess.game.operator.Operator;
 import com.github.elementbound.nchess.net.Client;
+import com.github.elementbound.nchess.util.event.client.GameEndEvent;
 import com.github.elementbound.nchess.util.event.client.GameStateUpdateEvent;
 import com.github.elementbound.nchess.util.event.client.TurnEvent;
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ public class EchoClient {
         Client client = new Client(host, port);
         client.getGameStateUpdateEventSource().subscribe(this::onGameStateUpdate);
         client.getTurnEventSource().subscribe(this::onTurn);
+        client.getGameEndEventEventSource().subscribe(this::onGameEnd);
 
         client.run();
     }
@@ -86,5 +88,14 @@ public class EchoClient {
             LOGGER.info("Responding with move {}", move);
             client.move(move);
         }
+    }
+
+    /**
+     * Terminates when the game ends.
+     *
+     * @param event game end event
+     */
+    private void onGameEnd(GameEndEvent event) {
+        System.exit(0);
     }
 }

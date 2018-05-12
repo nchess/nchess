@@ -17,13 +17,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 public class Server {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientData.class);
-    public static final int CLIENT_TIMEOUT = 150000;
-    public static final int INVALID_MOVE_RETRY_COUNT = 8;
-
-    private final MoveValidator moveValidator = new MoveValidator();
+    private static final int CLIENT_TIMEOUT = 150000;
+    private static final int INVALID_MOVE_RETRY_COUNT = 8;
 
     private GameState gameState;
 	private List<ClientData> clients = new ArrayList<>();
@@ -63,9 +62,9 @@ public class Server {
 		ServerSocket listen = new ServerSocket(port);
 		waitForPlayers(listen);
 		listen.close();
-		
-		//Play for some steps then quit 
-		for(int i = 0; i < 64; i++) {
+
+        boolean isPlaying = true;
+        while(isPlaying) {
             for(ClientData client : clients) {
 				//Send a player turn notif
 				broadcast(new PlayerTurnMessage(client.getPlayer()));
@@ -79,10 +78,27 @@ public class Server {
                     handleMoveMessage(client, moveMessage);
 				}
 				else {
-					//!
+					LOGGER.error("Unrecognized message: {}", msg);
 				}
+
+				// Check for game end
+                Optional<Player> possibleWinner = gameState.getWinner();
+				if(possibleWinner.isPresent()) {
+				    Player winner = possibleWinner.get();
+
+                    LOGGER.info("Found winner: {}", winner);
+
+                    Message endMessage = new GameEndMessage(winner);
+                    broadcast(endMessage);
+
+                    LOGGER.info("Winner broadcasted, terminating game loop.");
+                    isPlaying = false;
+                    break;
+                }
 			}
 		}
+
+		LOGGER.info("Game ended normally, terminating.");
 	}
 
     private void handleMoveMessage(ClientData client, MoveMessage moveMessage) {

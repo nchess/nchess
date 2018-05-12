@@ -33,6 +33,7 @@ public class Client implements Runnable {
     private final EventSource<JoinResponseEvent> joinResponseEventSource = new EventSource<>();
     private final EventSource<TurnEvent> turnEventSource = new EventSource<>();
     private final EventSource<MoveEvent> moveEventSource = new EventSource<>();
+    private final EventSource<GameEndEvent> gameEndEventEventSource = new EventSource<>();
 
     private final EventSource<ConnectFailEvent> failedConnectEventSource = new EventSource<>();
     private final EventSource<ConnectSuccessEvent> successfulConnectEventSource = new EventSource<>();
@@ -81,6 +82,8 @@ public class Client implements Runnable {
                     handleMoveMessage((MoveMessage) msg);
                 } else if (msg instanceof GameStateUpdateMessage) {
                     handleGameStateUpdateMessage((GameStateUpdateMessage) msg);
+                } else if (msg instanceof GameEndMessage) {
+                    handleGameEndMessage((GameEndMessage) msg);
                 }
             }
 
@@ -91,9 +94,7 @@ public class Client implements Runnable {
         }
     }
 
-    private void handleGameStateUpdateMessage(GameStateUpdateMessage msg) {
-        GameStateUpdateMessage stateUpdateMessage = msg;
-
+    private void handleGameStateUpdateMessage(GameStateUpdateMessage stateUpdateMessage) {
         LOGGER.info("Updated table with {} nodes, {} pieces, and {} players", new Object[]{
                 stateUpdateMessage.getGameState().getTable().getNodes().size(),
                 stateUpdateMessage.getGameState().getPieces().size(),
@@ -130,6 +131,12 @@ public class Client implements Runnable {
         }
     }
 
+    private void handleGameEndMessage(GameEndMessage msg) {
+        LOGGER.info("Game end message received, winner is {}", msg.getWinner());
+
+        gameEndEventEventSource.emit(new GameEndEvent(this, msg.getWinner()));
+    }
+
     public boolean move(Move move) {
         if (!isMyTurn())
             return false;
@@ -154,7 +161,7 @@ public class Client implements Runnable {
         return player;
     }
 
-    public boolean isMyTurn() {
+    private boolean isMyTurn() {
         return myTurn;
     }
 
@@ -172,6 +179,10 @@ public class Client implements Runnable {
 
     public EventSource<MoveEvent> getMoveEventSource() {
         return moveEventSource;
+    }
+
+    public EventSource<GameEndEvent> getGameEndEventEventSource() {
+        return gameEndEventEventSource;
     }
 
     public EventSource<ConnectFailEvent> getFailedConnectEventSource() {
