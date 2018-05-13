@@ -1,5 +1,6 @@
 package com.github.elementbound.nchess.montecarlo.policy;
 
+import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.operator.Operator;
 import com.github.elementbound.nchess.montecarlo.GameTreeNode;
 
@@ -15,7 +16,7 @@ public class RandomPolicy implements Policy {
 
 
     @Override
-    public Operator apply(GameTreeNode node, Set<Operator> applicableOperators) {
+    public Operator apply(GameState state, Set<Operator> applicableOperators) {
         int index = random.nextInt(applicableOperators.size());
 
         Iterator<Operator> iterator = applicableOperators.iterator();

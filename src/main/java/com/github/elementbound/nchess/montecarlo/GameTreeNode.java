@@ -18,7 +18,8 @@ public class GameTreeNode {
 
     private final Map<Operator, GameTreeNode> children = new HashMap<>();
 
-    private Map<Player, Long> winCounts = new HashMap<>();
+    private long winCount;
+    private long simulationCount;
 
     public GameTreeNode(GameState state, GameTreeNode parent) {
         this.state = state;
@@ -44,6 +45,15 @@ public class GameTreeNode {
         return result;
     }
 
+    public void backpropagate(boolean isWin) {
+        simulationCount += 1;
+        winCount += isWin ? 1 : 0;
+
+        if(parent != null) {
+            parent.backpropagate(isWin);
+        }
+    }
+
     public GameState getState() {
         return state;
     }
@@ -56,6 +66,14 @@ public class GameTreeNode {
         return children;
     }
 
+    public long getWinCount() {
+        return winCount;
+    }
+
+    public long getSimulationCount() {
+        return simulationCount;
+    }
+
     @Override
     public String toString() {
         return new ReflectionToStringBuilder(this).setExcludeFieldNames("children", "parent").toString();
@@ -66,10 +84,11 @@ public class GameTreeNode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GameTreeNode that = (GameTreeNode) o;
-        return Objects.equals(state, that.state) &&
+        return winCount == that.winCount &&
+                simulationCount == that.simulationCount &&
+                Objects.equals(state, that.state) &&
                 Objects.equals(parent, that.parent) &&
-                Objects.equals(children, that.children) &&
-                Objects.equals(winCounts, that.winCounts);
+                Objects.equals(children, that.children);
     }
 
     @Override

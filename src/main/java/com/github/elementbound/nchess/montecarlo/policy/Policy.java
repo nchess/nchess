@@ -1,7 +1,7 @@
 package com.github.elementbound.nchess.montecarlo.policy;
 
+import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.operator.Operator;
-import com.github.elementbound.nchess.montecarlo.GameTreeNode;
 
 import java.util.Set;
 
@@ -11,9 +11,9 @@ import java.util.Set;
 public interface Policy {
     /**
      * Applies the policy to a game tree node, and returns the operator to use for expansion.
-     * @param node to expand
+     * @param state game state
      * @param applicableOperators to choose from
      * @return operator to use
      */
-    Operator apply(GameTreeNode node, Set<Operator> applicableOperators);
+    Operator apply(GameState state, Set<Operator> applicableOperators);
 }
