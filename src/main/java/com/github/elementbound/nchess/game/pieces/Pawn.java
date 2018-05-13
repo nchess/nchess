@@ -46,14 +46,14 @@ public class Pawn extends Piece {
 
         if(!hasMoved()) {
             return at.getNeighbors().stream()
-                    .filter(to -> !GameStateUtils.isAllyAtNode(state, to, this))
+                    .filter(to -> GameStateUtils.isValidTargetNode(state, to, this))
                     .map(to -> new Move(at, to))
                     .collect(Collectors.toSet());
         } else {
             Set<Move> result = new HashSet<>();
 
             Optional.ofNullable(table.nodeTowardsDirection(at, direction.get()))
-                    .filter(to -> !GameStateUtils.isAllyAtNode(state, to, this))
+                    .filter(to -> GameStateUtils.isValidTargetNode(state, to, this))
                     .map(to -> new Move(at, to))
                     .ifPresent(result::add);
 

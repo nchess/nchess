@@ -4,11 +4,10 @@ import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Piece;
 import com.github.elementbound.nchess.util.GameStateUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,11 +26,22 @@ public class MoveOperator implements Operator {
 
     @Override
     public boolean isApplicable(GameState state) {
-        return isOwnKingPresent(state) &&
-                isPiecePresent(state, move) &&
-                isPieceBelongingToPlayer(state, move) &&
-                isTargetNodeValid(state, move) &&
-                isPieceAbleToDoMove(state, move);
+        if(!isOwnKingPresent(state))
+            return false;
+
+        Optional<Piece> possiblePieceAt = state.getPieceAt(move.getFrom());
+        if(!possiblePieceAt.isPresent())
+            return false;
+
+        Piece pieceAt = possiblePieceAt.get();
+
+        if(!isPieceBelongingToPlayer(state, pieceAt))
+            return false;
+
+        if(!isTargetNodeValid(state, move, pieceAt))
+            return false;
+
+        return isPieceAbleToDoMove(state, move, pieceAt);
     }
 
     @Override
@@ -80,22 +90,16 @@ public class MoveOperator implements Operator {
         return state.getPieceAt(move.getFrom()).isPresent();
     }
 
-    private boolean isPieceBelongingToPlayer(GameState state, Move move) {
-        return state.getPieceAt(move.getFrom())
-                .filter(p -> p.getPlayer().equals(state.getCurrentPlayer()))
-                .isPresent();
+    private boolean isPieceBelongingToPlayer(GameState state, Piece piece) {
+        return state.getCurrentPlayer().equals(piece.getPlayer());
     }
 
-    private boolean isTargetNodeValid(GameState state, Move move) {
-        return state.getPieceAt(move.getFrom())
-                .filter(p -> GameStateUtils.isValidTargetNode(state, move.getTo(), p))
-                .isPresent();
+    private boolean isTargetNodeValid(GameState state, Move move, Piece piece) {
+        return GameStateUtils.isValidTargetNode(state, move.getTo(), piece);
     }
 
-    private boolean isPieceAbleToDoMove(GameState state, Move move) {
-        return state.getPieceAt(move.getFrom()).filter(piece ->
-                piece.getMoves(state).stream()
-                        .anyMatch(validMove -> validMove.equals(move))
-        ).isPresent();
+    private boolean isPieceAbleToDoMove(GameState state, Move move, Piece piece) {
+        return piece.getMoves(state).stream()
+                        .anyMatch(validMove -> validMove.equals(move));
     }
 }

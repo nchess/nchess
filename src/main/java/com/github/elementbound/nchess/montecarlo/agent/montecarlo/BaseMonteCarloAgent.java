@@ -1,65 +1,54 @@
-package com.github.elementbound.nchess.montecarlo;
+package com.github.elementbound.nchess.montecarlo.agent.montecarlo;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Player;
-import com.github.elementbound.nchess.game.operator.MoveOperator;
 import com.github.elementbound.nchess.game.operator.Operator;
+import com.github.elementbound.nchess.montecarlo.GameTreeNode;
+import com.github.elementbound.nchess.montecarlo.agent.AdvisorAgent;
 import com.github.elementbound.nchess.montecarlo.policy.Policy;
 import com.github.elementbound.nchess.montecarlo.policy.RandomPolicy;
-import com.github.elementbound.nchess.util.CollectionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
- * Implementation of the Monte Carlo tree search algorithm.
+ * Template implementation of the Monte Carlo tree search algorithm.
  */
-public class MonteCarloAgent {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MonteCarloAgent.class);
+public abstract class BaseMonteCarloAgent implements AdvisorAgent {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonteCarloUctAgent.class);
 
-    private static final int ITERATION_COUNT = 32;
-    public static final int ITERATION_TIME = 30000;
+    private static final int ITERATION_TIME = 30000;
 
     private final Policy policy = new RandomPolicy();
 
-    private GameTreeNode gameTree;
-
-    @Deprecated
-    public MonteCarloAgent(Set<Operator> operators) {
-
-    }
+    protected GameTreeNode gameTree;
 
     /**
      * Selects the most promising node for expansion
      *
      * @return node to simulate
      */
-    private GameTreeNode select(GameTreeNode at) {
-        while(!at.getChildren().isEmpty()) {
-            at = selectNode(at);
-        }
+    protected abstract GameTreeNode select(GameTreeNode at);
 
-        return at;
-    }
+    /**
+     * Descend towards most promising node
+     * @param at starting node
+     * @return most promising child node
+     */
+    protected abstract GameTreeNode selectNode(GameTreeNode at);
 
-    private GameTreeNode selectNode(GameTreeNode at) {
-        Function<GameTreeNode, Double> uctScore = node ->
-                (node.getWinCount() / (double)node.getSimulationCount()) +
-                1.41421356 * Math.sqrt((Math.log(gameTree.getSimulationCount())) / node.getSimulationCount());
-
-        return at.getChildren().values().stream()
-                .sorted((a, b) -> (int)Math.signum(uctScore.apply(b) - uctScore.apply(a)))
-                .findFirst()
-                .get();
-    }
-
+    /**
+     * Select most promising operator
+     * @param at starting node
+     * @return most promising operator
+     */
     private Operator selectOperator(GameTreeNode at) {
         GameTreeNode desiredNode = selectNode(at);
+
+        LOGGER.info("Selecting operator for {} at ~{}% win rate", at, 100 * at.getWinCount() / at.getSimulationCount());
 
         return at.getChildren().entrySet().stream()
                 .filter(p -> p.getValue().equals(desiredNode))
@@ -74,14 +63,8 @@ public class MonteCarloAgent {
      * @param node to expand
      * @return node to simulate
      */
-    private GameTreeNode expand(GameTreeNode node) {
-        GameState state = node.getState();
+    protected abstract GameTreeNode expand(GameTreeNode node);
 
-        Set<Operator> applicableOperators = gatherApplicableOperators(state);
-        Operator operator = CollectionUtils.getRandomFrom(applicableOperators);
-
-        return node.expand(operator);
-    }
 
     /**
      * Plays the game with random moves until the current player wins or loses.
@@ -109,6 +92,13 @@ public class MonteCarloAgent {
         LOGGER.info("Playouts for {} with {} steps in {} ms", new Object[]{node, length, stopWatch});
     }
 
+    /**
+     * Gathers all applicable operators for a given state
+     * @param state state
+     * @return a set of applicable operators
+     */
+    protected abstract Set<Operator> gatherApplicableOperators(GameState state);
+
     public Operator advise(GameState state) {
         // Set new root for game tree
         gameTree = new GameTreeNode(state, null);
@@ -124,14 +114,5 @@ public class MonteCarloAgent {
         }
 
         return selectOperator(gameTree);
-    }
-
-    private Set<Operator> gatherApplicableOperators(GameState state) {
-        return state.getPieces().stream()
-                .filter(piece -> piece.getPlayer().equals(state.getCurrentPlayer()))
-                .flatMap(piece -> piece.getMoves(state).stream())
-                .map(MoveOperator::new)
-                .filter(operator -> operator.isApplicable(state))
-                .collect(Collectors.toSet());
     }
 }

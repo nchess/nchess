@@ -56,7 +56,7 @@ public class Knight extends Piece {
                     .filter(to -> to != excluded)
                     .filter(to -> !table.isLink(at, to))
                     .filter(to -> !table.isSecondaryLink(at, to))
-                    .filter(to -> !GameStateUtils.isAllyAtNode(state, to, this))
+                    .filter(to -> GameStateUtils.isValidTargetNode(state, to, this))
                     .forEach(targetNodes::add);
         });
 

@@ -6,6 +6,8 @@ import com.github.elementbound.nchess.game.Node;
 import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.game.operator.MoveOperator;
 import com.github.elementbound.nchess.game.operator.Operator;
+import com.github.elementbound.nchess.montecarlo.agent.AdvisorAgent;
+import com.github.elementbound.nchess.montecarlo.agent.montecarlo.MonteCarloUctAgent;
 import com.github.elementbound.nchess.net.Client;
 import com.github.elementbound.nchess.util.event.client.GameEndEvent;
 import com.github.elementbound.nchess.util.event.client.GameStateUpdateEvent;
@@ -21,7 +23,7 @@ public class MonteCarloClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(MonteCarloClient.class);
 
     private Set<Operator> operators;
-    private MonteCarloAgent monteCarloAgent;
+    private AdvisorAgent advisorAgent;
 
     public static void main(String[] args) {
         new MonteCarloClient().run(args);
@@ -63,7 +65,7 @@ public class MonteCarloClient {
 
         LOGGER.info("Gathered {} possible operators on {} nodes", operators.size(), nodes.size());
 
-        monteCarloAgent = new MonteCarloAgent(operators);
+        advisorAgent = new MonteCarloUctAgent();
         LOGGER.info("Monte Carlo agent initialized");
     }
 
@@ -78,7 +80,7 @@ public class MonteCarloClient {
         if (event.isMyTurn()) {
             LOGGER.info("Agent's turn");
 
-            MoveOperator operator = (MoveOperator) monteCarloAgent.advise(client.getGameState());
+            MoveOperator operator = (MoveOperator) advisorAgent.advise(client.getGameState());
 
             LOGGER.info("Agent's advice: {}", operator);
 
