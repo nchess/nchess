@@ -3,11 +3,13 @@ package com.github.elementbound.nchess.montecarlo.agent.montecarlo;
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.operator.MoveOperator;
 import com.github.elementbound.nchess.game.operator.Operator;
+import com.github.elementbound.nchess.game.operator.PassOperator;
 import com.github.elementbound.nchess.montecarlo.GameTreeNode;
 import com.github.elementbound.nchess.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
  */
 public class MonteCarloUctAgent extends BaseMonteCarloAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(MonteCarloUctAgent.class);
+    private static final Operator PASS = new PassOperator();
 
     protected GameTreeNode select(GameTreeNode at) {
         while(!at.getChildren().isEmpty()) {
@@ -42,13 +45,15 @@ public class MonteCarloUctAgent extends BaseMonteCarloAgent {
     }
 
     protected Set<Operator> gatherApplicableOperators(GameState state) {
-        Set<Operator> result = state.getPieces().stream()
-                .filter(piece -> piece.getPlayer().equals(state.getCurrentPlayer()))
-                .flatMap(piece -> piece.getMoves(state).stream())
-                .map(MoveOperator::new)
-                .collect(Collectors.toSet());
-
-        return result;
+        if(PASS.isApplicable(state)) {
+            return Collections.singleton(PASS);
+        } else {
+            return state.getPieces().stream()
+                    .filter(piece -> piece.getPlayer().equals(state.getCurrentPlayer()))
+                    .flatMap(piece -> piece.getMoves(state).stream())
+                    .map(MoveOperator::new)
+                    .collect(Collectors.toSet());
+        }
     }
 
     /**
