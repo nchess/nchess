@@ -108,7 +108,7 @@
 						</configuration>
 					</execution>
 					
-					<!-- EchoClient -->
+					<!-- RandomMoveClient -->
 					<execution>
 						<id>assemble-EchoClient</id>
 						<phase>package</phase>
@@ -123,7 +123,7 @@
 								<finalName>${project.artifactId}-EchoClient</finalName>
 							<archive>
 								<manifest>
-									<mainClass>com.github.elementbound.nchess.demos.EchoClient</mainClass>
+									<mainClass>com.github.elementbound.nchess.demos.RandomMoveClient</mainClass>
 								</manifest>
 							</archive>
 						</configuration>

@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EchoClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EchoClient.class);
+public class RandomMoveClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RandomMoveClient.class);
 
     private Set<Operator> operators;
 
     public static void main(String[] args) {
-        new EchoClient().run(args);
+        new RandomMoveClient().run(args);
     }
 
     private void run(String[] args) {

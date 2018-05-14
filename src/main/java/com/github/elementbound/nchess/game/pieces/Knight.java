@@ -69,5 +69,4 @@ public class Knight extends Piece {
     public Piece move(Node to) {
         return new Knight(to, player);
     }
-
 }

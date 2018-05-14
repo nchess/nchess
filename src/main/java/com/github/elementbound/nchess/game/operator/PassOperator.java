@@ -1,8 +1,6 @@
 package com.github.elementbound.nchess.game.operator;
 
 import com.github.elementbound.nchess.game.GameState;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
