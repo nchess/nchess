@@ -2,12 +2,9 @@ package com.github.elementbound.nchess.demos;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
-import com.github.elementbound.nchess.game.Player;
-import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.net.Client;
-import com.github.elementbound.nchess.util.event.client.TurnEvent;
+import com.github.elementbound.nchess.net.event.client.TurnEvent;
 
-import java.io.IOException;
 import java.util.*;
 
 public class EchoClient {

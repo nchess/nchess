@@ -1,13 +1,11 @@
 package com.github.elementbound.nchess.demos;
 
-import ch.qos.logback.classic.Level;
 import com.github.elementbound.nchess.game.*;
-import com.github.elementbound.nchess.game.exception.InvalidMoveException;
 import com.github.elementbound.nchess.net.Client;
-import com.github.elementbound.nchess.util.event.client.ConnectFailEvent;
-import com.github.elementbound.nchess.util.event.client.ConnectSuccessEvent;
-import com.github.elementbound.nchess.util.event.client.GameStateUpdateEvent;
-import com.github.elementbound.nchess.util.event.client.MoveEvent;
+import com.github.elementbound.nchess.net.event.client.ConnectFailEvent;
+import com.github.elementbound.nchess.net.event.client.ConnectSuccessEvent;
+import com.github.elementbound.nchess.net.event.client.GameStateUpdateEvent;
+import com.github.elementbound.nchess.net.event.client.MoveEvent;
 import com.github.elementbound.nchess.view.GamePanel;
 import com.github.elementbound.nchess.view.event.NodeSelectEvent;
 import org.slf4j.Logger;

@@ -2,7 +2,7 @@ package com.github.elementbound.nchess.view;
 
 import com.github.elementbound.nchess.game.*;
 import com.github.elementbound.nchess.util.MathUtils;
-import com.github.elementbound.nchess.util.event.EventSource;
+import com.github.elementbound.nchess.event.EventSource;
 import com.github.elementbound.nchess.view.event.NodeSelectEvent;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;

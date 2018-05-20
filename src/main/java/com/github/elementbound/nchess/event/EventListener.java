@@ -1,4 +1,4 @@
-package com.github.elementbound.nchess.util.event;
+package com.github.elementbound.nchess.event;
 
 @FunctionalInterface
 public interface EventListener<T> {
