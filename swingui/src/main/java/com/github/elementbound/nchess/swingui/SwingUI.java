@@ -1,4 +1,4 @@
-package com.github.elementbound.nchess.demos;
+package com.github.elementbound.nchess.swingui;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
@@ -39,8 +39,8 @@ import java.util.Set;
 /**
  * A game client with a Swing-based UI.
  */
-public class ClientUI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientUI.class);
+public class SwingUI {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SwingUI.class);
 
     private JFrame frame;
     private JPanel toolsPanel;
@@ -59,7 +59,7 @@ public class ClientUI {
     /**
      * Create the application.
      */
-    public ClientUI() {
+    public SwingUI() {
         initialize();
     }
 
@@ -69,7 +69,7 @@ public class ClientUI {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                ClientUI window = new ClientUI();
+                SwingUI window = new SwingUI();
                 window.frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();

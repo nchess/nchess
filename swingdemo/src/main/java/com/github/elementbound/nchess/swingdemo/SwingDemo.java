@@ -1,4 +1,4 @@
-package com.github.elementbound.nchess.demos;
+package com.github.elementbound.nchess.swingdemo;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.marshalling.JsonGameStateParser;
@@ -27,8 +27,8 @@ import java.util.Map.Entry;
  *
  * @see GamePanel
  */
-public class ViewDemo {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewDemo.class);
+public class SwingDemo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SwingDemo.class);
     public static final int DEFAULT_WIDTH = 800;
     public static final int DEFAULT_HEIGHT = 600;
     public static final int DEFAULT_X = 100;
@@ -39,7 +39,7 @@ public class ViewDemo {
     /**
      * Create the application.
      */
-    public ViewDemo() {
+    public SwingDemo() {
         initialize();
     }
 
@@ -49,7 +49,7 @@ public class ViewDemo {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                ViewDemo window = new ViewDemo();
+                SwingDemo window = new SwingDemo();
                 window.frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();

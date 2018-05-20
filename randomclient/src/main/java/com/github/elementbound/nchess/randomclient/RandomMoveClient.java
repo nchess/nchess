@@ -1,4 +1,4 @@
-package com.github.elementbound.nchess.demos;
+package com.github.elementbound.nchess.randomclient;
 
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;

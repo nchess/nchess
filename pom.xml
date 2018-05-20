@@ -3,6 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.elementbound</groupId>
     <artifactId>nchess</artifactId>
+    <packaging>pom</packaging>
     <version>2.0.0-SNAPSHOT</version>
 
     <properties>
@@ -11,16 +12,43 @@
         <checkstyle.version>3.0.0</checkstyle.version>
     </properties>
 
+    <modules>
+        <module>nchess-resources</module>
+        <module>nchess-core</module>
+        <module>nchess-view</module>
+        <module>nchess-net</module>
+        <module>server</module>
+        <module>swingui</module>
+        <module>randomclient</module>
+        <module>swingdemo</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>javax.json</groupId>
+                <artifactId>javax.json-api</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.json</artifactId>
+                <version>1.0.4</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
-            <groupId>javax.json</groupId>
-            <artifactId>javax.json-api</artifactId>
-            <version>1.0</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.6</version>
         </dependency>
+
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.json</artifactId>
-            <version>1.0.4</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.9</version>
         </dependency>
 
         <dependency>
@@ -35,18 +63,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.9</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>6.14.3</version>
@@ -55,6 +71,23 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.1.1</version>
+
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -63,12 +96,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-
-                    <archive>
-                        <manifest>
-                            <mainClass>com.github.elementbound.nchess.demos.ViewDemo</mainClass>
-                        </manifest>
-                    </archive>
                 </configuration>
             </plugin>
 
@@ -99,98 +126,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.21.0</version>
             </plugin>
-
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <!-- ViewDemo -->
-                    <execution>
-                        <id>assemble-ViewDemo</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>${project.artifactId}-ViewDemo</finalName>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.github.elementbound.nchess.demos.ViewDemo</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-
-                    <!-- CLIServer -->
-                    <execution>
-                        <id>assemble-CLIServer</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>${project.artifactId}-CLIServer</finalName>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.github.elementbound.nchess.demos.CLIServer</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-
-                    <!-- RandomMoveClient -->
-                    <execution>
-                        <id>assemble-EchoClient</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>${project.artifactId}-EchoClient</finalName>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.github.elementbound.nchess.demos.RandomMoveClient</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-
-                    <!-- ClientUI -->
-                    <execution>
-                        <id>assemble-ClientUI</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>${project.artifactId}-ClientUI</finalName>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.github.elementbound.nchess.demos.ClientUI</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
-
     </build>
 
     <reporting>
