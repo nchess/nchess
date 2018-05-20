@@ -5,17 +5,27 @@ import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.net.Client;
 import com.github.elementbound.nchess.net.event.client.TurnEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+import java.util.Set;
 
-public class EchoClient {
+/**
+ * A command-line client that responds with random moves.
+ */
+public class RandomMoveClient {
+
+    public static final String DEFAULT_HOST = "localhost";
+    public static final int DEFAULT_PORT = 60001;
+
     public static void main(String[] args) {
-        new EchoClient().run(args);
+        new RandomMoveClient().run(args);
     }
 
     private void run(String[] args) {
         Scanner sc = new Scanner(System.in);
-        String host = "localhost";
-        int port = 60001;
+        String host = DEFAULT_HOST;
+        int port = DEFAULT_PORT;
 
         System.out.println("Host: ");
         //host = sc.nextLine();

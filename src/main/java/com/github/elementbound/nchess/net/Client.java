@@ -1,11 +1,21 @@
 package com.github.elementbound.nchess.net;
 
+import com.github.elementbound.nchess.event.EventSource;
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
 import com.github.elementbound.nchess.game.Player;
-import com.github.elementbound.nchess.event.EventSource;
-import com.github.elementbound.nchess.net.event.client.*;
-import com.github.elementbound.nchess.net.protocol.*;
+import com.github.elementbound.nchess.net.event.client.ConnectFailEvent;
+import com.github.elementbound.nchess.net.event.client.ConnectSuccessEvent;
+import com.github.elementbound.nchess.net.event.client.GameStateUpdateEvent;
+import com.github.elementbound.nchess.net.event.client.JoinResponseEvent;
+import com.github.elementbound.nchess.net.event.client.MoveEvent;
+import com.github.elementbound.nchess.net.event.client.TurnEvent;
+import com.github.elementbound.nchess.net.protocol.GameStateUpdateMessage;
+import com.github.elementbound.nchess.net.protocol.JoinResponseMessage;
+import com.github.elementbound.nchess.net.protocol.Message;
+import com.github.elementbound.nchess.net.protocol.MoveMessage;
+import com.github.elementbound.nchess.net.protocol.ParsingMessageFactory;
+import com.github.elementbound.nchess.net.protocol.PlayerTurnMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,32 +25,33 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Class to handle client-side communications of the game.
+ * Can be used as a component.
+ */
 public class Client implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
     private final String host;
     private final int port;
-
-    private GameState gameState;
-    private Player player;
-    private boolean myTurn;
-    private PrintStream out;
-
     // Event sources
     private final EventSource<GameStateUpdateEvent> gameStateUpdateEventSource = new EventSource<>();
     private final EventSource<JoinResponseEvent> joinResponseEventSource = new EventSource<>();
     private final EventSource<TurnEvent> turnEventSource = new EventSource<>();
     private final EventSource<MoveEvent> moveEventSource = new EventSource<>();
-
     private final EventSource<ConnectFailEvent> failedConnectEventSource = new EventSource<>();
     private final EventSource<ConnectSuccessEvent> successfulConnectEventSource = new EventSource<>();
+    private GameState gameState;
+    private Player player;
+    private boolean myTurn;
+    private PrintStream out;
 
     public Client(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
-    void send(PrintStream out, Message msg) {
+    private void send(PrintStream out, Message msg) {
         out.print(msg.toJSON());
     }
 
@@ -92,7 +103,7 @@ public class Client implements Runnable {
     private void handleGameStateUpdateMessage(GameStateUpdateMessage msg) {
         GameStateUpdateMessage stateUpdateMessage = msg;
 
-        LOGGER.info("Updated table with {} nodes, {} pieces, and {} players", new Object[]{
+        LOGGER.info("Updated table with {} nodes, {} pieces, and {} players", new Object[] {
                 stateUpdateMessage.getGameState().getTable().getNodes().size(),
                 stateUpdateMessage.getGameState().getPieces().size(),
                 stateUpdateMessage.getGameState().getPlayers().size()
@@ -127,8 +138,9 @@ public class Client implements Runnable {
     }
 
     public boolean move(Move move) {
-        if (!isMyTurn())
+        if (!isMyTurn()) {
             return false;
+        }
 
         send(out, new MoveMessage(move));
         return true;

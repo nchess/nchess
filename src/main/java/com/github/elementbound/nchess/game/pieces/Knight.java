@@ -1,6 +1,11 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.util.GameStateUtils;
 import com.github.elementbound.nchess.util.TableUtils;
 
@@ -11,43 +16,44 @@ import java.util.stream.Collectors;
 /**
  * <p>Class to represent the Knight piece.
  * <p>
- *     The knight can take two steps in an arbitrary direction, then take another step in a different direction.
- *     The last step can't be taken backwards, meaning the knight can't step on the first node it moved onto
- *     in the process. Also, the last step must be taken in a way that the knight's distance to its previous position
- *     should be larger than two.
+ * The knight can take two steps in an arbitrary direction, then take another step in a different direction.
+ * The last step can't be taken backwards, meaning the knight can't step on the first node it moved onto
+ * in the process. Also, the last step must be taken in a way that the knight's distance to its previous position
+ * should be larger than two.
  * <p>
- *     The move can't be made if the knight would land on a blocked node.
+ * The move can't be made if the knight would land on a blocked node.
  * <p>
- *     The knight is the only piece that can jump over other pieces.
+ * The knight is the only piece that can jump over other pieces.
  */
 public class Knight extends Piece {
 
-	public Knight(Node at, Player player) {
-		super(at, player);
-	}
+    public Knight(Node at, Player player) {
+        super(at, player);
+    }
 
-	@Override
-	public String getName() {
-		return "knight";
-	}
+    @Override
+    public String getName() {
+        return "knight";
+    }
 
-	@Override
-	public Set<Move> getMoves(GameState state) {
-		Set<Node> targetNodes = new HashSet<>();
-		Table table = state.getTable();
+    @Override
+    public Set<Move> getMoves(GameState state) {
+        Set<Node> targetNodes = new HashSet<>();
+        Table table = state.getTable();
 
-		at.getNeighbors().forEach(towards -> {
+        at.getNeighbors().forEach(towards -> {
             double direction = TableUtils.linkDirection(at, towards);
             Node target = at;
 
             // Take two steps in direction
-            for(int i = 0; i < 2; i++) {
+            for (int i = 0; i < 2; i++) {
                 target = table.nodeTowardsDirection(target, direction);
             }
 
             // Got lost in the process
-            if(target == null)
+            if (target == null) {
                 return;
+            }
 
             // Exclude third step node
             Node excluded = table.nodeTowardsDirection(target, direction);
@@ -60,10 +66,10 @@ public class Knight extends Piece {
                     .forEach(targetNodes::add);
         });
 
-		return targetNodes.stream()
+        return targetNodes.stream()
                 .map(to -> new Move(at, to))
                 .collect(Collectors.toSet());
-	}
+    }
 
     @Override
     public Piece move(Node to) {

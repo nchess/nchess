@@ -1,26 +1,49 @@
 package com.github.elementbound.nchess.view;
 
-import com.github.elementbound.nchess.game.*;
-import com.github.elementbound.nchess.util.MathUtils;
 import com.github.elementbound.nchess.event.EventSource;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.util.MathUtils;
 import com.github.elementbound.nchess.view.event.NodeSelectEvent;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.*;
-import java.util.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
+/**
+ * <p>Swing widget to represent the game table and pieces on it.
+ * <p>Also highlit nodes to communicate information about the game.
+ */
 public class GamePanel extends JPanel {
     private static final long serialVersionUID = -6705016017912569702L;
     private static final Logger LOGGER = LoggerFactory.getLogger(GamePanel.class);
@@ -31,18 +54,15 @@ public class GamePanel extends JPanel {
 
     private final Map<Pair<Player, String>, Image> tintedPieceImages = new HashMap<>();
     private final EventSource<NodeSelectEvent> nodeSelectEventEventSource = new EventSource<>();
-
+    private final Set<Node> highlitNodes = new HashSet<>();
+    private Point2D viewOffset = new Point2D.Double(0.0, 0.0);
+    private double viewZoom = 1.0;
+    private Map<String, Image> pieceImages = new HashMap<>();
     private GameState gameState;
     private Map<Node, Path2D> polygons = new HashMap<>();
     private Rectangle2D bounds = new Rectangle2D.Double();
-    private final Set<Node> highlitNodes = new HashSet<>();
     private AffineTransform viewTransform = new AffineTransform();
     private AffineTransform inverseViewTransform = new AffineTransform();
-
-    public Point2D viewOffset = new Point2D.Double(0.0, 0.0);
-    public double viewZoom = 1.0;
-
-    public Map<String, Image> pieceImages = new HashMap<>();
     private Map<Player, Color> playerColors = new HashMap<>();
 
     public GamePanel() {
@@ -105,8 +125,7 @@ public class GamePanel extends JPanel {
             if (!pieceImages.containsKey(piece.getName())) {
                 LOGGER.warn("Found no image for {}", piece);
                 g2.drawString(piece.getName(), (float) midX, (float) midY);
-            }
-            else {
+            } else {
                 Image image = tintedPieceImages.get(ImmutablePair.of(piece.getPlayer(), piece.getName()));
 
                 double targetSize = Math.min(poly.getBounds().getWidth(), poly.getBounds().getHeight());
@@ -167,10 +186,14 @@ public class GamePanel extends JPanel {
 
     private void updateState(GameState oldState, GameState newState) {
         //Create polygons
-        Table oldTable = oldState != null ? oldState.getTable() : null;
+        Table oldTable = null;
+        if (oldState != null) {
+           oldTable = oldState.getTable();
+        }
+
         Table newTable = newState.getTable();
 
-        if(newTable != oldTable) {
+        if (newTable != oldTable) {
             updatePolygons(newTable);
         }
 
@@ -187,10 +210,14 @@ public class GamePanel extends JPanel {
         LOGGER.info("Table center: [{};{}]", bounds.getCenterX(), bounds.getCenterY());
 
         //Assign colors to players
-        List<Player> oldPlayers = oldState != null ? oldState.getPlayers() : null;
+        List<Player> oldPlayers = null;
+        if (oldState != null) {
+            oldPlayers = oldState.getPlayers();
+        }
+
         List<Player> newPlayers = newState.getPlayers();
 
-        if(!newPlayers.equals(oldPlayers)) {
+        if (!newPlayers.equals(oldPlayers)) {
             updatePlayerColors(newState);
 
             //Create piece images in needed colors
@@ -234,8 +261,9 @@ public class GamePanel extends JPanel {
 
         for (Node node : table.getNodes()) {
 
-            if (!node.isVisible())
+            if (!node.isVisible()) {
                 continue;
+            }
 
             Path2D poly = new Path2D.Double();
             for (int i = 0; i < node.getNeighbors().size(); i++) {
@@ -258,10 +286,11 @@ public class GamePanel extends JPanel {
                 double bmx = (nb.getX() + node.getX()) / 2;
                 double bmy = (nb.getY() + node.getY()) / 2;
 
-                if (i == 0)
+                if (i == 0) {
                     poly.moveTo(amx, amy);
-                else
+                } else {
                     poly.lineTo(amx, amy);
+                }
 
                 Line2D la = new Line2D.Double(amx, amy, amx - ady, amy + adx);
                 Line2D lb = new Line2D.Double(bmx, bmy, bmx - bdy, bmy + bdx);
@@ -278,18 +307,19 @@ public class GamePanel extends JPanel {
             poly.closePath();
             polygons.put(node, poly);
         }
-        LOGGER.info("Got {} polygons, with {} intersections, from {} nodes", new Object[]{
+        LOGGER.info("Got {} polygons, with {} intersections, from {} nodes", new Object[] {
                 polygons.size(), intersects, table.getNodes().size()
         });
     }
 
     private Color calculatePlayerColor(long i) {
-        if (i == 0)
+        if (i == 0) {
             return Color.white;
-        else if (i == 1)
+        } else if (i == 1) {
             return Color.black;
-        else
+        } else {
             return Color.getHSBColor(((i - 2) * 0.618033988749895f) % 1.0f, 1.0f, 1.0f);
+        }
     }
 
     private Rectangle2D calculateBounds(Collection<Path2D> polygons) {
@@ -343,20 +373,24 @@ public class GamePanel extends JPanel {
 
     /**
      * Look up node based on world-space position ( i.e. before view transform )
+     *
      * @param x world-space x coordinate
      * @param y world-space y coordinate
      * @return node hit or null
      */
     private Node nodeAt(double x, double y) {
-        for (Entry<Node, Path2D> e : polygons.entrySet())
-            if (e.getValue().contains(x, y))
+        for (Entry<Node, Path2D> e : polygons.entrySet()) {
+            if (e.getValue().contains(x, y)) {
                 return e.getKey();
+            }
+        }
 
         return null;
     }
 
     /**
      * Looks up node based on screen-space position ( i.e. after view transform )
+     *
      * @param x screen-space x coordinate
      * @param y screen-space y coordinate
      * @return node hit or null
@@ -368,6 +402,30 @@ public class GamePanel extends JPanel {
         return nodeAt(worldPos.getX(), worldPos.getY());
     }
 
+    public Map<String, Image> getPieceImages() {
+        return pieceImages;
+    }
+
+    public void setPieceImages(Map<String, Image> pieceImages) {
+        this.pieceImages = pieceImages;
+    }
+
+    public Point2D getViewOffset() {
+        return viewOffset;
+    }
+
+    public void setViewOffset(Point2D viewOffset) {
+        this.viewOffset = viewOffset;
+    }
+
+    public double getViewZoom() {
+        return viewZoom;
+    }
+
+    public void setViewZoom(double viewZoom) {
+        this.viewZoom = viewZoom;
+    }
+
     /**
      * <p>Inner class to manage mouse clicks, so the enclosing class can emit node select events.
      * <p>Contains multiple empty methods, since those events are not needed, but require an implementation.
@@ -377,8 +435,9 @@ public class GamePanel extends JPanel {
         public void mouseClicked(MouseEvent e) {
             Node node = nodeAtScreen(e.getX(), e.getY());
             LOGGER.info("Node at [{};{}] is {}", new Object[] {e.getX(), e.getY(), node});
-            if (node != null)
+            if (node != null) {
                 nodeSelectEventEventSource.emit(new NodeSelectEvent(GamePanel.this, node));
+            }
         }
 
         @Override

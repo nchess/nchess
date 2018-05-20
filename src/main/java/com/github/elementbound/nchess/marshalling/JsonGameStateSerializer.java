@@ -1,9 +1,20 @@
 package com.github.elementbound.nchess.marshalling;
 
-import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.Table;
 
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
+/**
+ * Class to save {@link GameState} objects as JSON data.
+ */
 public class JsonGameStateSerializer {
     public JsonObject serialize(GameState gameState) {
         Table table = gameState.getTable();
@@ -21,9 +32,9 @@ public class JsonGameStateSerializer {
 
         //Serialize links
         table.getNodes().forEach(node ->
-            node.getNeighbors().stream()
-                    .map(neighbor -> serializeLink(node, neighbor))
-                    .forEach(linksBuilder::add)
+                node.getNeighbors().stream()
+                        .map(neighbor -> serializeLink(node, neighbor))
+                        .forEach(linksBuilder::add)
         );
 
         //Serialize players

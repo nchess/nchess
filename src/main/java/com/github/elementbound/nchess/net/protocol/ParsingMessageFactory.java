@@ -7,29 +7,39 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParsingMessageFactory {
-	public static List<JsonMessageParser> knownTypes = new ArrayList<>();
-	
-	static {
-		knownTypes.add(JoinRequestMessage::fromJSON);
-		knownTypes.add(JoinResponseMessage::fromJSON);
-		knownTypes.add(MoveMessage::fromJSON);
-		knownTypes.add(PlayerTurnMessage::fromJSON);
-		knownTypes.add(GameStateUpdateMessage::fromJSON);
-	}
-	
-	public static Message from(String msg) {
-		JsonReader reader = Json.createReader(new StringReader(msg));
-		JsonObject root = reader.readObject();
-		reader.close();
-		
-		Message ret = null;
-		for(JsonMessageParser parser : knownTypes) {
-			ret = parser.fromJSON(root);
-			if(ret != null)
-				return ret;
-		}
-		
-		return ret; 
-	}
+/**
+ * <p>Class to parse a JSON input to a {@link Message}.
+ * <p>The class has a set of known message type it recognizes, and delegates
+ * the parsing to the appropriate class.
+ */
+public final class ParsingMessageFactory {
+    public static final List<JsonMessageParser> KNOWN_TYPES = new ArrayList<>();
+
+    static {
+        KNOWN_TYPES.add(JoinRequestMessage::fromJSON);
+        KNOWN_TYPES.add(JoinResponseMessage::fromJSON);
+        KNOWN_TYPES.add(MoveMessage::fromJSON);
+        KNOWN_TYPES.add(PlayerTurnMessage::fromJSON);
+        KNOWN_TYPES.add(GameStateUpdateMessage::fromJSON);
+    }
+
+    public static Message from(String msg) {
+        JsonReader reader = Json.createReader(new StringReader(msg));
+        JsonObject root = reader.readObject();
+        reader.close();
+
+        Message ret = null;
+        for (JsonMessageParser parser : KNOWN_TYPES) {
+            ret = parser.fromJSON(root);
+            if (ret != null) {
+                return ret;
+            }
+        }
+
+        return ret;
+    }
+
+    private ParsingMessageFactory() {
+        // Hide constructor
+    }
 }

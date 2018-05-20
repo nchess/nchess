@@ -2,12 +2,15 @@ package com.github.elementbound.nchess.game;
 
 import com.github.elementbound.nchess.util.GameStateUtils;
 
+/**
+ * Class to validate {@link Move} instances on given {@link GameState GameStates}.
+ */
 public class MoveValidator {
     public boolean validate(GameState state, Move move) {
-        return isPiecePresent(state, move) &&
-                isPieceBelongingToPlayer(state, move) &&
-                isTargetNodeValid(state, move) &&
-                isPieceAbleToDoMove(state, move);
+        return isPiecePresent(state, move)
+                && isPieceBelongingToPlayer(state, move)
+                && isTargetNodeValid(state, move)
+                && isPieceAbleToDoMove(state, move);
     }
 
     private boolean isPiecePresent(GameState state, Move move) {
@@ -28,8 +31,8 @@ public class MoveValidator {
 
     private boolean isPieceAbleToDoMove(GameState state, Move move) {
         return state.getPieceAt(move.getFrom()).filter(piece ->
-            piece.getMoves(state).stream()
-                .anyMatch(validMove -> validMove.equals(move))
+                piece.getMoves(state).stream()
+                        .anyMatch(validMove -> validMove.equals(move))
         ).isPresent();
     }
 }

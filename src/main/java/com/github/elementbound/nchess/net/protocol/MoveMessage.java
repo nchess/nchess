@@ -7,9 +7,12 @@ import com.github.elementbound.nchess.game.Node;
 import javax.json.JsonObject;
 import java.util.Set;
 
+/**
+ * Message describing a {@link Move}.
+ */
 public class MoveMessage extends Message {
-	private final long fromId;
-	private final long toId;
+    private final long fromId;
+    private final long toId;
 
     public MoveMessage(long fromId, long toId) {
         this.fromId = fromId;
@@ -19,6 +22,17 @@ public class MoveMessage extends Message {
     public MoveMessage(Move move) {
         this.fromId = move.getFrom().getId();
         this.toId = move.getTo().getId();
+    }
+
+    public static Message fromJSON(JsonObject json) {
+        if (!json.getString("type").equals("move")) {
+            return null;
+        }
+
+        long fromId = json.getInt("from");
+        long toId = json.getInt("to");
+
+        return new MoveMessage(fromId, toId);
     }
 
     public long getFromId() {
@@ -38,22 +52,12 @@ public class MoveMessage extends Message {
     }
 
     @Override
-	public String toJSON() {
-		return getBuilder()
-				.add("type", "move")
-				.add("from", fromId)
-				.add("to", toId)
-				.build()
-				.toString();
-	}
-
-	public static Message fromJSON(JsonObject json) {
-		if(!json.getString("type").equals("move"))
-			return null;
-
-		long fromId = json.getInt("from");
-        long toId = json.getInt("to");
-
-		return new MoveMessage(fromId, toId);
-	}
+    public String toJSON() {
+        return getBuilder()
+                .add("type", "move")
+                .add("from", fromId)
+                .add("to", toId)
+                .build()
+                .toString();
+    }
 }

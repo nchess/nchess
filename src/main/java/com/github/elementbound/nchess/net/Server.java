@@ -1,8 +1,16 @@
 package com.github.elementbound.nchess.net;
 
-import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.MoveValidator;
+import com.github.elementbound.nchess.game.Player;
 import com.github.elementbound.nchess.game.exception.InvalidMoveException;
-import com.github.elementbound.nchess.net.protocol.*;
+import com.github.elementbound.nchess.net.protocol.GameStateUpdateMessage;
+import com.github.elementbound.nchess.net.protocol.JoinResponseMessage;
+import com.github.elementbound.nchess.net.protocol.Message;
+import com.github.elementbound.nchess.net.protocol.MoveMessage;
+import com.github.elementbound.nchess.net.protocol.ParsingMessageFactory;
+import com.github.elementbound.nchess.net.protocol.PlayerTurnMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,30 +21,34 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Class to handle server-side communications of the game.
+ * Can be used as a component.
+ */
 public class Server {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientData.class);
     public static final int CLIENT_TIMEOUT = 150000;
     public static final int INVALID_MOVE_RETRY_COUNT = 8;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientData.class);
+    public static final int DEFAULT_STEP_LIMIT = 64;
+    public static final int SLEEP_INTERVAL = 1000;
     private final MoveValidator moveValidator = new MoveValidator();
 
     private GameState gameState;
-	private List<ClientData> clients = new ArrayList<>();
+    private List<ClientData> clients = new ArrayList<>();
 
     public Server(GameState gameState) {
         this.gameState = gameState;
     }
 
     private void broadcast(Message message) {
-	    clients.forEach(client -> client.send(message));
-	}
+        clients.forEach(client -> client.send(message));
+    }
 
-	private void waitForPlayers(ServerSocket listen) {
-        gameState.getPlayers().forEach(player ->  {
-            while(true) {
+    private void waitForPlayers(ServerSocket listen) {
+        gameState.getPlayers().forEach(player -> {
+            while (true) {
                 try {
                     LOGGER.info("Waiting for player {}", player);
                     Socket s = listen.accept();
@@ -49,34 +61,35 @@ public class Server {
 
                     LOGGER.info("Accepted player {}", player);
                     break;
-                }
-                catch(IOException e) {
+                } catch (IOException e) {
                     LOGGER.error("Could't accept player {}, retrying...", player, e);
                 }
             }
         });
     }
-	
-	public void run(int port) throws IOException {
-		ServerSocket listen = new ServerSocket(port);
-		waitForPlayers(listen);
-		listen.close();
-		
-		//Play for some steps then quit 
-		for(int i = 0; i < 64; i++) {
-            for(ClientData client : clients) {
-				//Send a player turn notif
-				broadcast(new PlayerTurnMessage(client.getPlayer()));
-				
-				//Wait for response
+
+    public void run(int port) throws IOException {
+        ServerSocket listen = new ServerSocket(port);
+        waitForPlayers(listen);
+        listen.close();
+
+        //Play for some steps then quit
+        for (int i = 0; i < DEFAULT_STEP_LIMIT; i++) {
+            for (ClientData client : clients) {
+                //Send a player turn notif
+                broadcast(new PlayerTurnMessage(client.getPlayer()));
+
+                //Wait for response
                 Message msg = waitForMessage(client, CLIENT_TIMEOUT);
-                if (msg == null) continue;
-				
-				if(msg instanceof MoveMessage) {
-					MoveMessage moveMessage = (MoveMessage)msg;
+                if (msg == null) {
+                    continue;
+                }
+
+                if (msg instanceof MoveMessage) {
+                    MoveMessage moveMessage = (MoveMessage) msg;
                     Move move = moveMessage.getMove(gameState);
 
-                    for(int j = 0; j < INVALID_MOVE_RETRY_COUNT; ++j) {
+                    for (int j = 0; j < INVALID_MOVE_RETRY_COUNT; ++j) {
                         try {
                             gameState = gameState.applyMove(move);
                             LOGGER.info("Valid move: {}; broadcasting", moveMessage);
@@ -84,34 +97,35 @@ public class Server {
                             break;
                         } catch (InvalidMoveException e) {
                             LOGGER.error("Invalid move!", e);
-                            LOGGER.info("Player {} sent invalid turn, retrying {}/{}", new Object[] {client.getPlayer(), j, INVALID_MOVE_RETRY_COUNT});
+                            LOGGER.info("Player {} sent invalid turn, retrying {}/{}",
+                                    new Object[] {client.getPlayer(), j, INVALID_MOVE_RETRY_COUNT});
                             broadcast(new PlayerTurnMessage(client.getPlayer()));
                         }
                     }
-				}
-				else {
-					//!
-				}
-			}
-		}
-	}
+                } else {
+                    LOGGER.error("Unrecognized message: {}", msg);
+                }
+            }
+        }
+    }
 
     private Message waitForMessage(ClientData cd, long timeout) throws IOException {
         Message msg = null;
 
         try {
-            for(long till = System.currentTimeMillis() + timeout;
-                    System.currentTimeMillis() < till;
-                    Thread.sleep(1000)) {
+            for (long till = System.currentTimeMillis() + timeout;
+                 System.currentTimeMillis() < till;
+                 Thread.sleep(SLEEP_INTERVAL)) {
                 msg = cd.receive();
-                if(msg != null)
+                if (msg != null) {
                     break;
+                }
             }
         } catch (InterruptedException e) {
             LOGGER.warn("Message receive interrupted", e);
         }
 
-        if(msg == null) {
+        if (msg == null) {
             LOGGER.error("No response from {} in {} ms, skipping turn", cd.getPlayer(), timeout);
             return null;
         }
@@ -119,8 +133,12 @@ public class Server {
         return msg;
     }
 
+    /**
+     * Class representing data about connected clients.
+     */
     public class ClientData {
-        private final Logger LOGGER = LoggerFactory.getLogger(ClientData.class);
+        public static final int BUFFER_SIZE = 4096;
+        private final Logger logger = LoggerFactory.getLogger(ClientData.class);
 
         private final Player player;
         private final PrintStream out;
@@ -136,27 +154,27 @@ public class Server {
             this.out.println(msg.toJSON());
             this.out.flush();
 
-            LOGGER.info("[{}] Sending message to {}: {}", player, msg.toJSON());
+            logger.info("[{}] Sending message to {}: {}", player, msg.toJSON());
         }
 
         Message receive() throws IOException {
             StringBuilder input = new StringBuilder();
-            byte[] buffer = new byte[4096];
-            while(in.available() != 0) {
-                int read = in.read(buffer, 0, 4096);
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while (in.available() != 0) {
+                int read = in.read(buffer, 0, BUFFER_SIZE);
                 input.append(new String(buffer, 0, read));
             }
 
             String messageString = input.toString();
-            if(messageString.isEmpty())
+            if (messageString.isEmpty()) {
                 return null;
+            }
 
-            LOGGER.info("[{}] Received message from {}: {}", player, messageString);
+            logger.info("[{}] Received message from {}: {}", player, messageString);
             try {
                 return ParsingMessageFactory.from(input.toString());
-            }
-            catch(JsonParsingException e) {
-                LOGGER.error("Malformed JSON", e);
+            } catch (JsonParsingException e) {
+                logger.error("Malformed JSON", e);
                 return null;
             }
         }

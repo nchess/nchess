@@ -1,35 +1,37 @@
 package com.github.elementbound.nchess.game;
 
 import com.github.elementbound.nchess.util.TableUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
-import java.util.*;
-
-import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A node representing a cell in the game table.
  */
 public class Node {
-	private final long id;
+    private final long id;
 
-	private final double x;
-	private final double y;
-	private final boolean visible;
-	
-	private List<Node> neighbors;
-	private List<Node> secondaryNeighbors;
+    private final double x;
+    private final double y;
+    private final boolean visible;
 
-	public Node(long id, double x, double y, boolean visible) {
-		this.id = id;
-		this.x = x;
-		this.y = y;
-		this.visible = visible;
+    private List<Node> neighbors;
+    private List<Node> secondaryNeighbors;
 
-		this.neighbors = new ArrayList<>();
-		this.secondaryNeighbors = new ArrayList<>();
-	}
+    public Node(long id, double x, double y, boolean visible) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.visible = visible;
+
+        this.neighbors = new ArrayList<>();
+        this.secondaryNeighbors = new ArrayList<>();
+    }
 
     public Node(Builder builder) {
         this.id = builder.id;
@@ -41,48 +43,49 @@ public class Node {
     }
 
     public static Builder builder() {
-	    return new Builder();
+        return new Builder();
     }
 
-	// TODO: Move to builder, nodes shouldn't be mutable
+    // TODO: Move to builder, nodes shouldn't be mutable
     @Deprecated
-	public void link(Node node) {
-		if(!neighbors.contains(node)) {
-			neighbors.add(node);
-		}
-	}
+    public void link(Node node) {
+        if (!neighbors.contains(node)) {
+            neighbors.add(node);
+        }
+    }
 
-	// TODO: Should be moved to some kind of preprocessor
-	@Deprecated
-	public void gatherSecondaryNeighbors() {
-	    sortLinks();
+    // TODO: Should be moved to some kind of preprocessor
+    @Deprecated
+    public void gatherSecondaryNeighbors() {
+        sortLinks();
 
-		secondaryNeighbors.clear();
-		for(int i = 0; i < neighbors.size(); i++) {
-			int j = (i+1) % neighbors.size();
+        secondaryNeighbors.clear();
+        for (int i = 0; i < neighbors.size(); i++) {
+            int j = (i + 1) % neighbors.size();
 
-			Set<Node> neighborsA = new HashSet<>();
-			Set<Node> neighborsB = new HashSet<>();
-			
-			Node nodeA = neighbors.get(i);
-			Node nodeB = neighbors.get(j);
-			
-			neighborsA.addAll(nodeA.neighbors);
-			neighborsB.addAll(nodeB.neighbors);
+            Set<Node> neighborsA = new HashSet<>();
+            Set<Node> neighborsB = new HashSet<>();
 
-			Set<Node> secondary = new HashSet<>(neighborsA);
-			secondary.retainAll(neighborsB);
-			secondary.remove(this);
-			
-			secondaryNeighbors.addAll(secondary);
-		}
-	}
+            Node nodeA = neighbors.get(i);
+            Node nodeB = neighbors.get(j);
 
-	// TODO: Move to some kind of preprocessor
+            neighborsA.addAll(nodeA.neighbors);
+            neighborsB.addAll(nodeB.neighbors);
+
+            Set<Node> secondary = new HashSet<>(neighborsA);
+            secondary.retainAll(neighborsB);
+            secondary.remove(this);
+
+            secondaryNeighbors.addAll(secondary);
+        }
+    }
+
+    // TODO: Move to some kind of preprocessor
     @Deprecated
     private void sortLinks() {
         // Sort links by directions
-        neighbors.sort((a,b) -> (int)Math.signum(TableUtils.linkDirection(this,a) - TableUtils.linkDirection(this, b)));
+        neighbors.sort((a, b) ->
+                (int) Math.signum(TableUtils.linkDirection(this, a) - TableUtils.linkDirection(this, b)));
     }
 
     public long getId() {
@@ -111,8 +114,12 @@ public class Node {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Node node = (Node) o;
         return id == node.id;
     }
@@ -124,12 +131,15 @@ public class Node {
 
     @Override
     public String toString() {
-	    return new ReflectionToStringBuilder(this)
+        return new ReflectionToStringBuilder(this)
                 .setExcludeFieldNames("neighbors", "secondaryNeighbors")
                 .build();
     }
 
-    public static class Builder {
+    /**
+     * Builder for {@link Node}.
+     */
+    public static final class Builder {
         private long id;
         private double x;
         private double y;

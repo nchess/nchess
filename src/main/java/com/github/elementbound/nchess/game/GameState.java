@@ -30,6 +30,10 @@ public class GameState {
         this.currentPlayer = builder.currentPlayer;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     // TODO: Maybe move to its own component?
     private Player nextPlayer(Player player) {
         int nextIndex = (players.indexOf(player) + 1) % players.size();
@@ -40,18 +44,21 @@ public class GameState {
     public GameState applyMove(Move move) throws InvalidMoveException {
         LOGGER.info("Applying move: {}", move);
 
-        if(!moveValidator.validate(this, move)) {
+        if (!moveValidator.validate(this, move)) {
             LOGGER.error("Invalid move: {}", move);
             throw new InvalidMoveException(this, move);
         }
 
         //Perform move
         Set<Piece> resultingPieces = pieces.stream()
-                .filter(piece -> ! move.getTo().equals(piece.getAt())) // Exclude piece we are stepping over
-                .map(piece ->
-                    piece.getAt().equals(move.getFrom()) ?
-                    piece.move(move.getTo()) :
-                    piece
+                .filter(piece -> !move.getTo().equals(piece.getAt())) // Exclude piece we are stepping over
+                .map(piece -> {
+                            if (piece.getAt().equals(move.getFrom())) {
+                                return piece.move(move.getTo());
+                            } else {
+                                return piece;
+                            }
+                        }
                 )
                 .collect(Collectors.toSet());
 
@@ -81,6 +88,7 @@ public class GameState {
 
     /**
      * Get piece at node.
+     *
      * @param at to search
      * @return optional piece
      */
@@ -98,11 +106,10 @@ public class GameState {
         return currentPlayer;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
+    /**
+     * Builder for {@link GameState}.
+     */
+    public static final class Builder {
         private Table table;
         private Set<Piece> pieces;
         private List<Player> players;

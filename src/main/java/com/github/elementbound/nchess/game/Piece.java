@@ -8,9 +8,14 @@ import java.util.Set;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
+/**
+ * <p>Base class representing a game piece.
+ * <p>Each piece behaves by different rules, which it must provide in its own
+ * implementation.
+ */
 public abstract class Piece {
-	protected final Node at;
-	protected final Player player;
+    protected final Node at;
+    protected final Player player;
 
     public Piece(Node at, Player player) {
         this.at = at;
@@ -18,7 +23,8 @@ public abstract class Piece {
     }
 
     public abstract String getName();
-	public abstract Set<Move> getMoves(GameState state);
+
+    public abstract Set<Move> getMoves(GameState state);
 
     public Node getAt() {
         return at;
@@ -27,32 +33,33 @@ public abstract class Piece {
     public Player getPlayer() {
         return player;
     }
-	
-	public boolean hasMove(Move moveCandidate, GameState state) {
-		return getMoves(state).stream()
+
+    public boolean hasMove(Move moveCandidate, GameState state) {
+        return getMoves(state).stream()
                 .anyMatch(moveCandidate::equals);
-	}
+    }
 
     /**
      * <p>Returns a new piece of the same kind, now standing on a different node.
      * <p>This does not modify the original instance.
+     *
      * @param to where to move
      * @return modified instance
      */
-	public abstract Piece move(Node to);
+    public abstract Piece move(Node to);
 
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
-	}
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
+    }
 
-	@Override
-	public boolean equals(Object that) {
-		return EqualsBuilder.reflectionEquals(this, that);
-	}
+    @Override
+    public boolean equals(Object that) {
+        return EqualsBuilder.reflectionEquals(this, that);
+    }
 
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 }

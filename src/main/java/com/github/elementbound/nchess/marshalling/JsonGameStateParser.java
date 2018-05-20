@@ -1,18 +1,39 @@
 package com.github.elementbound.nchess.marshalling;
 
-import com.github.elementbound.nchess.game.*;
-import com.github.elementbound.nchess.game.pieces.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.Table;
+import com.github.elementbound.nchess.game.pieces.Bishop;
+import com.github.elementbound.nchess.game.pieces.King;
+import com.github.elementbound.nchess.game.pieces.Knight;
+import com.github.elementbound.nchess.game.pieces.Pawn;
+import com.github.elementbound.nchess.game.pieces.Queen;
+import com.github.elementbound.nchess.game.pieces.Rook;
 import com.github.elementbound.nchess.util.PieceFactory;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * Class to extract {@link GameState} data from JSON input.
+ */
 public class JsonGameStateParser {
-    private static final Map<String, PieceFactory> pieceFactories = ImmutableMap.<String, PieceFactory>builder()
+    private static final Map<String, PieceFactory> PIECE_FACTORIES = ImmutableMap.<String, PieceFactory>builder()
             .put("pawn", Pawn::new)
             .put("rook", Rook::new)
             .put("knight", Knight::new)
@@ -39,8 +60,8 @@ public class JsonGameStateParser {
         // Apply links
         links.forEach(link -> {
             // TODO: Refactor this
-            Node from = nodes.stream().filter(n -> n.getId() == link.getLeft()).findFirst().orElseThrow(IllegalArgumentException::new);
-            Node to = nodes.stream().filter(n -> n.getId() == link.getRight()).findFirst().orElseThrow(IllegalArgumentException::new);
+            Node from = getLinkStartNode(nodes, link);
+            Node to = getLinkDestinationNode(nodes, link);
 
             from.link(to);
         });
@@ -54,6 +75,20 @@ public class JsonGameStateParser {
                 .currentPlayer(players.get(0))
                 .pieces(pieces)
                 .build();
+    }
+
+    private Node getLinkDestinationNode(Set<Node> nodes, Pair<Long, Long> link) {
+        return nodes.stream()
+                .filter(n -> n.getId() == link.getRight())
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private Node getLinkStartNode(Set<Node> nodes, Pair<Long, Long> link) {
+        return nodes.stream()
+                .filter(n -> n.getId() == link.getLeft())
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     private Set<Node> parseNodes(JsonObject root) {
@@ -112,7 +147,7 @@ public class JsonGameStateParser {
             long playerId = piece.getInt("player");
             String type = piece.getString("type");
 
-            if (!pieceFactories.containsKey(type)) {
+            if (!PIECE_FACTORIES.containsKey(type)) {
                 throw new IllegalArgumentException(String.format("Unknown piece type: %s", type));
             }
 
@@ -123,7 +158,7 @@ public class JsonGameStateParser {
 
             Player player = new Player(playerId);
 
-            PieceFactory pieceFactory = pieceFactories.get(type);
+            PieceFactory pieceFactory = PIECE_FACTORIES.get(type);
             Piece pieceInstance = pieceFactory.from(atNode, player);
 
             result.add(pieceInstance);

@@ -1,6 +1,11 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.util.GameStateUtils;
 import com.github.elementbound.nchess.util.TableUtils;
 
@@ -12,13 +17,13 @@ import java.util.stream.Collectors;
 /**
  * <p>Class to represent the Pawn piece.
  * <p>
- *     On their first step, pawns can choose any ( non-diagonal ) direction, to take a single step.
- *     After this step has been made, pawns will have to stick to that direction.
+ * On their first step, pawns can choose any ( non-diagonal ) direction, to take a single step.
+ * After this step has been made, pawns will have to stick to that direction.
  * <p>
- *     Pawns can take down other pieces in any direction, except their chosen direction, and their previous position.
+ * Pawns can take down other pieces in any direction, except their chosen direction, and their previous position.
  */
 public class Pawn extends Piece {
-	private Optional<Double> direction;
+    private Optional<Double> direction;
 
     public Pawn(Node at, Player player) {
         super(at, player);
@@ -30,21 +35,21 @@ public class Pawn extends Piece {
         this.direction = Optional.of(direction);
     }
 
-	private boolean hasMoved() {
-	    return direction.isPresent();
+    private boolean hasMoved() {
+        return direction.isPresent();
     }
 
-	@Override
-	public String getName() {
-		return "pawn";
-	}
+    @Override
+    public String getName() {
+        return "pawn";
+    }
 
-	// TODO: Pawn hits and blockages need to be implemented
-	@Override
-	public Set<Move> getMoves(GameState state) {
+    // TODO: Pawn hits and blockages need to be implemented
+    @Override
+    public Set<Move> getMoves(GameState state) {
         Table table = state.getTable();
 
-        if(!hasMoved()) {
+        if (!hasMoved()) {
             return at.getNeighbors().stream()
                     .filter(to -> !GameStateUtils.isAllyAtNode(state, to, this))
                     .map(to -> new Move(at, to))
@@ -59,7 +64,7 @@ public class Pawn extends Piece {
 
             return result;
         }
-	}
+    }
 
     @Override
     public Piece move(Node to) {

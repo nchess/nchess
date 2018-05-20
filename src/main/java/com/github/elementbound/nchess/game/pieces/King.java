@@ -1,6 +1,10 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
 import com.github.elementbound.nchess.util.GameStateUtils;
 
 import java.util.Collection;
@@ -11,8 +15,8 @@ import java.util.stream.Stream;
 /**
  * <p>Class to represent the King piece.
  * <p>
- *     The king can take a single step, either diagonally or straight. In the implementation's terms, this means that
- *     the king can either step on a neighboring node, or a secondary neighbor node.
+ * The king can take a single step, either diagonally or straight. In the implementation's terms, this means that
+ * the king can either step on a neighboring node, or a secondary neighbor node.
  */
 public class King extends Piece {
     public King(Node at, Player player) {

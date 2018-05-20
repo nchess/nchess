@@ -4,33 +4,37 @@ import com.github.elementbound.nchess.game.Player;
 
 import javax.json.JsonObject;
 
+/**
+ * Message containing info about whose turn it is.
+ */
 public class PlayerTurnMessage extends Message {
-	private final Player player;
+    private final Player player;
 
-	public PlayerTurnMessage(Player player) {
-		this.player = player;
-	}
+    public PlayerTurnMessage(Player player) {
+        this.player = player;
+    }
 
-	public Player getPlayer() {
-		return player;
-	}
+    public static Message fromJSON(JsonObject json) {
+        if (!json.getString("type").equals("player-turn")) {
+            return null;
+        }
 
-	@Override
-	public String toJSON() {
-		return getBuilder()
-				.add("type", "player-turn")
-				.add("player", player.getId())
-				.build()
-				.toString();
-	}
-
-	public static Message fromJSON(JsonObject json) {
-		if(!json.getString("type").equals("player-turn"))
-			return null;
-		
-		return new PlayerTurnMessage(
-		        new Player(json.getInt("player"))
+        return new PlayerTurnMessage(
+                new Player(json.getInt("player"))
         );
-	}
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    @Override
+    public String toJSON() {
+        return getBuilder()
+                .add("type", "player-turn")
+                .add("player", player.getId())
+                .build()
+                .toString();
+    }
 
 }

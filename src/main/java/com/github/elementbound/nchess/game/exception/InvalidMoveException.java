@@ -4,6 +4,9 @@ import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Move;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
+/**
+ * Exception thrown when an invalid move is attempted.
+ */
 public class InvalidMoveException extends RuntimeException {
     private final GameState state;
     private final Move move;
@@ -31,7 +34,9 @@ public class InvalidMoveException extends RuntimeException {
         this.move = move;
     }
 
-    public InvalidMoveException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, GameState state, Move move) {
+    public InvalidMoveException(String message, Throwable cause,
+                                boolean enableSuppression, boolean writableStackTrace,
+                                GameState state, Move move) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.state = state;
         this.move = move;

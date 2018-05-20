@@ -1,6 +1,11 @@
 package com.github.elementbound.nchess.game.pieces;
 
-import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
+import com.github.elementbound.nchess.game.Table;
 import com.github.elementbound.nchess.util.GameStateUtils;
 import com.github.elementbound.nchess.util.TableUtils;
 
@@ -43,8 +48,9 @@ public class Bishop extends Piece {
                         targetNodes.add(towards);
 
                         // Stop if node is occupied by enemy
-                        if (GameStateUtils.isEnemyAtNode(state, towards, this))
+                        if (GameStateUtils.isEnemyAtNode(state, towards, this)) {
                             break;
+                        }
 
                         towards = table.secondaryNodeTowardsDirection(towards, direction);
                     }

@@ -1,6 +1,10 @@
 package com.github.elementbound.nchess.demos;
 
-import com.github.elementbound.nchess.game.*;
+import com.github.elementbound.nchess.game.GameState;
+import com.github.elementbound.nchess.game.Move;
+import com.github.elementbound.nchess.game.Node;
+import com.github.elementbound.nchess.game.Piece;
+import com.github.elementbound.nchess.game.Player;
 import com.github.elementbound.nchess.net.Client;
 import com.github.elementbound.nchess.net.event.client.ConnectFailEvent;
 import com.github.elementbound.nchess.net.event.client.ConnectSuccessEvent;
@@ -12,17 +16,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 
+/**
+ * A game client with a Swing-based UI.
+ */
 public class ClientUI {
-    private static Logger LOGGER = LoggerFactory.getLogger(ClientUI.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientUI.class);
 
     private JFrame frame;
     private JPanel toolsPanel;
@@ -37,6 +55,27 @@ public class ClientUI {
     private Client client = null;
 
     private Optional<Node> selectedNode = Optional.empty();
+
+    /**
+     * Create the application.
+     */
+    public ClientUI() {
+        initialize();
+    }
+
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                ClientUI window = new ClientUI();
+                window.frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
     private void onGameStateUpdate(GameStateUpdateEvent event) {
         LOGGER.info("Game state update", event);
@@ -79,7 +118,7 @@ public class ClientUI {
 
         highlitNodes.clear();
 
-        if(selectedNode.isPresent()) {
+        if (selectedNode.isPresent()) {
             Node selected = selectedNode.get();
             Optional<Piece> piece = gameState.getPieceAt(selected);
 
@@ -91,7 +130,7 @@ public class ClientUI {
 
             client.move(move);
             selectedNode = Optional.empty();
-        } else if(pieceAtNode.isPresent()) {
+        } else if (pieceAtNode.isPresent()) {
             LOGGER.info("Selecting node: {}", node);
 
             Piece piece = pieceAtNode.get();
@@ -125,6 +164,7 @@ public class ClientUI {
             imageFiles.put("queen", "pieces/queen.png");
             imageFiles.put("king", "pieces/king.png");
 
+            Map<String, Image> pieceImages = new HashMap<>();
             for (Entry<String, String> e : imageFiles.entrySet()) {
                 String pieceFile = e.getValue();
                 String pieceName = e.getKey();
@@ -134,11 +174,13 @@ public class ClientUI {
                 Image image;
                 try {
                     image = ImageIO.read(getResourceAsStream(pieceFile));
-                    gamePanel.pieceImages.put(pieceName, image);
+                    pieceImages.put(pieceName, image);
                 } catch (IOException e1) {
                     LOGGER.error("Couldn't load {}", pieceFile, e1);
                 }
             }
+
+            gamePanel.setPieceImages(pieceImages);
 
             gamePanel.getNodeSelectEventEventSource().subscribe(this::onNodeSelect);
 
@@ -155,27 +197,6 @@ public class ClientUI {
 
     private void deinitState() {
         gamePanelWrapper.remove(gamePanel);
-    }
-
-    /**
-     * Launch the application.
-     */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                ClientUI window = new ClientUI();
-                window.frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    /**
-     * Create the application.
-     */
-    public ClientUI() {
-        initialize();
     }
 
     /**
@@ -213,8 +234,9 @@ public class ClientUI {
 
     private void onQuitPressed(ActionEvent event) {
         int n = JOptionPane.showConfirmDialog(null, "Are you sure?");
-        if (n == 0)
+        if (n == 0) {
             System.exit(0);
+        }
     }
 
     private void onConnectPressed(ActionEvent event) {
@@ -223,18 +245,21 @@ public class ClientUI {
         int port;
 
         host = "localhost"; //JOptionPane.showInputDialog("Host address?");
-        if (host == null)
+        if (host == null) {
             return;
+        }
 
         while (true) {
             portStr = "60001"; //JOptionPane.showInputDialog("Host port?");
-            if (portStr == null)
+            if (portStr == null) {
                 return;
+            }
 
             try {
                 port = Integer.parseInt(portStr);
-                if (port < 0 || port > 65535)
+                if (port < 0 || port > 65535) {
                     throw new NumberFormatException();
+                }
 
                 break;
             } catch (NumberFormatException e) {

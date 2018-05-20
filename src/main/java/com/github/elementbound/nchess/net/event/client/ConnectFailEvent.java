@@ -4,6 +4,10 @@ import com.github.elementbound.nchess.net.Client;
 
 import java.io.IOException;
 
+/**
+ * <p>Connection failed event.
+ * <p>Emitted when the client fails to connect.
+ */
 public class ConnectFailEvent extends ClientEvent {
     private final IOException exception;
     private final String host;
