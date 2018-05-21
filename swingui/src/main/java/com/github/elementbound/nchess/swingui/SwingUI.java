@@ -240,32 +240,8 @@ public class SwingUI {
     }
 
     private void onConnectPressed(ActionEvent event) {
-        String host;
-        String portStr;
-        int port;
-
-        host = "localhost"; //JOptionPane.showInputDialog("Host address?");
-        if (host == null) {
-            return;
-        }
-
-        while (true) {
-            portStr = "60001"; //JOptionPane.showInputDialog("Host port?");
-            if (portStr == null) {
-                return;
-            }
-
-            try {
-                port = Integer.parseInt(portStr);
-                if (port < 0 || port > 65535) {
-                    throw new NumberFormatException();
-                }
-
-                break;
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Enter an integer between 0 and 65535 inclusive");
-            }
-        }
+        String host = "localhost";
+        int port = 60001;
 
         client = new Client(host, port);
         subscribeToClientEvents(client);

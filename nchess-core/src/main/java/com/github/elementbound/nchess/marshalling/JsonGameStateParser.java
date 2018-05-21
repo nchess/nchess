@@ -45,36 +45,37 @@ public class JsonGameStateParser {
     private final JsonGameStateValidator validator = new JsonGameStateValidator();
 
     public GameState parse(InputStream is) {
-        JsonReader reader = Json.createReader(is);
-        JsonObject root = reader.readObject();
+        try (JsonReader reader = Json.createReader(is)) {
+            JsonObject root = reader.readObject();
 
-        // Validate input
-        validator.validate(root);
+            // Validate input
+            validator.validate(root);
 
-        // Extract data
-        Set<Node> nodes = parseNodes(root);
-        Set<Pair<Long, Long>> links = parseLinks(root);
-        List<Player> players = parsePlayers(root);
-        Set<Piece> pieces = parsePieces(root, nodes);
+            // Extract data
+            Set<Node> nodes = parseNodes(root);
+            Set<Pair<Long, Long>> links = parseLinks(root);
+            List<Player> players = parsePlayers(root);
+            Set<Piece> pieces = parsePieces(root, nodes);
 
-        // Apply links
-        links.forEach(link -> {
-            // TODO: Refactor this
-            Node from = getLinkStartNode(nodes, link);
-            Node to = getLinkDestinationNode(nodes, link);
+            // Apply links
+            links.forEach(link -> {
+                // TODO: Refactor this
+                Node from = getLinkStartNode(nodes, link);
+                Node to = getLinkDestinationNode(nodes, link);
 
-            from.link(to);
-        });
+                from.link(to);
+            });
 
-        Table.Builder tableBuilder = Table.builder();
-        nodes.forEach(tableBuilder::withNode);
+            Table.Builder tableBuilder = Table.builder();
+            nodes.forEach(tableBuilder::withNode);
 
-        return GameState.builder()
-                .table(tableBuilder.build())
-                .players(players)
-                .currentPlayer(players.get(0))
-                .pieces(pieces)
-                .build();
+            return GameState.builder()
+                    .table(tableBuilder.build())
+                    .players(players)
+                    .currentPlayer(players.get(0))
+                    .pieces(pieces)
+                    .build();
+        }
     }
 
     private Node getLinkDestinationNode(Set<Node> nodes, Pair<Long, Long> link) {

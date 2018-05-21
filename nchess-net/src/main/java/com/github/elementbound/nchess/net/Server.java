@@ -123,6 +123,7 @@ public class Server {
             }
         } catch (InterruptedException e) {
             LOGGER.warn("Message receive interrupted", e);
+            Thread.currentThread().interrupt();
         }
 
         if (msg == null) {
@@ -154,7 +155,7 @@ public class Server {
             this.out.println(msg.toJSON());
             this.out.flush();
 
-            logger.info("[{}] Sending message to {}: {}", player, msg.toJSON());
+            logger.info("Sending message to {}: {}", player, msg.toJSON());
         }
 
         Message receive() throws IOException {
@@ -170,7 +171,7 @@ public class Server {
                 return null;
             }
 
-            logger.info("[{}] Received message from {}: {}", player, messageString);
+            logger.info("Received message from {}: {}", player, messageString);
             try {
                 return ParsingMessageFactory.from(input.toString());
             } catch (JsonParsingException e) {

@@ -56,17 +56,9 @@ public class Client implements Runnable {
     }
 
     public void run() {
-        try {
-            LOGGER.info("Connecting to {}:{}", host, port);
-            Socket socket;
+        LOGGER.info("Connecting to {}:{}", host, port);
 
-            try {
-                socket = new Socket(host, port);
-            } catch (IOException e) {
-                LOGGER.error("Connecting to {}:{} failed!", host, port);
-                failedConnectEventSource.emit(new ConnectFailEvent(this, e, host, port));
-                return;
-            }
+        try (Socket socket = new Socket(host, port)) {
 
             out = new PrintStream(socket.getOutputStream());
             InputStream in = socket.getInputStream();
@@ -94,9 +86,10 @@ public class Client implements Runnable {
             }
 
             out.close();
-            socket.close();
         } catch (IOException e) {
-            LOGGER.error("Socket communication error!", e);
+            LOGGER.error("Connecting to {}:{} failed!", host, port);
+            failedConnectEventSource.emit(new ConnectFailEvent(this, e, host, port));
+            return;
         }
     }
 
