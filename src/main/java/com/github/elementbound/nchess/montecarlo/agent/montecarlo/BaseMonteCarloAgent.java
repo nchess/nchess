@@ -1,5 +1,12 @@
 package com.github.elementbound.nchess.montecarlo.agent.montecarlo;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.elementbound.nchess.game.GameState;
 import com.github.elementbound.nchess.game.Player;
 import com.github.elementbound.nchess.game.operator.Operator;
@@ -7,12 +14,6 @@ import com.github.elementbound.nchess.montecarlo.GameTreeNode;
 import com.github.elementbound.nchess.montecarlo.agent.AdvisorAgent;
 import com.github.elementbound.nchess.montecarlo.policy.Policy;
 import com.github.elementbound.nchess.montecarlo.policy.RandomPolicy;
-import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Template implementation of the Monte Carlo tree search algorithm.
@@ -20,7 +21,7 @@ import java.util.Set;
 public abstract class BaseMonteCarloAgent implements AdvisorAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(MonteCarloUctAgent.class);
 
-    private static final int ITERATION_TIME = 30000;
+    private static final int ITERATION_TIME = 10000;
 
     private final Policy policy = new RandomPolicy();
 
